@@ -16,3 +16,5 @@ class Position:
         raise NotImplementedError('The method in the class '
                                   f'"{self.__class__.__name__}" '
                                   'is not defined.')
+
+# 1
