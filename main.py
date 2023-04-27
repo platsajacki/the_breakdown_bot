@@ -24,7 +24,7 @@ class Position:
 
 class Long(Position):
     '''Calculation of a long position.'''
-    def count_entry_point(self) -> float:
+    def get_param_position(self) -> float:
         entry_point = self.level + super().calculate_luft()
         stop = entry_point - super().calculate_stop()
         take_profit = entry_point + self.COEF_PROFIT * super().calculate_stop()
@@ -34,7 +34,7 @@ class Long(Position):
 
 class Short(Position):
     '''Calculation of a long position.'''
-    def count_entry_point(self) -> float:
+    def get_param_position(self) -> float:
         entry_point = self.level - super().calculate_luft()
         stop = entry_point + super().calculate_stop()
         take_profit = entry_point - self.COEF_PROFIT * super().calculate_stop()
