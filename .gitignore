@@ -6,7 +6,8 @@ __pycache__/
 # C extensions
 *.so
 keys.py
-
+example.py
+exe.py
 
 # Distribution / packaging
 .Python

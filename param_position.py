@@ -28,8 +28,7 @@ class Long(Position):
         entry_point = self.level + super().calculate_luft()
         stop = entry_point - super().calculate_stop()
         take_profit = entry_point + self.COEF_PROFIT * super().calculate_stop()
-        print(super().calculate_stop(), super().calculate_luft(),
-              entry_point, stop, take_profit)
+        return (self.ticket, entry_point, stop, take_profit)
 
 
 class Short(Position):
@@ -38,5 +37,4 @@ class Short(Position):
         entry_point = self.level - super().calculate_luft()
         stop = entry_point + super().calculate_stop()
         take_profit = entry_point - self.COEF_PROFIT * super().calculate_stop()
-        print(super().calculate_stop(), super().calculate_luft(),
-              entry_point, stop, take_profit)
+        return (self.ticket, entry_point, stop, take_profit)
