@@ -8,6 +8,7 @@ __pycache__/
 keys.py
 example.py
 exe.py
+exe2.py
 
 # Distribution / packaging
 .Python
