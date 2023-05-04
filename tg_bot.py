@@ -1,3 +1,3 @@
 on = True
 
-position = 'Long'
+position = 'Short'

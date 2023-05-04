@@ -7,33 +7,27 @@ session = HTTP(
     api_secret=keys.api_secret)
 
 
-def open_long(symbol, entry_point, stop, take_profit, trigger):
-    print(symbol, entry_point, stop, take_profit, trigger)
+def open_pos(symbol, entry_point, stop, take_profit, trigger, side):
+    if side == 'Buy':
+        triggerDirection = 1
+    else:
+        triggerDirection = 2
     session.place_order(
         category='inverse',
         symbol=symbol,
-        side='Buy',
+        side=side,
         orderType='Limit',
         qty='0.05',
         tryggeBy='MarkPrice',
-        triggerDirection=1,
+        triggerDirection=triggerDirection,
         triggerPrice=str(trigger),
         price=str(entry_point),
         takeProfit=str(take_profit),
         stopLoss=str(stop),
         orderFilter='Order')
-
-
-# session.place_order(
-#         category='inverse',
-#         symbol='ETHUSDT',
-#         side='Buy',
-#         orderType='Limit',
-#         qty='0.05',
-#         tryggeBy='MarkPrice',
-#         triggerDirection=1,
-#         triggerPrice='2000',
-#         price='2010',
-#         takeProfit='2200',
-#         stopLoss='1999',
-#         orderFilter='Order')
+    print(f'''Выставлен ордер - {symbol};
+Триггер - {trigger};
+ТВХ - {entry_point};
+Стоп-лосс - {stop};
+Тейк-профит - {take_profit}.'''
+          )
