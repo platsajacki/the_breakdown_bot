@@ -1,3 +1,5 @@
+# from aiogram import Bot
+
 on = True
 
-position = 'Short'
+position = 'Long'

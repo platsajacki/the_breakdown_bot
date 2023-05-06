@@ -1,7 +1,7 @@
 from time import sleep
 from pybit.unified_trading import WebSocket
 from param_position import Long, Short
-from open_position import open_pos
+from request import open_pos
 import keys
 import example
 import tg_bot
@@ -18,13 +18,13 @@ session = WebSocket(
         channel_type='linear')
 
 
-def check_long(symbol, mark_price, round_price) -> open_pos():
-    symbol_levels = example.long_levels[symbol]
-    if symbol_levels is None:
+def check_long(symbol: str, mark_price: float, round_price: int):
+    symbol_levels: list[int] = example.long_levels[symbol]
+    if symbol_levels == []:
         pass
     else:
-        level = min(symbol_levels)
-        calc_level = level * COEF_LEVEL_LONG
+        level: float = min(symbol_levels)
+        calc_level: float = level * COEF_LEVEL_LONG
         if calc_level < mark_price < level:
             long_calc = Long(symbol, level, round_price)
             open_pos(*long_calc.get_param_position(), BUY)
@@ -32,13 +32,13 @@ def check_long(symbol, mark_price, round_price) -> open_pos():
             example.long_levels[symbol] = symbol_levels
 
 
-def check_short(symbol, mark_price, round_price) -> open_pos():
-    symbol_levels = example.long_levels[symbol]
-    if symbol_levels is None:
+def check_short(symbol: str, mark_price: float, round_price: int):
+    symbol_levels: list[int] = example.long_levels[symbol]
+    if symbol_levels == []:
         pass
     else:
-        level = max(symbol_levels)
-        calc_level = level * COEF_LEVEL_SHORT
+        level: float = max(symbol_levels)
+        calc_level: float = level * COEF_LEVEL_SHORT
         if calc_level > mark_price > level:
             short_calc = Short(symbol, level, round_price)
             open_pos(*short_calc.get_param_position(), SELL)
@@ -61,4 +61,4 @@ for symbol in example.long_levels:
 
 
 while True:
-    sleep(0.5)
+    sleep(1)
