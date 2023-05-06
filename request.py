@@ -1,17 +1,17 @@
 from pybit.unified_trading import HTTP
 from example import stop_volume
-import keys
+from keys import api_key, api_secret
 
 session = HTTP(
     testnet=True,
-    api_key=keys.api_key,
-    api_secret=keys.api_secret)
+    api_key=api_key,
+    api_secret=api_secret)
 
 
 def open_pos(symbol: str, entry_point: float, stop: float,
              take_profit: float, trigger: float, side: str):
     '''Calculation of transaction volume'''
-    min_order_qty = session.get_instruments_info(
+    min_order_qty: str = session.get_instruments_info(
         category="linear",
         symbol=symbol)['result']['list'][0]['lotSizeFilter']['minOrderQty']
     round_volume: int = len(min_order_qty.split('.')[1])

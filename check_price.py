@@ -2,9 +2,9 @@ from time import sleep
 from pybit.unified_trading import WebSocket
 from param_position import Long, Short
 from request import open_pos
-import keys
+from keys import api_key, api_secret
 import example
-import tg_bot
+from tg_bot import position
 
 BUY: str = 'Buy'
 SELL: str = 'Sell'
@@ -13,8 +13,8 @@ COEF_LEVEL_SHORT: float = 1.0025
 
 session = WebSocket(
         testnet=True,
-        api_key=keys.api_key,
-        api_secret=keys.api_secret,
+        api_key=api_key,
+        api_secret=api_secret,
         channel_type='linear')
 
 
@@ -50,9 +50,9 @@ def handle_message(msg):
     symbol = msg['data']['symbol']
     mark_price = msg['data']['markPrice']
     round_price = len(mark_price.split('.')[1])
-    if tg_bot.position == 'Long':
+    if position == 'Long':
         check_long(symbol, float(mark_price), round_price)
-    if tg_bot.position == 'Short':
+    if position == 'Short':
         check_short(symbol, float(mark_price), round_price)
 
 
