@@ -66,3 +66,12 @@ def open_pos(symbol: str, entry_point: float, stop: float,
 Стоп-лосс - {stop};
 Тейк-профит - {take_profit}.'''
           )
+
+
+def get_wallet_balance():
+    return session.get_wallet_balance(accountType='UNIFIED', coin='USDT')
+
+
+def get_open_orders():
+    return session.get_open_orders(symbol='BTC', category='inverse',
+                                   openOnly=1)
