@@ -12,8 +12,8 @@ class Position:
     round_price: int
     COEF_STOP: ClassVar[float] = 0.01
     COEF_LUFT: ClassVar[float] = 0.25
-    COEF_TRIGGER_LONG = 0.9985
-    COEF_TRIGGER_SORT = 1.0015
+    COEF_TRIGGER_LONG: ClassVar[float] = 0.9985
+    COEF_TRIGGER_SORT: ClassVar[float] = 1.0015
     COEF_PROFIT: ClassVar[float] = 4
 
     def calculate_stop(self) -> float:
@@ -38,7 +38,7 @@ class Long(Position):
 
 
 class Short(Position):
-    '''Calculation of a long position.'''
+    '''Calculation of a short position.'''
     def get_param_position(self) -> float:
         entry_point = round(self.level - super().calculate_luft(),
                             self.round_price)

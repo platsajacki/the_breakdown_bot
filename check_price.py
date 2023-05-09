@@ -1,10 +1,8 @@
-from time import sleep
 from pybit.unified_trading import WebSocket
 from param_position import Long, Short
 from request import open_pos
 from keys import api_key, api_secret
 import example
-from tg_bot import position
 
 BUY: str = 'Buy'
 SELL: str = 'Sell'
@@ -26,10 +24,9 @@ def check_long(symbol: str, mark_price: float, round_price: int):
         level: float = min(symbol_levels)
         calc_level: float = level * COEF_LEVEL_LONG
         if calc_level < mark_price < level:
-            long_calc = Long(symbol, level, round_price)
+            long_calc: float = Long(symbol, level, round_price)
             open_pos(*long_calc.get_param_position(), BUY)
             symbol_levels.remove(level)
-            example.long_levels[symbol] = symbol_levels
 
 
 def check_short(symbol: str, mark_price: float, round_price: int):
@@ -40,7 +37,7 @@ def check_short(symbol: str, mark_price: float, round_price: int):
         level: float = max(symbol_levels)
         calc_level: float = level * COEF_LEVEL_SHORT
         if calc_level > mark_price > level:
-            short_calc = Short(symbol, level, round_price)
+            short_calc: float = Short(symbol, level, round_price)
             open_pos(*short_calc.get_param_position(), SELL)
             symbol_levels.remove(level)
             example.long_levels[symbol] = symbol_levels
@@ -48,17 +45,14 @@ def check_short(symbol: str, mark_price: float, round_price: int):
 
 def handle_message(msg):
     symbol = msg['data']['symbol']
+    print(f'Проверка уровня {symbol}')
     mark_price = msg['data']['markPrice']
     round_price = len(mark_price.split('.')[1])
-    if position == 'Long':
+    if example.trend == 'Long':
         check_long(symbol, float(mark_price), round_price)
-    if position == 'Short':
+    if example.trend == 'Short':
         check_short(symbol, float(mark_price), round_price)
 
 
 for symbol in example.long_levels:
     session.ticker_stream(symbol=symbol, callback=handle_message)
-
-
-while True:
-    sleep(1)
