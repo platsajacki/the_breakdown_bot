@@ -1,3 +1,5 @@
+'''The Breakdown Bot'''
+
 import asyncio
 import check_price
 import tg_bot

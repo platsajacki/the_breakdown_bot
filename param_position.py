@@ -1,5 +1,3 @@
-'''The Breakdown Bot'''
-
 from dataclasses import dataclass
 from typing import ClassVar
 

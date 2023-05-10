@@ -24,23 +24,22 @@ def check_long(symbol: str, mark_price: float, round_price: int):
         level: float = min(symbol_levels)
         calc_level: float = level * COEF_LEVEL_LONG
         if calc_level < mark_price < level:
-            long_calc: float = Long(symbol, level, round_price)
+            long_calc = Long(symbol, level, round_price)
             open_pos(*long_calc.get_param_position(), BUY)
             symbol_levels.remove(level)
 
 
 def check_short(symbol: str, mark_price: float, round_price: int):
-    symbol_levels: list[int] = example.long_levels[symbol]
+    symbol_levels: list[int] = example.short_levels[symbol]
     if symbol_levels == []:
         pass
     else:
         level: float = max(symbol_levels)
         calc_level: float = level * COEF_LEVEL_SHORT
         if calc_level > mark_price > level:
-            short_calc: float = Short(symbol, level, round_price)
+            short_calc = Short(symbol, level, round_price)
             open_pos(*short_calc.get_param_position(), SELL)
             symbol_levels.remove(level)
-            example.long_levels[symbol] = symbol_levels
 
 
 def handle_message(msg):

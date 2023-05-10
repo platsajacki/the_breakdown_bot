@@ -18,7 +18,7 @@ back = KeyboardButton('/back')
 kb_info = ReplyKeyboardMarkup(resize_keyboard=True)
 
 '''Add button'''
-kb.add(check_levels).add(check_prices).add(add_levels)
+kb.add(check_levels).add(add_levels, check_prices)
 kb.add(long, short).add(info)
 
 kb_info.add(balance).add(orders).add(back)
