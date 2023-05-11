@@ -5,11 +5,12 @@ __pycache__/
 
 # C extensions
 *.so
-keys.py
-example.py
 exe.py
+example.py
+keys.py
 
 # Distribution / packaging
+other/
 .Python
 build/
 develop-eggs/

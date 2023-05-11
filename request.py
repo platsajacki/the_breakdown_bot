@@ -3,7 +3,7 @@ from keys import api_key, api_secret
 import example
 
 session = HTTP(
-    testnet=True,
+    testnet=False,
     api_key=api_key,
     api_secret=api_secret)
 

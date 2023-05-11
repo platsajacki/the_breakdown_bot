@@ -1,9 +1,10 @@
 from aiogram import Bot, Dispatcher, executor
 from aiogram.types import Message
 from emoji import emojize
-from bot_button import kb, kb_info
 from keys import token, MYID
-from request import check_level  # get_wallet_balance, get_open_orders
+from bot_button import kb, kb_info, kb_check_prices
+from check_price import start_check_price
+from request import check_level, get_wallet_balance, get_open_orders
 
 bot = Bot(token)
 dp = Dispatcher(bot)
@@ -22,6 +23,7 @@ async def start(message: Message):
 async def check_levels(message: Message):
     if message.from_user.id == MYID:
         await message.answer('Analyzing the levels...')
+        await message.answer(emojize(':man_technologist:'))
         check_level()
         await message.answer('Done!')
 
@@ -29,8 +31,24 @@ async def check_levels(message: Message):
 @dp.message_handler(commands=['check_prices'])
 async def check_prices(message: Message):
     if message.from_user.id == MYID:
+        await message.answer('Are the levels checked? '
+                             'Have you chosen a trade direction?',
+                             reply_markup=kb_check_prices)
+
+
+@dp.message_handler(commands=['yes_start_check'])
+async def start_check(message: Message):
+    if message.from_user.id == MYID:
         await message.answer('Price check started! '
-                             + emojize(':chart_increasing_with_yen:'))
+                             + emojize(':chart_increasing_with_yen:'),
+                             reply_markup=kb)
+        start_check_price()
+
+
+@dp.message_handler(commands=['no_get_back'])
+async def no_get_back(message: Message):
+    if message.from_user.id == MYID:
+        await message.answer('Main menu.', reply_markup=kb)
 
 
 @dp.message_handler(commands=['add_levels'])
@@ -63,13 +81,13 @@ async def get_info(message: Message):
 @dp.message_handler(commands=['balance'])
 async def get_balance(message: Message):
     if message.from_user.id == MYID:
-        await message.answer('get_wallet_balance()')
+        await message.answer(get_wallet_balance())
 
 
 @dp.message_handler(commands=['orders'])
 async def get_orders(message: Message):
     if message.from_user.id == MYID:
-        await message.answer('get_open_orders()')
+        await message.answer(get_open_orders())
 
 
 @dp.message_handler(commands=['back'])
@@ -77,4 +95,5 @@ async def get_back(message: Message):
     if message.from_user.id == MYID:
         await message.answer('Main menu.', reply_markup=kb)
 
-executor.start_polling(dp)
+if __name__ == '__main__':
+    executor.start_polling(dp)
