@@ -1,13 +1,11 @@
-from aiogram import Bot, Dispatcher, executor
+from aiogram import executor
 from aiogram.types import Message
 from emoji import emojize
-from keys import token, MYID
-from bot_button import kb, kb_info, kb_check_prices
-from check_price import start_check_price
-from request import check_level, get_wallet_balance, get_open_orders
-
-bot = Bot(token)
-dp = Dispatcher(bot)
+from keys import MYID
+from trade.check_price import start_check_price
+from trade.request import check_level, get_wallet_balance, get_open_orders
+from bot.create_bot import dp
+from bot.bot_button import kb, kb_info, kb_check_prices
 
 
 @dp.message_handler(commands=['start'])
@@ -42,13 +40,20 @@ async def start_check(message: Message):
         await message.answer('Price check started! '
                              + emojize(':chart_increasing_with_yen:'),
                              reply_markup=kb)
-        start_check_price()
+        start_check_price(True)
 
 
 @dp.message_handler(commands=['no_get_back'])
 async def no_get_back(message: Message):
     if message.from_user.id == MYID:
         await message.answer('Main menu.', reply_markup=kb)
+
+
+@dp.message_handler(commands=['stop_check'])
+async def stop_check(message: Message):
+    if message.from_user.id == MYID:
+        await message.answer('Main menu.', reply_markup=kb)
+        start_check_price(False)
 
 
 @dp.message_handler(commands=['add_levels'])
