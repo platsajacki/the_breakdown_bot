@@ -1,3 +1,4 @@
+import requests
 from pybit.unified_trading import HTTP
 from keys import api_key, api_secret
 import example
@@ -6,6 +7,13 @@ session = HTTP(
     testnet=True,
     api_key=api_key,
     api_secret=api_secret)
+
+
+def get_symbol(symbol):
+    url = ('https://api.bybit.com/'
+           f'v5/market/tickers?category=inverse&symbol={symbol}USDT')
+    response = requests.get(url)
+    return response.json()['retMsg']
 
 
 def check_level():
@@ -81,16 +89,19 @@ Balance - {blance};
 Realised PNL - {real_pnl}.'''
 
 
-def get_open_orders():
+def get_open_orders(symbol):
+    symbol = symbol + 'USDT'
     info = session.get_open_orders(symbol='BTCUSDT', category='inverse')
     orders = info['result']['list']
     orders_list = []
     for order in orders:
-        order_info = {'side': order['side'],
+        order_info = {'symbol': symbol,
+                      'side': order['side'],
                       'price': order['price'],
                       'qty': order['qty'],
                       'trigger_price': order['triggerPrice'],
                       'stop_loss': order['stopLoss'],
-                      'take_profit': order['takeProfit']}
+                      'take_profit': order['takeProfit']
+                      }
         orders_list.append(order_info)
     return orders_list

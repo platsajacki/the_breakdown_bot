@@ -35,6 +35,7 @@ async def no_get_back(message: Message):
         await message.answer('Main menu.', reply_markup=kb)
 
 
+# Дабавление уровня в базу
 async def add_levels(message: Message):
     if message.from_user.id == MYID:
         await message.answer('Levels added!')
