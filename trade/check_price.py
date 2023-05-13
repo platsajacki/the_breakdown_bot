@@ -1,4 +1,3 @@
-from time import sleep
 from pybit.unified_trading import WebSocket
 from .param_position import Long, Short
 from .request import open_pos
@@ -17,7 +16,7 @@ session = WebSocket(
         channel_type='linear')
 
 
-def start_check_price(power):
+def start_check_price():
     def check_long(symbol: str, mark_price: float, round_price: int):
         symbol_levels: list[int] = example.long_levels[symbol]
         if symbol_levels == []:
@@ -53,6 +52,4 @@ def start_check_price(power):
             check_short(symbol, float(mark_price), round_price)
 
     for symbol in example.long_levels:
-        if power:
-            session.ticker_stream(symbol=symbol, callback=handle_message)
-            sleep(1)
+        session.ticker_stream(symbol=symbol, callback=handle_message)

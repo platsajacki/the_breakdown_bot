@@ -20,7 +20,6 @@ kb_info = ReplyKeyboardMarkup(resize_keyboard=True)
 '''Keyboard_check_price'''
 yes_start_check = KeyboardButton('/yes_start_check')
 no_get_back = KeyboardButton('/no_get_back')
-stop_check = KeyboardButton('/stop_check')
 
 kb_check_prices = ReplyKeyboardMarkup(resize_keyboard=True)
 
@@ -30,4 +29,4 @@ kb.add(info)
 
 kb_info.add(balance).add(orders).add(back)
 
-kb_check_prices.add(yes_start_check).add(no_get_back).add(stop_check)
+kb_check_prices.add(yes_start_check).add(no_get_back)
