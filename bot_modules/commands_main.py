@@ -4,7 +4,7 @@ from emoji import emojize
 from .bot_button import kb, kb_check_prices
 from keys import MYID
 from trade.check_price import start_check_price
-from trade.request import check_level
+from trade.bot_request import check_level
 
 
 async def check_levels(message: Message):
@@ -35,7 +35,6 @@ async def no_get_back(message: Message):
         await message.answer('Main menu.', reply_markup=kb)
 
 
-# Дабавление уровня в базу
 async def add_levels(message: Message):
     if message.from_user.id == MYID:
         await message.answer('Levels added!')

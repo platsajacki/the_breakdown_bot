@@ -9,7 +9,7 @@ session = HTTP(
     api_secret=api_secret)
 
 
-def get_symbol(symbol):
+def get_symbol(symbol: str):
     url = ('https://api.bybit.com/'
            f'v5/market/tickers?category=inverse&symbol={symbol}USDT')
     response = requests.get(url)
@@ -67,13 +67,13 @@ def open_pos(symbol: str, entry_point: float, stop: float,
         takeProfit=str(take_profit),
         stopLoss=str(stop),
         orderFilter='Order')
-    print(f'''The order was opened - {symbol};
-Asset volume - {asset_volume}
-Trigger - {trigger};
-Entry point - {entry_point};
-Stop-loss - {stop};
-Take-profit - {take_profit}.'''
-          )
+    open_order_message = {'symbol': symbol,
+                          'asset_volume': asset_volume,
+                          'trigger': trigger,
+                          'entry_point': entry_point,
+                          'take_profit': take_profit
+                          }
+    print(open_order_message)
 
 
 def get_wallet_balance():
@@ -81,27 +81,52 @@ def get_wallet_balance():
     coin = info['result']['list'][0]['coin'][0]
     equity = round(float(coin['equity']), 2)
     unreal_pnl = round(float(coin['unrealisedPnl']), 2)
-    blance = round(float(coin['walletBalance']), 2)
+    balance = round(float(coin['walletBalance']), 2)
     real_pnl = round(float(coin['cumRealisedPnl']), 2)
-    return f'''Equity - {equity};
-Unrealised PNL - {unreal_pnl};
-Balance - {blance};
-Realised PNL - {real_pnl}.'''
+    info_wallet = {'equity': equity,
+                   'unreal_pnl': unreal_pnl,
+                   'balance': balance,
+                   'real_pnl': real_pnl}
+    return info_wallet
 
 
-def get_open_orders(symbol):
-    symbol = symbol + 'USDT'
-    info = session.get_open_orders(symbol='BTCUSDT', category='inverse')
+def get_open_orders(ticket: str):
+    symbol: str = ticket + 'USDT'
+    info = session.get_open_orders(symbol=symbol, category='inverse')
     orders = info['result']['list']
     orders_list = []
+    if orders == []:
+        return orders
     for order in orders:
         order_info = {'symbol': symbol,
                       'side': order['side'],
-                      'price': order['price'],
+                      'entry_point': order['price'],
                       'qty': order['qty'],
                       'trigger_price': order['triggerPrice'],
                       'stop_loss': order['stopLoss'],
-                      'take_profit': order['takeProfit']
+                      'take_profit': order['takeProfit'],
+                      'order_type': order['orderType']
                       }
         orders_list.append(order_info)
     return orders_list
+
+
+def get_open_positions(ticket: str):
+    symbol: str = ticket + 'USDT'
+    info = session.get_positions(symbol=symbol, category='inverse')
+    positions = info['result']['list']
+    positions_list = []
+    if positions[0]['side'] == 'None':
+        return 'None'
+    for position in positions:
+        position_info = {'symbol': symbol,
+                         'side': position['side'],
+                         'size': position['size'],
+                         'leverage': position['leverage'],
+                         'avg_price': position['avgPrice'],
+                         'unrealised_pnl': position['unrealisedPnl'],
+                         'stop_loss': position['stopLoss'],
+                         'take_profit': position['takeProfit']
+                         }
+        positions_list.append(position_info)
+    return positions_list

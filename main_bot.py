@@ -2,10 +2,10 @@ from aiogram import executor
 from aiogram.types import Message
 from emoji import emojize
 from keys import MYID
-from bot.create_bot import dp
-from bot.bot_button import kb
-from bot.commands_info import reg_handler_info
-from bot.commands_main import reg_handler_main
+from bot_modules.create_bot import dp
+from bot_modules.bot_button import kb
+from bot_modules.commands_info import reg_handler_info
+from bot_modules.commands_main import reg_handler_main
 
 
 reg_handler_main(dp)

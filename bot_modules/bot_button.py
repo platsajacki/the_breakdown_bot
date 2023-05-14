@@ -13,6 +13,7 @@ kb = ReplyKeyboardMarkup(resize_keyboard=True)
 info = KeyboardButton('/info')
 balance = KeyboardButton('/balance')
 orders = KeyboardButton('/orders')
+positions = KeyboardButton('/positions')
 back = KeyboardButton('/back')
 
 kb_info = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -23,10 +24,10 @@ no_get_back = KeyboardButton('/no_get_back')
 
 kb_check_prices = ReplyKeyboardMarkup(resize_keyboard=True)
 
-'''Add button'''
+'''Add buttons'''
 kb.add(add_levels).add(long, check_levels, short).add(check_prices)
 kb.add(info)
 
-kb_info.add(balance).add(orders).add(back)
+kb_info.add(balance).add(orders).add(positions).add(back)
 
 kb_check_prices.add(yes_start_check).add(no_get_back)

@@ -1,6 +1,6 @@
 from pybit.unified_trading import WebSocket
 from .param_position import Long, Short
-from .request import open_pos
+from .bot_request import open_pos
 from keys import api_key, api_secret
 import example
 
