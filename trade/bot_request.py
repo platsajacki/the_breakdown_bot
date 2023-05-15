@@ -1,6 +1,7 @@
 import requests
 from pybit.unified_trading import HTTP
-from keys import api_key, api_secret
+from keys import api_key, api_secret, token, MYID
+from bot_modules.text_message import OPEN_ORDER_MESSAGE
 import example
 
 session = HTTP(
@@ -16,6 +17,7 @@ def get_symbol(symbol: str):
     return response.json()['retMsg']
 
 
+# Надо оптимизировать
 def check_level():
     if example.trend == 'Long':
         for symbol, levels in example.long_levels.items():
@@ -67,13 +69,17 @@ def open_pos(symbol: str, entry_point: float, stop: float,
         takeProfit=str(take_profit),
         stopLoss=str(stop),
         orderFilter='Order')
-    open_order_message = {'symbol': symbol,
-                          'asset_volume': asset_volume,
-                          'trigger': trigger,
-                          'entry_point': entry_point,
-                          'take_profit': take_profit
-                          }
-    print(open_order_message)
+    open_order_params = {'symbol': symbol,
+                         'asset_volume': asset_volume,
+                         'trigger': trigger,
+                         'entry_point': entry_point,
+                         'stop_loss': stop,
+                         'take_profit': take_profit
+                         }
+    text_message = OPEN_ORDER_MESSAGE.format(**open_order_params)
+    url = (f'https://api.telegram.org/bot{token}/sendmessage?'
+           f'chat_id={MYID}&text={text_message}')
+    requests.get(url)
 
 
 def get_wallet_balance():

@@ -3,12 +3,12 @@ Unrealised PNL - {unreal_pnl};
 Balance - {balance};
 Realised PNL - {real_pnl}.'''
 
-OPEN_ORDER_MESSAGE = '''The order was opened - {};
-Asset volume - {}
-Trigger - {};
-Entry point - {};
-Stop-loss - {};
-Take-profit - {}.'''
+OPEN_ORDER_MESSAGE = '''The order was opened - {symbol};
+Asset volume - {asset_volume}
+Trigger - {trigger};
+Entry point - {entry_point};
+Stop-loss - {stop_loss};
+Take-profit - {take_profit}.'''
 
 ORDER_MESSAGE = '''{symbol}:
 Side - {side};
