@@ -12,7 +12,7 @@ session = HTTP(
 
 def get_symbol(symbol: str):
     url = ('https://api.bybit.com/'
-           f'v5/market/tickers?category=inverse&symbol={symbol}USDT')
+           f'v5/market/tickers?category=linear&symbol={symbol}USDT')
     response = requests.get(url)
     return response.json()['retMsg']
 
@@ -21,7 +21,7 @@ def get_symbol(symbol: str):
 def check_level():
     if example.trend == 'Long':
         for symbol, levels in example.long_levels.items():
-            info = session.get_tickers(category='inverse', symbol=symbol)
+            info = session.get_tickers(category='linear', symbol=symbol)
             mark_price = float(info['result']['list'][0]['markPrice'])
             new_levels = []
             for level in levels:
@@ -31,7 +31,7 @@ def check_level():
     if example.trend == 'Short':
         print(example.short_levels)
         for symbol, levels in example.short_levels.items():
-            info = session.get_tickers(category='inverse', symbol=symbol)
+            info = session.get_tickers(category='linear', symbol=symbol)
             mark_price = float(info['result']['list'][0]['markPrice'])
             new_levels = []
             for level in levels:
@@ -44,7 +44,7 @@ def open_pos(symbol: str, entry_point: float, stop: float,
              take_profit: float, trigger: float, side: str):
     '''Calculation of transaction volume'''
     min_order_qty: str = session.get_instruments_info(
-        category='inverse',
+        category='linear',
         symbol=symbol)['result']['list'][0]['priceFilter']['minPrice']
     round_volume: int = len(min_order_qty.split('.')[1])
     asset_volume: str = str(round((example.stop_volume
@@ -57,7 +57,7 @@ def open_pos(symbol: str, entry_point: float, stop: float,
         triggerDirection: int = 2
     '''Opening an order'''
     session.place_order(
-        category='inverse',
+        category='linear',
         symbol=symbol,
         side=side,
         orderType='Limit',
@@ -98,7 +98,7 @@ def get_wallet_balance():
 
 def get_open_orders(ticket: str):
     symbol: str = ticket + 'USDT'
-    info = session.get_open_orders(symbol=symbol, category='inverse')
+    info = session.get_open_orders(symbol=symbol, category='linear')
     orders = info['result']['list']
     orders_list = []
     if orders == []:
@@ -119,7 +119,7 @@ def get_open_orders(ticket: str):
 
 def get_open_positions(ticket: str):
     symbol: str = ticket + 'USDT'
-    info = session.get_positions(symbol=symbol, category='inverse')
+    info = session.get_positions(symbol=symbol, category='linear')
     positions = info['result']['list']
     positions_list = []
     if positions[0]['side'] == 'None':

@@ -43,7 +43,6 @@ def start_check_price():
 
     def handle_message(msg):
         symbol = msg['data']['symbol']
-        print(f'Проверка уровня {symbol}')
         mark_price = msg['data']['markPrice']
         round_price = len(mark_price.split('.')[1])
         if example.trend == 'Long':
