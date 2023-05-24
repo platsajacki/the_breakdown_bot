@@ -7,7 +7,6 @@ from bot_modules.bot_button import kb
 from bot_modules.commands_info import reg_handler_info
 from bot_modules.commands_main import reg_handler_main
 
-
 reg_handler_main(dp)
 reg_handler_info(dp)
 

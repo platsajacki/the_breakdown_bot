@@ -1,5 +1,6 @@
 import requests
 from pybit.unified_trading import HTTP
+from emoji import emojize
 from keys import api_key, api_secret, token, MYID
 from bot_modules.text_message import OPEN_ORDER_MESSAGE
 import example
@@ -17,8 +18,18 @@ def get_symbol(symbol: str):
     return response.json()['retMsg']
 
 
-# Надо оптимизировать
-def check_level():
+def check_level(ticker, price_lvl, trend):
+    symbol = ticker + 'USDT'
+    info = session.get_tickers(category='linear', symbol=symbol)
+    mark_price = float(info['result']['list'][0]['markPrice'])
+    if trend == 'long':
+        return price_lvl > mark_price
+    if trend == 'short':
+        return price_lvl < mark_price
+
+
+# Надо оптимизировать под базу
+def check_levels():
     if example.trend == 'Long':
         for symbol, levels in example.long_levels.items():
             info = session.get_tickers(category='linear', symbol=symbol)
@@ -76,7 +87,8 @@ def open_pos(symbol: str, entry_point: float, stop: float,
                          'stop_loss': stop,
                          'take_profit': take_profit
                          }
-    text_message = OPEN_ORDER_MESSAGE.format(**open_order_params)
+    text_message = OPEN_ORDER_MESSAGE.format(smile=emojize(':money_bag:'),
+                                             **open_order_params)
     url = (f'https://api.telegram.org/bot{token}/sendmessage?'
            f'chat_id={MYID}&text={text_message}')
     requests.get(url)
@@ -96,8 +108,8 @@ def get_wallet_balance():
     return info_wallet
 
 
-def get_open_orders(ticket: str):
-    symbol: str = ticket + 'USDT'
+def get_open_orders(ticker: str):
+    symbol: str = ticker + 'USDT'
     info = session.get_open_orders(symbol=symbol, category='linear')
     orders = info['result']['list']
     orders_list = []
@@ -117,8 +129,8 @@ def get_open_orders(ticket: str):
     return orders_list
 
 
-def get_open_positions(ticket: str):
-    symbol: str = ticket + 'USDT'
+def get_open_positions(ticker: str):
+    symbol: str = ticker + 'USDT'
     info = session.get_positions(symbol=symbol, category='linear')
     positions = info['result']['list']
     positions_list = []
@@ -130,6 +142,7 @@ def get_open_positions(ticket: str):
                          'size': position['size'],
                          'leverage': position['leverage'],
                          'avg_price': position['avgPrice'],
+                         'mark_price': position['markPrice'],
                          'unrealised_pnl': position['unrealisedPnl'],
                          'stop_loss': position['stopLoss'],
                          'take_profit': position['takeProfit']

@@ -3,7 +3,7 @@ from aiogram.types import Message
 from aiogram.dispatcher import FSMContext
 from emoji import emojize
 from keys import MYID
-from database.temporary_data.temp_db import Ticket
+from database.temporary_data.temp_db import TickerInfo
 from trade.bot_request import (get_wallet_balance, get_open_orders, get_symbol,
                                get_open_positions)
 from .bot_button import kb, kb_info
@@ -25,15 +25,15 @@ async def get_balance(message: Message):
 async def get_orders(message: Message):
     if message.from_user.id == MYID:
         await message.answer('Enter the ticker:')
-        await Ticket.ticket_order.set()
+        await TickerInfo.ticker_order.set()
 
 
-async def get_ticket_order(message: Message, state: FSMContext):
-    tiker = message.text.upper()
+async def get_ticker_order(message: Message, state: FSMContext):
+    ticker = message.text.upper()
     if message.from_user.id == MYID:
         await message.answer(emojize(':man_technologist:'))
-        if get_symbol(tiker) == 'OK':
-            open_orders = get_open_orders(tiker)
+        if get_symbol(ticker) == 'OK':
+            open_orders = get_open_orders(ticker)
             if open_orders == []:
                 await message.answer('There are no open orders.')
                 await message.answer(emojize(':man_shrugging:'),
@@ -51,16 +51,16 @@ async def get_ticket_order(message: Message, state: FSMContext):
         else:
             await message.answer('Ticker not found, try again:')
             await state.finish()
-            await Ticket.ticket_order.set()
+            await TickerInfo.ticker_order.set()
 
 
 async def get_positions(message: Message):
     if message.from_user.id == MYID:
         await message.answer('Enter the ticker:')
-        await Ticket.ticket_position.set()
+        await TickerInfo.ticker_position.set()
 
 
-async def get_ticket_position(message: Message, state: FSMContext):
+async def get_ticker_position(message: Message, state: FSMContext):
     tiker = message.text.upper()
     if message.from_user.id == MYID:
         await message.answer(emojize(':man_technologist:'))
@@ -79,7 +79,7 @@ async def get_ticket_position(message: Message, state: FSMContext):
         else:
             await message.answer('Ticker not found, try again:')
             await state.finish()
-            await Ticket.ticket_position.set()
+            await TickerInfo.ticker_position.set()
 
 
 async def get_back(message: Message):
@@ -91,8 +91,9 @@ def reg_handler_info(dp: Dispatcher):
     dp.register_message_handler(get_info, commands=['info'])
     dp.register_message_handler(get_balance, commands=['balance'])
     dp.register_message_handler(get_orders, commands=['orders'])
-    dp.register_message_handler(get_ticket_order, state=Ticket.ticket_order)
+    dp.register_message_handler(get_ticker_order,
+                                state=TickerInfo.ticker_order)
     dp.register_message_handler(get_positions, commands=['positions'])
-    dp.register_message_handler(get_ticket_position,
-                                state=Ticket.ticket_position)
+    dp.register_message_handler(get_ticker_position,
+                                state=TickerInfo.ticker_position)
     dp.register_message_handler(get_back, commands=['back'])
