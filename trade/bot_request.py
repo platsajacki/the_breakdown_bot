@@ -2,8 +2,9 @@ import requests
 from pybit.unified_trading import HTTP
 from emoji import emojize
 from keys import api_key, api_secret, token, MYID
+from database.models import (TickerDB, StopVolumeDB, UnsuitableLevelsDB,
+                             OpenedPositionDB)
 from bot_modules.text_message import OPEN_ORDER_MESSAGE
-import example
 
 session = HTTP(
     testnet=True,
@@ -18,37 +19,29 @@ def get_symbol(symbol: str):
     return response.json()['retMsg']
 
 
-def check_level(ticker, price_lvl, trend):
-    symbol = ticker + 'USDT'
+def get_mark_price(ticker):
+    symbol: str = ticker + 'USDT'
     info = session.get_tickers(category='linear', symbol=symbol)
     mark_price = float(info['result']['list'][0]['markPrice'])
+    return mark_price
+
+
+def check_level(ticker, price_lvl, trend):
     if trend == 'long':
-        return price_lvl > mark_price
+        return price_lvl > get_mark_price(ticker)
     if trend == 'short':
-        return price_lvl < mark_price
+        return price_lvl < get_mark_price(ticker)
 
 
-# Надо оптимизировать под базу
-def check_levels():
-    if example.trend == 'Long':
-        for symbol, levels in example.long_levels.items():
-            info = session.get_tickers(category='linear', symbol=symbol)
-            mark_price = float(info['result']['list'][0]['markPrice'])
-            new_levels = []
-            for level in levels:
-                if level > mark_price:
-                    new_levels.append(level)
-            example.long_levels[symbol] = new_levels
-    if example.trend == 'Short':
-        print(example.short_levels)
-        for symbol, levels in example.short_levels.items():
-            info = session.get_tickers(category='linear', symbol=symbol)
-            mark_price = float(info['result']['list'][0]['markPrice'])
-            new_levels = []
-            for level in levels:
-                if level < mark_price:
-                    new_levels.append(level)
-            example.short_levels[symbol] = new_levels
+def check_levels(id, ticker, price_lvl, trend):
+    if trend == 'long' and price_lvl < get_mark_price(ticker):
+        UnsuitableLevelsDB(ticker=ticker, price_lvl=price_lvl,
+                           trend=trend).save()
+        TickerDB.delete_row(id)
+    if trend == 'short' and price_lvl > get_mark_price(ticker):
+        UnsuitableLevelsDB(ticker=ticker, price_lvl=price_lvl,
+                           trend=trend).save()
+        TickerDB.delete_row(id)
 
 
 def open_pos(symbol: str, entry_point: float, stop: float,
@@ -58,7 +51,7 @@ def open_pos(symbol: str, entry_point: float, stop: float,
         category='linear',
         symbol=symbol)['result']['list'][0]['priceFilter']['minPrice']
     round_volume: int = len(min_order_qty.split('.')[1])
-    asset_volume: str = str(round((example.stop_volume
+    asset_volume: str = str(round((StopVolumeDB.get_stop_volume()
                                    / abs(entry_point - stop)),
                                   round_volume))
     '''Setting up a trigger'''
@@ -87,6 +80,7 @@ def open_pos(symbol: str, entry_point: float, stop: float,
                          'stop_loss': stop,
                          'take_profit': take_profit
                          }
+    OpenedPositionDB(**open_order_params)
     text_message = OPEN_ORDER_MESSAGE.format(smile=emojize(':money_bag:'),
                                              **open_order_params)
     url = (f'https://api.telegram.org/bot{token}/sendmessage?'

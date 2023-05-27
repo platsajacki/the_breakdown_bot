@@ -1,8 +1,7 @@
 from pybit.unified_trading import WebSocket
 from .param_position import Long, Short
 from .bot_request import open_pos
-from database.modeles import TickerDB, TrendDB
-import example
+from database.models import TickerDB, TrendDB
 
 BUY: str = 'Buy'
 SELL: str = 'Sell'
@@ -18,40 +17,36 @@ session = WebSocket(
 
 
 def check_long(symbol: str, mark_price: float, round_price: int):
-    symbol_levels: list[int] = example.long_levels[symbol]
-    print(symbol)
-    if symbol_levels == []:
-        pass
-    else:
-        level: float = min(symbol_levels)
+    query = TickerDB.get_min_long_lvl(symbol[:-4])
+    if query is not None:
+        level = query['price_lvl']
+        id = query['id']
         calc_level: float = level * COEF_LEVEL_LONG
         if calc_level < mark_price < level:
             long_calc = Long(symbol, level, round_price)
             open_pos(*long_calc.get_param_position(), BUY)
-            symbol_levels.remove(level)
+            TickerDB.delete_row(id)
 
 
 def check_short(symbol: str, mark_price: float, round_price: int):
-    symbol_levels: list[int] = example.short_levels[symbol]
-    print(symbol)
-    if symbol_levels == []:
-        pass
-    else:
-        level: float = max(symbol_levels)
+    query = TickerDB.get_max_short_lvl(symbol[:-4])
+    if query is not None:
+        level = query['price_lvl']
+        id = query['id']
         calc_level: float = level * COEF_LEVEL_SHORT
         if calc_level > mark_price > level:
             short_calc = Short(symbol, level, round_price)
             open_pos(*short_calc.get_param_position(), SELL)
-            symbol_levels.remove(level)
+            TickerDB.delete_row(id)
 
 
 def handle_message(msg):
     symbol = msg['data']['symbol']
     mark_price = msg['data']['markPrice']
     round_price = len(mark_price.split('.')[1])
-    if example.trend == 'Long':
+    if TrendDB.get_trend() == 'long':
         check_long(symbol, float(mark_price), round_price)
-    if example.trend == 'Short':
+    if TrendDB.get_trend() == 'short':
         check_short(symbol, float(mark_price), round_price)
 
 

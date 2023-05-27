@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 from emoji import emojize
 from .bot_button import kb, kb_check_prices, kb_long_short
 from keys import MYID
-from database.modeles import TickerDB, TrendDB
+from database.models import TickerDB, TrendDB
 from database.temporary_data.temp_db import DBState
 from trade.check_price import start_check_tickers
 from trade.bot_request import check_levels, check_level, get_symbol
@@ -63,7 +63,8 @@ async def check_prices(message: Message):
 async def start(msg):
     await msg.answer('Analyzing the levels...')
     await msg.answer(emojize(':man_technologist:'))
-    check_levels()
+    for row in TickerDB.get_tickers_price_lvl():
+        check_levels(**row)
     await msg.answer('Done!')
     await msg.answer('Price check started! '
                      + emojize(':chart_increasing_with_yen:'))
