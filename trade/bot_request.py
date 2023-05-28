@@ -26,20 +26,20 @@ def get_mark_price(ticker):
     return mark_price
 
 
-def check_level(ticker, price_lvl, trend):
+def check_level(ticker, level, trend):
     if trend == 'long':
-        return price_lvl > get_mark_price(ticker)
+        return level > get_mark_price(ticker)
     if trend == 'short':
-        return price_lvl < get_mark_price(ticker)
+        return level < get_mark_price(ticker)
 
 
-def check_levels(id, ticker, price_lvl, trend):
-    if trend == 'long' and price_lvl < get_mark_price(ticker):
-        UnsuitableLevelsDB(ticker=ticker, price_lvl=price_lvl,
+def check_levels(id, ticker, level, trend):
+    if trend == 'long' and level < get_mark_price(ticker):
+        UnsuitableLevelsDB(ticker=ticker, level=level,
                            trend=trend).save()
         TickerDB.delete_row(id)
-    if trend == 'short' and price_lvl > get_mark_price(ticker):
-        UnsuitableLevelsDB(ticker=ticker, price_lvl=price_lvl,
+    if trend == 'short' and level > get_mark_price(ticker):
+        UnsuitableLevelsDB(ticker=ticker, level=level,
                            trend=trend).save()
         TickerDB.delete_row(id)
 

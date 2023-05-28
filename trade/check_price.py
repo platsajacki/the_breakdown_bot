@@ -19,8 +19,7 @@ session = WebSocket(
 def check_long(symbol: str, mark_price: float, round_price: int):
     query = TickerDB.get_min_long_lvl(symbol[:-4])
     if query is not None:
-        level = query['price_lvl']
-        id = query['id']
+        id, level = query['id'], query['level']
         calc_level: float = level * COEF_LEVEL_LONG
         if calc_level < mark_price < level:
             long_calc = Long(symbol, level, round_price)
@@ -31,8 +30,7 @@ def check_long(symbol: str, mark_price: float, round_price: int):
 def check_short(symbol: str, mark_price: float, round_price: int):
     query = TickerDB.get_max_short_lvl(symbol[:-4])
     if query is not None:
-        level = query['price_lvl']
-        id = query['id']
+        id, level = query['id'], query['level']
         calc_level: float = level * COEF_LEVEL_SHORT
         if calc_level > mark_price > level:
             short_calc = Short(symbol, level, round_price)

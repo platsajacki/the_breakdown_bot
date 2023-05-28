@@ -11,7 +11,7 @@ class BaseModel(Model):
 
 class TickerDB(BaseModel):
     ticker = CharField(max_length=6)
-    price_lvl = FloatField()
+    level = FloatField()
     trend = CharField(max_length=5)
 
     class Meta:
@@ -33,7 +33,7 @@ class TickerDB(BaseModel):
             short_tickers.append(short_ticker.ticker)
         return short_tickers
 
-    def get_tickers_price_lvl():
+    def get_tickers_level():
         query = TickerDB.select().dicts()
         row_list = []
         for row in query:
@@ -43,9 +43,10 @@ class TickerDB(BaseModel):
     def get_min_long_lvl(ticker):
         query = TickerDB.select(
             TickerDB.id,
-            TickerDB.price_lvl).where(
-            TickerDB.price_lvl == (
-                TickerDB.select(fn.min(TickerDB.price_lvl)).where(
+            TickerDB.level).where(
+            TickerDB.ticker == ticker,
+            TickerDB.level == (
+                TickerDB.select(fn.min(TickerDB.level)).where(
                     TickerDB.ticker == ticker,
                     TickerDB.trend == 'long'))).dicts()
         for row in query:
@@ -54,9 +55,10 @@ class TickerDB(BaseModel):
     def get_max_short_lvl(ticker):
         query = TickerDB.select(
             TickerDB.id,
-            TickerDB.price_lvl).where(
-            TickerDB.price_lvl == (
-                TickerDB.select(fn.max(TickerDB.price_lvl)).where(
+            TickerDB.level).where(
+            TickerDB.ticker == ticker,
+            TickerDB.level == (
+                TickerDB.select(fn.max(TickerDB.level)).where(
                     TickerDB.ticker == ticker,
                     TickerDB.trend == 'short'))).dicts()
         for row in query:
@@ -85,12 +87,12 @@ class StopVolumeDB(BaseModel):
 
     def get_stop_volume():
         query = StopVolumeDB.get(StopVolumeDB.id == 1)
-        return query.usdt
+        return query.usdt_volume
 
 
 class UnsuitableLevelsDB(BaseModel):
     ticker = CharField(max_length=6)
-    price_lvl = FloatField()
+    level = FloatField()
     trend = CharField(max_length=5)
 
     class Meta:
@@ -99,7 +101,7 @@ class UnsuitableLevelsDB(BaseModel):
 
 class SpentLevelsDB(BaseModel):
     ticker = CharField(max_length=6)
-    price_lvl = FloatField()
+    level = FloatField()
     trend = CharField(max_length=5)
 
     class Meta:
@@ -115,3 +117,16 @@ class OpenedPositionDB(BaseModel):
 
     class Meta:
         db_table = 'opened_ositions'
+
+
+db.create_tables([
+    TickerDB,
+    TrendDB,
+    StopVolumeDB,
+    UnsuitableLevelsDB,
+    SpentLevelsDB,
+    OpenedPositionDB
+])
+
+TrendDB(trend='long').save()
+StopVolumeDB(usdt_volume=2.5).save()

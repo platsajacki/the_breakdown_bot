@@ -31,11 +31,11 @@ async def enter_level(message: Message, state: FSMContext):
 
 async def enter_trend(message: Message, state: FSMContext):
     if message.from_user.id == MYID:
-        price_lvl = message.text
-        if ',' in price_lvl:
-            price_lvl = price_lvl.replace(',', '.')
-        price_lvl = float(price_lvl)
-        await state.update_data(price_lvl=price_lvl)
+        level = message.text
+        if ',' in level:
+            level = level.replace(',', '.')
+        level = float(level)
+        await state.update_data(level=level)
         await message.answer('Enter the trend:', reply_markup=kb_long_short)
         await DBState.trend.set()
 
@@ -60,14 +60,14 @@ async def check_prices(message: Message):
                              reply_markup=kb_check_prices)
 
 
-async def start(msg):
-    await msg.answer('Analyzing the levels...')
-    await msg.answer(emojize(':man_technologist:'))
-    for row in TickerDB.get_tickers_price_lvl():
+async def start(message):
+    await message.answer('Analyzing the levels...')
+    await message.answer(emojize(':man_technologist:'))
+    for row in TickerDB.get_tickers_level():
         check_levels(**row)
-    await msg.answer('Done!')
-    await msg.answer('Price check started! '
-                     + emojize(':chart_increasing_with_yen:'))
+    await message.answer('Done!')
+    await message.answer('Price check started! '
+                         + emojize(':chart_increasing_with_yen:'))
     start_check_tickers()
 
 
