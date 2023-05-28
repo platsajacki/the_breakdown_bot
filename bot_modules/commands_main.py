@@ -66,8 +66,8 @@ async def start(message):
     for row in TickerDB.get_tickers_level():
         check_levels(**row)
     await message.answer('Done!')
-    await message.answer('Price check started! '
-                         + emojize(':chart_increasing_with_yen:'))
+    await message.answer(
+        'Price check started! ' + emojize(':chart_increasing_with_yen:'))
     start_check_tickers()
 
 

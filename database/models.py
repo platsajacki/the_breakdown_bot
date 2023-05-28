@@ -17,7 +17,7 @@ class TickerDB(BaseModel):
     class Meta:
         db_table = 'tickers'
 
-    def get_long_tickers():
+    def get_long_tickers() -> list:
         query = TickerDB.select(
             fn.Distinct(TickerDB.ticker)).where(TickerDB.trend == 'long')
         long_tickers = []
@@ -25,7 +25,7 @@ class TickerDB(BaseModel):
             long_tickers.append(long_ticker.ticker)
         return long_tickers
 
-    def get_short_tickers():
+    def get_short_tickers() -> list:
         query = TickerDB.select(
             fn.Distinct(TickerDB.ticker)).where(TickerDB.trend == 'short')
         short_tickers = []
@@ -33,14 +33,14 @@ class TickerDB(BaseModel):
             short_tickers.append(short_ticker.ticker)
         return short_tickers
 
-    def get_tickers_level():
+    def get_tickers_level() -> list:
         query = TickerDB.select().dicts()
         row_list = []
         for row in query:
             row_list.append(row)
         return row_list
 
-    def get_min_long_lvl(ticker):
+    def get_min_long_lvl(ticker) -> dict:
         query = TickerDB.select(
             TickerDB.id,
             TickerDB.level).where(
@@ -52,7 +52,7 @@ class TickerDB(BaseModel):
         for row in query:
             return row
 
-    def get_max_short_lvl(ticker):
+    def get_max_short_lvl(ticker) -> dict:
         query = TickerDB.select(
             TickerDB.id,
             TickerDB.level).where(
@@ -74,7 +74,7 @@ class TrendDB(BaseModel):
     class Meta:
         db_table = 'trend'
 
-    def get_trend():
+    def get_trend() -> str:
         query = TrendDB.get(TrendDB.id == 1)
         return query.trend
 
@@ -85,7 +85,7 @@ class StopVolumeDB(BaseModel):
     class Meta:
         db_table = 'stop_volume'
 
-    def get_stop_volume():
+    def get_stop_volume() -> float:
         query = StopVolumeDB.get(StopVolumeDB.id == 1)
         return query.usdt_volume
 
@@ -107,16 +107,17 @@ class SpentLevelsDB(BaseModel):
     class Meta:
         db_table = 'spent_levels'
 
-class OpenedPositionDB(BaseModel):
-    symbol = FloatField()
+
+class OpenedOrderDB(BaseModel):
+    symbol = CharField(max_length=12)
     asset_volume = FloatField()
     trigger = FloatField()
     entry_point = FloatField()
-    stop = FloatField()
+    stop_loss = FloatField()
     take_profit = FloatField()
 
     class Meta:
-        db_table = 'opened_ositions'
+        db_table = 'opened_orders'
 
 
 db.create_tables([
@@ -125,8 +126,5 @@ db.create_tables([
     StopVolumeDB,
     UnsuitableLevelsDB,
     SpentLevelsDB,
-    OpenedPositionDB
+    OpenedOrderDB
 ])
-
-TrendDB(trend='long').save()
-StopVolumeDB(usdt_volume=2.5).save()

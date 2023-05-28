@@ -3,7 +3,7 @@ from pybit.unified_trading import HTTP
 from emoji import emojize
 from keys import api_key, api_secret, token, MYID
 from database.models import (TickerDB, StopVolumeDB, UnsuitableLevelsDB,
-                             OpenedPositionDB)
+                             OpenedOrderDB)
 from bot_modules.text_message import OPEN_ORDER_MESSAGE
 
 session = HTTP(
@@ -12,21 +12,21 @@ session = HTTP(
     api_secret=api_secret)
 
 
-def get_symbol(symbol: str):
+def get_symbol(symbol: str) -> str:
     url = ('https://api.bybit.com/'
            f'v5/market/tickers?category=linear&symbol={symbol}USDT')
     response = requests.get(url)
     return response.json()['retMsg']
 
 
-def get_mark_price(ticker):
+def get_mark_price(ticker) -> float:
     symbol: str = ticker + 'USDT'
     info = session.get_tickers(category='linear', symbol=symbol)
     mark_price = float(info['result']['list'][0]['markPrice'])
     return mark_price
 
 
-def check_level(ticker, level, trend):
+def check_level(ticker, level, trend) -> bool:
     if trend == 'long':
         return level > get_mark_price(ticker)
     if trend == 'short':
@@ -51,9 +51,9 @@ def open_pos(symbol: str, entry_point: float, stop: float,
         category='linear',
         symbol=symbol)['result']['list'][0]['priceFilter']['minPrice']
     round_volume: int = len(min_order_qty.split('.')[1])
-    asset_volume: str = str(round((StopVolumeDB.get_stop_volume()
-                                   / abs(entry_point - stop)),
-                                  round_volume))
+    asset_volume: str = str(
+        round((StopVolumeDB.get_stop_volume() / abs(entry_point - stop)),
+              round_volume))
     '''Setting up a trigger'''
     if side == 'Buy':
         triggerDirection: int = 1
@@ -80,7 +80,7 @@ def open_pos(symbol: str, entry_point: float, stop: float,
                          'stop_loss': stop,
                          'take_profit': take_profit
                          }
-    OpenedPositionDB(**open_order_params)
+    OpenedOrderDB(**open_order_params).save()
     text_message = OPEN_ORDER_MESSAGE.format(smile=emojize(':money_bag:'),
                                              **open_order_params)
     url = (f'https://api.telegram.org/bot{token}/sendmessage?'
@@ -88,7 +88,7 @@ def open_pos(symbol: str, entry_point: float, stop: float,
     requests.get(url)
 
 
-def get_wallet_balance():
+def get_wallet_balance() -> dict[str, float]:
     info = session.get_wallet_balance(accountType='CONTRACT', coin='USDT')
     coin = info['result']['list'][0]['coin'][0]
     equity = round(float(coin['equity']), 2)
@@ -102,7 +102,7 @@ def get_wallet_balance():
     return info_wallet
 
 
-def get_open_orders(ticker: str):
+def get_open_orders(ticker: str) -> list:
     symbol: str = ticker + 'USDT'
     info = session.get_open_orders(symbol=symbol, category='linear')
     orders = info['result']['list']
@@ -123,7 +123,7 @@ def get_open_orders(ticker: str):
     return orders_list
 
 
-def get_open_positions(ticker: str):
+def get_open_positions(ticker: str) -> list:
     symbol: str = ticker + 'USDT'
     info = session.get_positions(symbol=symbol, category='linear')
     positions = info['result']['list']

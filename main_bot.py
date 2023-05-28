@@ -14,8 +14,9 @@ reg_handler_info(dp)
 @dp.message_handler(commands=['start'])
 async def start(message: Message):
     if message.from_user.id == MYID:
-        await message.answer('The Breakdown Bot activeted! '
-                             + emojize(':fire:'), reply_markup=kb)
+        await message.answer(
+            'The Breakdown Bot activeted! ' + emojize(':fire:'),
+            reply_markup=kb)
     else:
         await message.answer('Access is denied! ' + emojize(':no_entry:'))
 

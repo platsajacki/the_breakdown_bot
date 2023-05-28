@@ -11,12 +11,10 @@ COEF_LEVEL_SHORT: float = 1.0025
 
 connected_tickers = set()
 
-session = WebSocket(
-        testnet=True,
-        channel_type='linear')
+session = WebSocket(testnet=True, channel_type='linear')
 
 
-def check_long(symbol: str, mark_price: float, round_price: int):
+def check_long(symbol: str, mark_price: float, round_price: int) -> open_pos:
     query = TickerDB.get_min_long_lvl(symbol[:-4])
     if query is not None:
         id, level = query['id'], query['level']
@@ -27,7 +25,7 @@ def check_long(symbol: str, mark_price: float, round_price: int):
             TickerDB.delete_row(id)
 
 
-def check_short(symbol: str, mark_price: float, round_price: int):
+def check_short(symbol: str, mark_price: float, round_price: int) -> open_pos:
     query = TickerDB.get_max_short_lvl(symbol[:-4])
     if query is not None:
         id, level = query['id'], query['level']
@@ -48,13 +46,13 @@ def handle_message(msg):
         check_short(symbol, float(mark_price), round_price)
 
 
-def connect_ticker(ticker):
+def connect_ticker(ticker) -> handle_message:
     connected_tickers.add(ticker)
     symbol = ticker + 'USDT'
     session.ticker_stream(symbol=symbol, callback=handle_message)
 
 
-def start_check_tickers():
+def start_check_tickers() -> connect_ticker:
     if TrendDB.get_trend() == 'long':
         for ticker in TickerDB.get_long_tickers():
             if ticker not in connected_tickers:

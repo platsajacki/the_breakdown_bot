@@ -30,8 +30,9 @@ class Long(Position):
                             self.round_price)
         trigger = round(entry_point * self.COEF_TRIGGER_LONG, self.round_price)
         stop = round(entry_point - super().calculate_stop(), self.round_price)
-        take_profit = round(entry_point + self.COEF_PROFIT
-                            * super().calculate_stop(), self.round_price)
+        take_profit = round(
+            entry_point + self.COEF_PROFIT * super().calculate_stop(),
+            self.round_price)
         return (self.symbol, entry_point, stop, take_profit, trigger)
 
 
@@ -42,6 +43,7 @@ class Short(Position):
                             self.round_price)
         trigger = round(entry_point * self.COEF_TRIGGER_SORT, self.round_price)
         stop = round(entry_point + super().calculate_stop(), self.round_price)
-        take_profit = round(entry_point - self.COEF_PROFIT
-                            * super().calculate_stop(), self.round_price)
+        take_profit = round(
+            entry_point - self.COEF_PROFIT * super().calculate_stop(),
+            self.round_price)
         return (self.symbol, entry_point, stop, take_profit, trigger)
