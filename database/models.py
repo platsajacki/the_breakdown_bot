@@ -85,6 +85,13 @@ class StopVolumeDB(BaseModel):
     class Meta:
         db_table = 'stop_volume'
 
+    def create_or_save_stop(volume):
+        query = StopVolumeDB.get_or_none(StopVolumeDB.id == 1)
+        if query is None:
+            StopVolumeDB(usdt_volume=volume).save()
+        else:
+            StopVolumeDB(id=1, usdt_volume=volume).save()
+
     def get_stop_volume() -> float:
         query = StopVolumeDB.get(StopVolumeDB.id == 1)
         return query.usdt_volume

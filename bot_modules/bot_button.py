@@ -3,6 +3,7 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 '''Keyboard'''
 check_prices = KeyboardButton('/check_prices')
 add_level = KeyboardButton('/add_level')
+database = KeyboardButton('/database')
 
 kb = ReplyKeyboardMarkup(resize_keyboard=True)
 
@@ -27,11 +28,18 @@ short = KeyboardButton(text='short')
 
 kb_long_short = ReplyKeyboardMarkup(resize_keyboard=True)
 
+'''Keyboard choise of a stop'''
+change_stop = KeyboardButton('/change_stop')
+
+kb_database = ReplyKeyboardMarkup(resize_keyboard=True)
+
 '''Add buttons'''
-kb.add(add_level).add(check_prices).add(info)
+kb.add(add_level).add(check_prices).add(info).add(database)
 
 kb_info.add(balance).add(orders).add(positions).add(back)
 
-kb_check_prices.add(long_trend).add(short_trend)
+kb_check_prices.add(long_trend).add(short_trend).add(back)
 
 kb_long_short.add(long, short)
+
+kb_database.add(change_stop).add(back)

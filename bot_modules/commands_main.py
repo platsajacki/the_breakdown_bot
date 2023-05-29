@@ -2,12 +2,20 @@ from aiogram import Dispatcher
 from aiogram.types import Message
 from aiogram.dispatcher import FSMContext
 from emoji import emojize
-from .bot_button import kb, kb_check_prices, kb_long_short
+from .bot_button import kb, kb_check_prices, kb_long_short, kb_database
 from keys import MYID
-from database.models import TickerDB, TrendDB
+from database.models import TickerDB, TrendDB, StopVolumeDB
 from database.temporary_data.temp_db import DBState
 from trade.check_price import start_check_tickers
 from trade.bot_request import check_levels, check_level, get_symbol
+
+
+def get_and_check_value(message):
+    value = message.text
+    if ',' in value:
+        value = value.replace(',', '.')
+    value = float(value)
+    return value
 
 
 async def start_add_level(message: Message):
@@ -31,13 +39,14 @@ async def enter_level(message: Message, state: FSMContext):
 
 async def enter_trend(message: Message, state: FSMContext):
     if message.from_user.id == MYID:
-        level = message.text
-        if ',' in level:
-            level = level.replace(',', '.')
-        level = float(level)
-        await state.update_data(level=level)
-        await message.answer('Enter the trend:', reply_markup=kb_long_short)
-        await DBState.trend.set()
+        try:
+            level = get_and_check_value(message)
+            await state.update_data(level=level)
+            await message.answer('Enter the trend:',
+                                 reply_markup=kb_long_short)
+            await DBState.trend.set()
+        except ValueError:
+            await message.answer('The value entered is incorrect! Try again:')
 
 
 async def add_level(message: Message, state: FSMContext):
@@ -65,9 +74,9 @@ async def start(message):
     await message.answer(emojize(':man_technologist:'))
     for row in TickerDB.get_tickers_level():
         check_levels(**row)
-    await message.answer('Done!')
+    await message.answer('Done! ' + emojize(':check_mark_button:'))
     await message.answer(
-        'Price check started! ' + emojize(':chart_increasing_with_yen:'))
+        'Price check started! ' + emojize(':check_mark_button:'))
     start_check_tickers()
 
 
@@ -89,6 +98,31 @@ async def trade_short(message: Message):
         await start(message)
 
 
+async def get_database(message: Message):
+    if message.from_user.id == MYID:
+        await message.answer('Choose next step:',
+                             reply_markup=kb_database)
+
+
+async def chenge_stop(message: Message):
+    if message.from_user.id == MYID:
+        await message.answer('Enter the stop volume:')
+        await DBState.stop_volume.set()
+
+
+async def add_stop_volume(message: Message, state: FSMContext):
+    if message.from_user.id == MYID:
+        try:
+            volume = get_and_check_value(message)
+            StopVolumeDB.create_or_save_stop(volume)
+            await state.finish()
+            await message.answer('The stop volume has been changed!')
+            await message.answer(emojize(':check_mark_button:'),
+                                 reply_markup=kb)
+        except ValueError:
+            await message.answer('The value entered is incorrect! Try again:')
+
+
 def reg_handler_main(dp: Dispatcher):
     dp.register_message_handler(check_prices, commands=['check_prices'])
     dp.register_message_handler(start_add_level, commands=['add_level'])
@@ -97,3 +131,6 @@ def reg_handler_main(dp: Dispatcher):
     dp.register_message_handler(add_level, state=DBState.trend)
     dp.register_message_handler(trade_long, commands=['long'])
     dp.register_message_handler(trade_short, commands=['short'])
+    dp.register_message_handler(get_database, commands=['database'])
+    dp.register_message_handler(chenge_stop, commands=['change_stop'])
+    dp.register_message_handler(add_stop_volume, state=DBState.stop_volume)
