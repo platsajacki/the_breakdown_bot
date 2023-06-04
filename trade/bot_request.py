@@ -2,9 +2,10 @@ import requests
 from pybit.unified_trading import HTTP
 from emoji import emojize
 from keys import api_key, api_secret, token, MYID
-from database.models import (TickerDB, StopVolumeDB, UnsuitableLevelsDB,
-                             OpenedOrderDB)
 from bot_modules.text_message import OPEN_ORDER_MESSAGE
+from database.manager import add_to_table, delete_row, get_row_by_id
+from database.models import (TickerDB, UnsuitableLevelsDB,
+                             OpenedOrderDB, StopVolumeDB)
 
 session = HTTP(
     testnet=True,
@@ -33,15 +34,19 @@ def check_level(ticker, level, trend) -> bool:
         return level < get_mark_price(ticker)
 
 
-def check_levels(id, ticker, level, trend):
+def delete_unsuitable_lvl(id, ticker, level, trend):
+    data = {
+        'ticker': ticker, 'level': level, 'trend': trend
+    }
+    add_to_table(UnsuitableLevelsDB, data)
+    delete_row(TickerDB, id)
+
+
+def check_levels(id, ticker, level, trend, **kwargs):
     if trend == 'long' and level < get_mark_price(ticker):
-        UnsuitableLevelsDB(ticker=ticker, level=level,
-                           trend=trend).save()
-        TickerDB.delete_row(id)
+        delete_unsuitable_lvl(id, ticker, level, trend)
     if trend == 'short' and level > get_mark_price(ticker):
-        UnsuitableLevelsDB(ticker=ticker, level=level,
-                           trend=trend).save()
-        TickerDB.delete_row(id)
+        delete_unsuitable_lvl(id, ticker, level, trend)
 
 
 def open_pos(symbol: str, entry_point: float, stop: float,
@@ -49,11 +54,13 @@ def open_pos(symbol: str, entry_point: float, stop: float,
     '''Calculation of transaction volume'''
     min_order_qty: str = session.get_instruments_info(
         category='linear',
-        symbol=symbol)['result']['list'][0]['priceFilter']['minPrice']
+        symbol=symbol
+        )['result']['list'][0]['priceFilter']['minPrice']
     round_volume: int = len(min_order_qty.split('.')[1])
-    asset_volume: str = str(
-        round((StopVolumeDB.get_stop_volume() / abs(entry_point - stop)),
-              round_volume))
+    asset_volume: str = str(round(
+            (get_row_by_id(StopVolumeDB,
+                           1).usdt_volume / abs(entry_point - stop)),
+            round_volume))
     '''Setting up a trigger'''
     if side == 'Buy':
         triggerDirection: int = 1
@@ -80,7 +87,7 @@ def open_pos(symbol: str, entry_point: float, stop: float,
                          'stop_loss': stop,
                          'take_profit': take_profit
                          }
-    OpenedOrderDB(**open_order_params).save()
+    add_to_table(OpenedOrderDB, open_order_params)
     text_message = OPEN_ORDER_MESSAGE.format(smile=emojize(':money_bag:'),
                                              **open_order_params)
     url = (f'https://api.telegram.org/bot{token}/sendmessage?'

@@ -2,19 +2,24 @@ from aiogram import Dispatcher
 from aiogram.types import Message
 from aiogram.dispatcher import FSMContext
 from emoji import emojize
-from .bot_button import kb, kb_check_prices, kb_long_short, kb_database
+from .bot_button import (
+    kb, kb_check_prices, kb_database, kb_long_short
+)
 from keys import MYID
-from database.models import TickerDB, TrendDB, StopVolumeDB
+from database.models import TickerDB
+from database.manager import (
+    add_to_table, get_all_rows, changing_trend, changing_stop
+)
 from database.temporary_data.temp_db import DBState
 from trade.check_price import start_check_tickers
 from trade.bot_request import check_levels, check_level, get_symbol
 
 
-def get_and_check_value(message):
-    value = message.text
+def get_and_check_value(message) -> float:
+    value: str = message.text
     if ',' in value:
         value = value.replace(',', '.')
-    value = float(value)
+    value: float = float(value)
     return value
 
 
@@ -55,7 +60,7 @@ async def add_level(message: Message, state: FSMContext):
         await state.update_data(trend=trend)
         data = await state.get_data()
         if check_level(**data):
-            TickerDB(**data).save()
+            add_to_table(TickerDB, data)
             await message.answer('Level is added!', reply_markup=kb)
         else:
             await message.answer("The level doesn't meet the requirements!",
@@ -72,8 +77,8 @@ async def check_prices(message: Message):
 async def start(message):
     await message.answer('Analyzing the levels...')
     await message.answer(emojize(':man_technologist:'))
-    for row in TickerDB.get_tickers_level():
-        check_levels(**row)
+    for row in get_all_rows(TickerDB):
+        check_levels(**row._asdict())
     await message.answer('Done! ' + emojize(':check_mark_button:'))
     await message.answer(
         'Price check started! ' + emojize(':check_mark_button:'))
@@ -82,7 +87,7 @@ async def start(message):
 
 async def trade_long(message: Message):
     if message.from_user.id == MYID:
-        TrendDB(id=1, trend='long').save()
+        changing_trend('long')
         await message.answer('Long trading activated!')
         await message.answer(emojize(':chart_increasing:'),
                              reply_markup=kb)
@@ -91,7 +96,7 @@ async def trade_long(message: Message):
 
 async def trade_short(message: Message):
     if message.from_user.id == MYID:
-        TrendDB(id=1, trend='short').save()
+        changing_trend('short')
         await message.answer('Short trading activated!')
         await message.answer(emojize(':chart_decreasing:'),
                              reply_markup=kb)
@@ -114,7 +119,7 @@ async def add_stop_volume(message: Message, state: FSMContext):
     if message.from_user.id == MYID:
         try:
             volume = get_and_check_value(message)
-            StopVolumeDB.create_or_save_stop(volume)
+            changing_stop(volume)
             await state.finish()
             await message.answer('The stop volume has been changed!')
             await message.answer(emojize(':check_mark_button:'),

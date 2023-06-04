@@ -2,6 +2,9 @@ from pybit.unified_trading import WebSocket
 from .param_position import Long, Short
 from .bot_request import open_pos
 from database.models import TickerDB, TrendDB
+from database.manager import (
+    delete_row, get_row_by_id, select_trend_tickers, get_current_level
+)
 
 BUY: str = 'Buy'
 SELL: str = 'Sell'
@@ -15,34 +18,34 @@ session = WebSocket(testnet=True, channel_type='linear')
 
 
 def check_long(symbol: str, mark_price: float, round_price: int) -> open_pos:
-    query = TickerDB.get_min_long_lvl(symbol[:-4])
+    query = get_current_level(symbol[:-4], 'long')
     if query is not None:
         id, level = query['id'], query['level']
         calc_level: float = level * COEF_LEVEL_LONG
         if calc_level < mark_price < level:
             long_calc = Long(symbol, level, round_price)
             open_pos(*long_calc.get_param_position(), BUY)
-            TickerDB.delete_row(id)
+            delete_row(TickerDB, id)
 
 
 def check_short(symbol: str, mark_price: float, round_price: int) -> open_pos:
-    query = TickerDB.get_max_short_lvl(symbol[:-4])
+    query = get_current_level(symbol[:-4], 'short')
     if query is not None:
         id, level = query['id'], query['level']
         calc_level: float = level * COEF_LEVEL_SHORT
         if calc_level > mark_price > level:
             short_calc = Short(symbol, level, round_price)
             open_pos(*short_calc.get_param_position(), SELL)
-            TickerDB.delete_row(id)
+            delete_row(TickerDB, id)
 
 
 def handle_message(msg):
     symbol = msg['data']['symbol']
     mark_price = msg['data']['markPrice']
     round_price = len(mark_price.split('.')[1])
-    if TrendDB.get_trend() == 'long':
+    if get_row_by_id(TrendDB, 1).trend == 'long':
         check_long(symbol, float(mark_price), round_price)
-    if TrendDB.get_trend() == 'short':
+    else:
         check_short(symbol, float(mark_price), round_price)
 
 
@@ -53,11 +56,13 @@ def connect_ticker(ticker) -> handle_message:
 
 
 def start_check_tickers() -> connect_ticker:
-    if TrendDB.get_trend() == 'long':
-        for ticker in TickerDB.get_long_tickers():
+    if get_row_by_id(TrendDB, 1).trend == 'long':
+        for ticker in select_trend_tickers('long'):
+            ticker = ticker[0]
             if ticker not in connected_tickers:
                 connect_ticker(ticker)
-    if TrendDB.get_trend() == 'short':
-        for ticker in TickerDB.get_short_tickers():
+    else:
+        for ticker in select_trend_tickers('short'):
+            ticker = ticker[0]
             if ticker not in connected_tickers:
                 connect_ticker(ticker)

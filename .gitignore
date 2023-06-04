@@ -2,12 +2,12 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
-*.so
 exe.py
 example.py
 keys.py
+
+# C extensions
+*.so
 
 # Distribution / packaging
 other/

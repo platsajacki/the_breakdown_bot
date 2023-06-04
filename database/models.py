@@ -1,137 +1,56 @@
-from peewee import *
-from keys import database, user, password, host
-
-db = PostgresqlDatabase(database, user=user, password=password, host=host)
+from sqlalchemy import Column, Integer, Float, String, DateTime, func
+from .database import Base, engine
 
 
-class BaseModel(Model):
-    class Meta:
-        database = db
+class IdColumn():
+    __abstract__ = True
+
+    id = Column(Integer, primary_key=True)
 
 
-class TickerDB(BaseModel):
-    ticker = CharField(max_length=6)
-    level = FloatField()
-    trend = CharField(max_length=5)
+class TickerColumn():
+    __abstract__ = True
 
-    class Meta:
-        db_table = 'tickers'
-
-    def get_long_tickers() -> list:
-        query = TickerDB.select(
-            fn.Distinct(TickerDB.ticker)).where(TickerDB.trend == 'long')
-        long_tickers = []
-        for long_ticker in query:
-            long_tickers.append(long_ticker.ticker)
-        return long_tickers
-
-    def get_short_tickers() -> list:
-        query = TickerDB.select(
-            fn.Distinct(TickerDB.ticker)).where(TickerDB.trend == 'short')
-        short_tickers = []
-        for short_ticker in query:
-            short_tickers.append(short_ticker.ticker)
-        return short_tickers
-
-    def get_tickers_level() -> list:
-        query = TickerDB.select().dicts()
-        row_list = []
-        for row in query:
-            row_list.append(row)
-        return row_list
-
-    def get_min_long_lvl(ticker) -> dict:
-        query = TickerDB.select(
-            TickerDB.id,
-            TickerDB.level).where(
-            TickerDB.ticker == ticker,
-            TickerDB.level == (
-                TickerDB.select(fn.min(TickerDB.level)).where(
-                    TickerDB.ticker == ticker,
-                    TickerDB.trend == 'long'))).dicts()
-        for row in query:
-            return row
-
-    def get_max_short_lvl(ticker) -> dict:
-        query = TickerDB.select(
-            TickerDB.id,
-            TickerDB.level).where(
-            TickerDB.ticker == ticker,
-            TickerDB.level == (
-                TickerDB.select(fn.max(TickerDB.level)).where(
-                    TickerDB.ticker == ticker,
-                    TickerDB.trend == 'short'))).dicts()
-        for row in query:
-            return row
-
-    def delete_row(id):
-        TickerDB.get(TickerDB.id == id).delete_instance()
+    ticker = Column(String(10))
+    level = Column(Float)
+    trend = Column(String(5))
+    create = Column(DateTime, default=func.now())
 
 
-class TrendDB(BaseModel):
-    trend = CharField(max_length=5)
-
-    class Meta:
-        db_table = 'trend'
-
-    def get_trend() -> str:
-        query = TrendDB.get(TrendDB.id == 1)
-        return query.trend
+class TickerDB(Base, IdColumn, TickerColumn):
+    __tablename__ = 'tickers'
 
 
-class StopVolumeDB(BaseModel):
-    usdt_volume = FloatField()
+class TrendDB(Base, IdColumn):
+    __tablename__ = 'trend'
 
-    class Meta:
-        db_table = 'stop_volume'
-
-    def create_or_save_stop(volume):
-        query = StopVolumeDB.get_or_none(StopVolumeDB.id == 1)
-        if query is None:
-            StopVolumeDB(usdt_volume=volume).save()
-        else:
-            StopVolumeDB(id=1, usdt_volume=volume).save()
-
-    def get_stop_volume() -> float:
-        query = StopVolumeDB.get(StopVolumeDB.id == 1)
-        return query.usdt_volume
+    trend = Column(String(5))
 
 
-class UnsuitableLevelsDB(BaseModel):
-    ticker = CharField(max_length=6)
-    level = FloatField()
-    trend = CharField(max_length=5)
+class StopVolumeDB(Base, IdColumn):
+    __tablename__ = 'stop_volume'
 
-    class Meta:
-        db_table = 'unsuitable_levels'
+    usdt_volume = Column(Float)
 
 
-class SpentLevelsDB(BaseModel):
-    ticker = CharField(max_length=6)
-    level = FloatField()
-    trend = CharField(max_length=5)
-
-    class Meta:
-        db_table = 'spent_levels'
+class UnsuitableLevelsDB(Base, IdColumn, TickerColumn):
+    __tablename__ = 'unsuitable_levels'
 
 
-class OpenedOrderDB(BaseModel):
-    symbol = CharField(max_length=12)
-    asset_volume = FloatField()
-    trigger = FloatField()
-    entry_point = FloatField()
-    stop_loss = FloatField()
-    take_profit = FloatField()
-
-    class Meta:
-        db_table = 'opened_orders'
+class SpentLevelsDB(Base, IdColumn, TickerColumn):
+    __tablename__ = 'spent_levels'
 
 
-db.create_tables([
-    TickerDB,
-    TrendDB,
-    StopVolumeDB,
-    UnsuitableLevelsDB,
-    SpentLevelsDB,
-    OpenedOrderDB
-])
+class OpenedOrderDB(Base, IdColumn):
+    __tablename__ = 'opened_orders'
+
+    symbol = Column(String(14))
+    asset_volume = Column(Float)
+    trigger = Column(Float)
+    entry_point = Column(Float)
+    stop_loss = Column(Float)
+    take_profit = Column(Float)
+    create = Column(DateTime, default=func.now())
+
+
+Base.metadata.create_all(engine)
