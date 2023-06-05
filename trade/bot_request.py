@@ -5,8 +5,9 @@ from keys import api_key, api_secret
 from bot_modules.send_message import send_message
 from bot_modules.text_message import OPEN_ORDER_MESSAGE
 from database.manager import Manager
-from database.models import (TickerDB, UnsuitableLevelsDB,
-                             OpenedOrderDB, StopVolumeDB)
+from database.models import (
+    TickerDB, UnsuitableLevelsDB, OpenedOrderDB, StopVolumeDB
+)
 
 session = HTTP(
     testnet=True,
@@ -124,7 +125,7 @@ def get_wallet_balance() -> dict[str, float]:
     return info_wallet
 
 
-def get_open_orders(ticker: str) -> list:
+def get_open_orders(ticker: str) -> list[dict]:
     symbol: str = ticker + 'USDT'
     info = session.get_open_orders(symbol=symbol, category='linear')
     orders = info['result']['list']
@@ -145,7 +146,7 @@ def get_open_orders(ticker: str) -> list:
     return orders_list
 
 
-def get_open_positions(ticker: str) -> list:
+def get_open_positions(ticker: str) -> list[dict]:
     symbol: str = ticker + 'USDT'
     info = session.get_positions(symbol=symbol, category='linear')
     positions = info['result']['list']

@@ -4,11 +4,13 @@ from aiogram.dispatcher import FSMContext
 from emoji import emojize
 from keys import MYID
 from database.temporary_data.temp_db import TickerInfo
-from trade.bot_request import (get_wallet_balance, get_open_orders, get_symbol,
-                               get_open_positions)
 from .bot_button import kb, kb_info
-from .text_message import (ORDER_MESSAGE, ORDER_TP_SL_MESSAGE, WALLET_MASSAGE,
-                           POSITION_MESSAGE)
+from trade.bot_request import (
+    get_wallet_balance, get_open_orders, get_symbol, get_open_positions
+)
+from .text_message import (
+    ORDER_MESSAGE, ORDER_TP_SL_MESSAGE, WALLET_MASSAGE, POSITION_MESSAGE
+)
 
 
 async def get_info(message: Message):

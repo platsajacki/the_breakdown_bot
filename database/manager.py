@@ -86,6 +86,7 @@ class Manager():
 
 
 Base.metadata.create_all(engine)
+
 if Manager.get_row_by_id(StopVolumeDB, 1) is None:
     Manager.changing_stop(2.5)
     send_message('Added standard stop volume: 2.5 USDT')
