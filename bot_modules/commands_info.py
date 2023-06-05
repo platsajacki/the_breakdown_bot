@@ -35,9 +35,12 @@ async def get_ticker_order(message: Message, state: FSMContext):
         if get_symbol(ticker) == 'OK':
             open_orders = get_open_orders(ticker)
             if open_orders == []:
-                await message.answer('There are no open orders.')
-                await message.answer(emojize(':man_shrugging:'),
-                                     reply_markup=kb)
+                await message.answer(
+                    'There are no open orders.'
+                )
+                await message.answer(
+                    emojize(':man_shrugging:'), reply_markup=kb
+                )
                 await state.finish()
             for order in open_orders:
                 entry_point = float(order['entry_point'])
@@ -68,8 +71,9 @@ async def get_ticker_position(message: Message, state: FSMContext):
             open_positions = get_open_positions(tiker)
             if open_positions == 'None':
                 await message.answer('There are no open positions.')
-                await message.answer(emojize(':man_shrugging:'),
-                                     reply_markup=kb)
+                await message.answer(
+                    emojize(':man_shrugging:'), reply_markup=kb
+                )
                 await state.finish()
             else:
                 for position in open_positions:

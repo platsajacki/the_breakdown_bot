@@ -15,10 +15,10 @@ reg_handler_info(dp)
 async def start(message: Message):
     if message.from_user.id == MYID:
         await message.answer(
-            'The Breakdown Bot activeted! ' + emojize(':fire:'),
+            f'The Breakdown Bot activeted! {emojize(":fire:")}',
             reply_markup=kb)
     else:
-        await message.answer('Access is denied! ' + emojize(':no_entry:'))
+        await message.answer(f'Access is denied! {emojize(":no_entry:")}')
 
 
 if __name__ == '__main__':

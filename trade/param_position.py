@@ -26,24 +26,36 @@ class Position:
 class Long(Position):
     '''Calculation of a long position.'''
     def get_param_position(self) -> float:
-        entry_point = round(self.level + super().calculate_luft(),
-                            self.round_price)
-        trigger = round(entry_point * self.COEF_TRIGGER_LONG, self.round_price)
-        stop = round(entry_point - super().calculate_stop(), self.round_price)
+        entry_point = round(
+            self.level + super().calculate_luft(), self.round_price
+        )
+        trigger = round(
+            entry_point * self.COEF_TRIGGER_LONG, self.round_price
+        )
+        stop = round(
+            entry_point - super().calculate_stop(), self.round_price
+        )
         take_profit = round(
             entry_point + self.COEF_PROFIT * super().calculate_stop(),
-            self.round_price)
+            self.round_price
+        )
         return (self.symbol, entry_point, stop, take_profit, trigger)
 
 
 class Short(Position):
     '''Calculation of a short position.'''
     def get_param_position(self) -> float:
-        entry_point = round(self.level - super().calculate_luft(),
-                            self.round_price)
-        trigger = round(entry_point * self.COEF_TRIGGER_SORT, self.round_price)
-        stop = round(entry_point + super().calculate_stop(), self.round_price)
+        entry_point = round(
+            self.level - super().calculate_luft(), self.round_price
+        )
+        trigger = round(
+            entry_point * self.COEF_TRIGGER_SORT, self.round_price
+        )
+        stop = round(
+            entry_point + super().calculate_stop(), self.round_price
+        )
         take_profit = round(
             entry_point - self.COEF_PROFIT * super().calculate_stop(),
-            self.round_price)
+            self.round_price
+        )
         return (self.symbol, entry_point, stop, take_profit, trigger)

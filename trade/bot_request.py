@@ -1,9 +1,10 @@
-import requests
+from requests import get
 from pybit.unified_trading import HTTP
 from emoji import emojize
-from keys import api_key, api_secret, token, MYID
+from keys import api_key, api_secret
+from bot_modules.send_message import send_message
 from bot_modules.text_message import OPEN_ORDER_MESSAGE
-from database.manager import add_to_table, delete_row, get_row_by_id
+from database.manager import Manager
 from database.models import (TickerDB, UnsuitableLevelsDB,
                              OpenedOrderDB, StopVolumeDB)
 
@@ -14,15 +15,19 @@ session = HTTP(
 
 
 def get_symbol(symbol: str) -> str:
-    url = ('https://api.bybit.com/'
-           f'v5/market/tickers?category=linear&symbol={symbol}USDT')
-    response = requests.get(url)
+    url = (
+        'https://api.bybit.com/'
+        f'v5/market/tickers?category=linear&symbol={symbol}USDT'
+    )
+    response = get(url)
     return response.json()['retMsg']
 
 
 def get_mark_price(ticker) -> float:
     symbol: str = ticker + 'USDT'
-    info = session.get_tickers(category='linear', symbol=symbol)
+    info = session.get_tickers(
+        category='linear', symbol=symbol
+    )
     mark_price = float(info['result']['list'][0]['markPrice'])
     return mark_price
 
@@ -38,8 +43,8 @@ def delete_unsuitable_lvl(id, ticker, level, trend):
     data = {
         'ticker': ticker, 'level': level, 'trend': trend
     }
-    add_to_table(UnsuitableLevelsDB, data)
-    delete_row(TickerDB, id)
+    Manager.add_to_table(UnsuitableLevelsDB, data)
+    Manager.delete_row(TickerDB, id)
 
 
 def check_levels(id, ticker, level, trend, **kwargs):
@@ -52,15 +57,19 @@ def check_levels(id, ticker, level, trend, **kwargs):
 def open_pos(symbol: str, entry_point: float, stop: float,
              take_profit: float, trigger: float, side: str):
     '''Calculation of transaction volume'''
-    min_order_qty: str = session.get_instruments_info(
-        category='linear',
-        symbol=symbol
-        )['result']['list'][0]['priceFilter']['minPrice']
+    min_order_qty: str = (
+        session.get_instruments_info(
+            category='linear',
+            symbol=symbol)
+        ['result']['list'][0]
+        ['priceFilter']['minPrice']
+        )
     round_volume: int = len(min_order_qty.split('.')[1])
-    asset_volume: str = str(round(
-            (get_row_by_id(StopVolumeDB,
-                           1).usdt_volume / abs(entry_point - stop)),
-            round_volume))
+    asset_volume: str = (
+        str(round(
+            (Manager.get_row_by_id(StopVolumeDB, 1).usdt_volume
+             / abs(entry_point - stop)), round_volume))
+    )
     '''Setting up a trigger'''
     if side == 'Buy':
         triggerDirection: int = 1
@@ -87,21 +96,27 @@ def open_pos(symbol: str, entry_point: float, stop: float,
                          'stop_loss': stop,
                          'take_profit': take_profit
                          }
-    add_to_table(OpenedOrderDB, open_order_params)
+    Manager.add_to_table(OpenedOrderDB, open_order_params)
     text_message = OPEN_ORDER_MESSAGE.format(smile=emojize(':money_bag:'),
                                              **open_order_params)
-    url = (f'https://api.telegram.org/bot{token}/sendmessage?'
-           f'chat_id={MYID}&text={text_message}')
-    requests.get(url)
+    send_message(text_message)
 
 
 def get_wallet_balance() -> dict[str, float]:
     info = session.get_wallet_balance(accountType='CONTRACT', coin='USDT')
     coin = info['result']['list'][0]['coin'][0]
-    equity = round(float(coin['equity']), 2)
-    unreal_pnl = round(float(coin['unrealisedPnl']), 2)
-    balance = round(float(coin['walletBalance']), 2)
-    real_pnl = round(float(coin['cumRealisedPnl']), 2)
+    equity = round(
+        float(coin['equity']), 2
+    )
+    unreal_pnl = round(
+        float(coin['unrealisedPnl']), 2
+    )
+    balance = round(
+        float(coin['walletBalance']), 2
+    )
+    real_pnl = round(
+        float(coin['cumRealisedPnl']), 2
+    )
     info_wallet = {'equity': equity,
                    'unreal_pnl': unreal_pnl,
                    'balance': balance,

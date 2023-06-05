@@ -2,14 +2,10 @@ from aiogram import Dispatcher
 from aiogram.types import Message
 from aiogram.dispatcher import FSMContext
 from emoji import emojize
-from .bot_button import (
-    kb, kb_check_prices, kb_database, kb_long_short
-)
 from keys import MYID
+from .bot_button import kb, kb_check_prices, kb_database, kb_long_short
 from database.models import TickerDB
-from database.manager import (
-    add_to_table, get_all_rows, changing_trend, changing_stop
-)
+from database.manager import Manager
 from database.temporary_data.temp_db import DBState
 from trade.check_price import start_check_tickers
 from trade.bot_request import check_levels, check_level, get_symbol
@@ -60,7 +56,7 @@ async def add_level(message: Message, state: FSMContext):
         await state.update_data(trend=trend)
         data = await state.get_data()
         if check_level(**data):
-            add_to_table(TickerDB, data)
+            Manager.add_to_table(TickerDB, data)
             await message.answer('Level is added!', reply_markup=kb)
         else:
             await message.answer("The level doesn't meet the requirements!",
@@ -77,18 +73,23 @@ async def check_prices(message: Message):
 async def start(message):
     await message.answer('Analyzing the levels...')
     await message.answer(emojize(':man_technologist:'))
-    for row in get_all_rows(TickerDB):
+    for row in Manager.get_all_rows(TickerDB):
         check_levels(**row._asdict())
-    await message.answer('Done! ' + emojize(':check_mark_button:'))
     await message.answer(
-        'Price check started! ' + emojize(':check_mark_button:'))
+        f'Done! {emojize(":check_mark_button:")}'
+    )
+    await message.answer(
+        f'Price check started! {emojize(":check_mark_button:")}'
+    )
     start_check_tickers()
 
 
 async def trade_long(message: Message):
     if message.from_user.id == MYID:
-        changing_trend('long')
-        await message.answer('Long trading activated!')
+        Manager.changing_trend('long')
+        await message.answer(
+            f'Long trading activated! {emojize(":check_mark_button:")}'
+        )
         await message.answer(emojize(':chart_increasing:'),
                              reply_markup=kb)
         await start(message)
@@ -96,8 +97,10 @@ async def trade_long(message: Message):
 
 async def trade_short(message: Message):
     if message.from_user.id == MYID:
-        changing_trend('short')
-        await message.answer('Short trading activated!')
+        Manager.changing_trend('short')
+        await message.answer(
+            f'Short trading activated! {emojize(":check_mark_button:")}'
+        )
         await message.answer(emojize(':chart_decreasing:'),
                              reply_markup=kb)
         await start(message)
@@ -119,11 +122,13 @@ async def add_stop_volume(message: Message, state: FSMContext):
     if message.from_user.id == MYID:
         try:
             volume = get_and_check_value(message)
-            changing_stop(volume)
+            Manager.changing_stop(volume)
             await state.finish()
-            await message.answer('The stop volume has been changed!')
-            await message.answer(emojize(':check_mark_button:'),
-                                 reply_markup=kb)
+            await message.answer(
+                'The stop volume has been changed! '
+                f'{emojize(":check_mark_button:")}',
+                reply_markup=kb
+            )
         except ValueError:
             await message.answer('The value entered is incorrect! Try again:')
 
