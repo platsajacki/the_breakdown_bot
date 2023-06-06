@@ -1,4 +1,3 @@
-
 from sqlalchemy import select, func
 from .database import sess_db, conn, engine
 from .models import Base, TickerDB, TrendDB, StopVolumeDB

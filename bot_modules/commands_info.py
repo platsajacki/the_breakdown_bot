@@ -3,13 +3,11 @@ from aiogram.types import Message
 from aiogram.dispatcher import FSMContext
 from emoji import emojize
 from keys import MYID
-from database.temporary_data.temp_db import TickerInfo
+from .text_message import InfoMessage
 from .bot_button import kb, kb_info
+from database.temporary_data.temp_db import TickerState
 from trade.bot_request import (
     get_wallet_balance, get_open_orders, get_symbol, get_open_positions
-)
-from .text_message import (
-    ORDER_MESSAGE, ORDER_TP_SL_MESSAGE, WALLET_MASSAGE, POSITION_MESSAGE
 )
 
 
@@ -21,13 +19,14 @@ async def get_info(message: Message):
 
 async def get_balance(message: Message):
     if message.from_user.id == MYID:
-        await message.answer(WALLET_MASSAGE.format(**get_wallet_balance()))
+        await message.answer(
+            InfoMessage.WALLET_MASSAGE.format(**get_wallet_balance()))
 
 
 async def get_orders(message: Message):
     if message.from_user.id == MYID:
         await message.answer('Enter the ticker:')
-        await TickerInfo.ticker_order.set()
+        await TickerState.ticker_order.set()
 
 
 async def get_ticker_order(message: Message, state: FSMContext):
@@ -47,22 +46,26 @@ async def get_ticker_order(message: Message, state: FSMContext):
             for order in open_orders:
                 entry_point = float(order['entry_point'])
                 if entry_point != 0:
-                    await message.answer(ORDER_MESSAGE.format(**order),
-                                         reply_markup=kb)
+                    await message.answer(
+                        InfoMessage.ORDER_MESSAGE.format(**order),
+                        reply_markup=kb
+                    )
                 else:
-                    await message.answer(ORDER_TP_SL_MESSAGE.format(**order),
-                                         reply_markup=kb)
+                    await message.answer(
+                        InfoMessage.ORDER_TP_SL_MESSAGE.format(**order),
+                        reply_markup=kb
+                    )
             await state.finish()
         else:
             await message.answer('Ticker not found, try again:')
             await state.finish()
-            await TickerInfo.ticker_order.set()
+            await TickerState.ticker_order.set()
 
 
 async def get_positions(message: Message):
     if message.from_user.id == MYID:
         await message.answer('Enter the ticker:')
-        await TickerInfo.ticker_position.set()
+        await TickerState.ticker_position.set()
 
 
 async def get_ticker_position(message: Message, state: FSMContext):
@@ -79,13 +82,15 @@ async def get_ticker_position(message: Message, state: FSMContext):
                 await state.finish()
             else:
                 for position in open_positions:
-                    await message.answer(POSITION_MESSAGE.format(**position),
-                                         reply_markup=kb)
+                    await message.answer(
+                        InfoMessage.POSITION_MESSAGE.format(**position),
+                        reply_markup=kb
+                    )
             await state.finish()
         else:
             await message.answer('Ticker not found, try again:')
             await state.finish()
-            await TickerInfo.ticker_position.set()
+            await TickerState.ticker_position.set()
 
 
 async def get_back(message: Message):
@@ -98,8 +103,8 @@ def reg_handler_info(dp: Dispatcher):
     dp.register_message_handler(get_balance, commands=['balance'])
     dp.register_message_handler(get_orders, commands=['orders'])
     dp.register_message_handler(get_ticker_order,
-                                state=TickerInfo.ticker_order)
+                                state=TickerState.ticker_order)
     dp.register_message_handler(get_positions, commands=['positions'])
     dp.register_message_handler(get_ticker_position,
-                                state=TickerInfo.ticker_position)
+                                state=TickerState.ticker_position)
     dp.register_message_handler(get_back, commands=['back'])

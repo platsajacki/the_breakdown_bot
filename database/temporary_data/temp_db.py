@@ -1,7 +1,7 @@
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
-class TickerInfo(StatesGroup):
+class TickerState(StatesGroup):
     ticker_order = State()
     ticker_position = State()
 

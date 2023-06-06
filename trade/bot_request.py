@@ -3,7 +3,7 @@ from pybit.unified_trading import HTTP
 from emoji import emojize
 from keys import api_key, api_secret
 from bot_modules.send_message import send_message
-from bot_modules.text_message import OPEN_ORDER_MESSAGE
+from bot_modules.text_message import InfoMessage
 from database.manager import Manager
 from database.models import (
     TickerDB, UnsuitableLevelsDB, OpenedOrderDB, StopVolumeDB
@@ -98,8 +98,10 @@ def open_pos(symbol: str, entry_point: float, stop: float,
                          'take_profit': take_profit
                          }
     Manager.add_to_table(OpenedOrderDB, open_order_params)
-    text_message = OPEN_ORDER_MESSAGE.format(smile=emojize(':money_bag:'),
-                                             **open_order_params)
+    text_message = (
+        InfoMessage.OPEN_ORDER_MESSAGE
+        .format(smile=emojize(':money_bag:'), **open_order_params)
+    )
     send_message(text_message)
 
 
