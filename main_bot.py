@@ -6,9 +6,11 @@ from bot_modules.create_bot import dp
 from bot_modules.bot_button import kb
 from bot_modules.commands_info import reg_handler_info
 from bot_modules.commands_main import reg_handler_main
+from bot_modules.commands_db import reg_handler_db
 
 reg_handler_main(dp)
 reg_handler_info(dp)
+reg_handler_db(dp)
 
 
 @dp.message_handler(commands=['start'])

@@ -1,6 +1,6 @@
 from pybit.unified_trading import WebSocket
 from .param_position import Long, Short
-from .bot_request import open_pos
+from .bot_request import Market
 from database.models import TickerDB, TrendDB
 from database.manager import Manager
 
@@ -15,25 +15,29 @@ connected_tickers = set()
 session = WebSocket(testnet=True, channel_type='linear')
 
 
-def check_long(symbol: str, mark_price: float, round_price: int) -> open_pos:
+def check_long(symbol: str, mark_price: float, round_price: int):
     query = Manager.get_current_level(symbol[:-4], 'long')
     if query is not None:
         id, level = query['id'], query['level']
         calc_level: float = level * COEF_LEVEL_LONG
         if calc_level < mark_price < level:
             long_calc = Long(symbol, level, round_price)
-            open_pos(*long_calc.get_param_position(), BUY)
+            Market.open_pos(
+                *long_calc.get_param_position(), BUY
+            )
             Manager.delete_row(TickerDB, id)
 
 
-def check_short(symbol: str, mark_price: float, round_price: int) -> open_pos:
+def check_short(symbol: str, mark_price: float, round_price: int):
     query = Manager.get_current_level(symbol[:-4], 'short')
     if query is not None:
         id, level = query['id'], query['level']
         calc_level: float = level * COEF_LEVEL_SHORT
         if calc_level > mark_price > level:
             short_calc = Short(symbol, level, round_price)
-            open_pos(*short_calc.get_param_position(), SELL)
+            Market.open_pos(
+                *short_calc.get_param_position(), SELL
+            )
             Manager.delete_row(TickerDB, id)
 
 
