@@ -83,6 +83,16 @@ class Manager():
         ).one()._asdict()
         return row
 
+    @staticmethod
+    def get_level_by_trend(ticker, trend):
+        query = (
+            sess_db
+            .query(TickerDB.level)
+            .filter(
+                TickerDB.ticker == ticker, TickerDB.trend == trend)
+        ).all()
+        return set(map(lambda query: query[0], query))
+
 
 Base.metadata.create_all(engine)
 

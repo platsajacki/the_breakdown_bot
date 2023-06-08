@@ -25,7 +25,7 @@ class Position:
 
 class Long(Position):
     '''Calculation of a long position.'''
-    def get_param_position(self) -> float:
+    def get_param_position(self) -> tuple[float]:
         entry_point = round(
             self.level + super().calculate_luft(), self.round_price
         )
@@ -39,12 +39,12 @@ class Long(Position):
             entry_point + self.COEF_PROFIT * super().calculate_stop(),
             self.round_price
         )
-        return (self.symbol, entry_point, stop, take_profit, trigger)
+        return self.symbol, entry_point, stop, take_profit, trigger
 
 
 class Short(Position):
     '''Calculation of a short position.'''
-    def get_param_position(self) -> float:
+    def get_param_position(self) -> tuple[float]:
         entry_point = round(
             self.level - super().calculate_luft(), self.round_price
         )
@@ -58,4 +58,4 @@ class Short(Position):
             entry_point - self.COEF_PROFIT * super().calculate_stop(),
             self.round_price
         )
-        return (self.symbol, entry_point, stop, take_profit, trigger)
+        return self.symbol, entry_point, stop, take_profit, trigger

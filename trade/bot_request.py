@@ -19,9 +19,15 @@ class LevelDetector():
     @staticmethod
     def check_level(ticker, level, trend) -> bool:
         if trend == 'long':
-            return level > Market.get_mark_price(ticker)
+            return (
+                level > Market.get_mark_price(ticker)
+                and level not in Manager.get_level_by_trend(ticker, trend)
+            )
         if trend == 'short':
-            return level < Market.get_mark_price(ticker)
+            return (
+                level < Market.get_mark_price(ticker)
+                and level not in Manager.get_level_by_trend(ticker, trend)
+            )
 
     @staticmethod
     def check_levels(id, ticker, level, trend, **kwargs):
