@@ -51,13 +51,13 @@ def handle_message(msg):
         check_short(symbol, float(mark_price), round_price)
 
 
-def connect_ticker(ticker) -> handle_message:
+def connect_ticker(ticker):
     connected_tickers.add(ticker)
     symbol = ticker + 'USDT'
     session.ticker_stream(symbol=symbol, callback=handle_message)
 
 
-def start_check_tickers() -> connect_ticker:
+def start_check_tickers():
     if Manager.get_row_by_id(TrendDB, 1).trend == 'long':
         for ticker in Manager.select_trend_tickers('long'):
             ticker = ticker[0]
