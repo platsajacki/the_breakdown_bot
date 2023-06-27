@@ -1,8 +1,9 @@
 from pybit.unified_trading import WebSocket
-from .param_position import Long, Short
+
 from .bot_request import Market
-from database.models import TickerDB, TrendDB
+from .param_position import Long, Short
 from database.manager import Manager
+from database.models import TickerDB, TrendDB
 
 BUY: str = 'Buy'
 SELL: str = 'Sell'

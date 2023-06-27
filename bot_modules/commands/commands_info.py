@@ -1,13 +1,14 @@
 from aiogram import Dispatcher
-from aiogram.types import Message
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
+from aiogram.types import Message
 from emoji import emojize
-from keys import MYID
-from .bot_button import kb, kb_info
+
 from ..filters import AdminID
 from ..text_message import InfoMessage
+from .bot_button import kb, kb_info
 from database.temporary_data.temp_db import TickerState
+from keys import MYID
 from trade.bot_request import Market
 
 
@@ -21,7 +22,7 @@ async def get_info(message: Message):
 async def get_balance(message: Message):
     await message.answer(
             InfoMessage.WALLET_MASSAGE.format(**Market.get_wallet_balance())
-        )
+    )
 
 
 async def get_orders(message: Message, state: FSMContext):

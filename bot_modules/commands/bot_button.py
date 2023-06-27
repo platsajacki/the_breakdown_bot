@@ -42,7 +42,7 @@ kb_check_prices = ReplyKeyboardMarkup(
     keyboard=[
         [long_trend], [short_trend], [back]
     ], resize_keyboard=True
-    )
+)
 kb_long_short = ReplyKeyboardMarkup(
     keyboard=[
         [long, short]

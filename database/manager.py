@@ -1,10 +1,11 @@
-from sqlalchemy import select, func
-from .database import sess_db, conn, engine
-from .models import Base, TickerDB, TrendDB, StopVolumeDB
+from sqlalchemy import func, select
+
+from .database import conn, engine, sess_db
+from .models import Base, StopVolumeDB, TickerDB, TrendDB
 from bot_modules.send_message import send_message
 
 
-class Manager():
+class Manager:
     @staticmethod
     def add_to_table(table, data):
         row = table(**data)

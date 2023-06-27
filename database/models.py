@@ -1,15 +1,16 @@
-from sqlalchemy import Column, Integer, Float, String, DateTime, func
+from sqlalchemy import Column, DateTime, Float, Integer, String, func
+
 from .database import Base
 
 
-class BaseColumn():
+class BaseColumn:
     __abstract__ = True
 
     id = Column(Integer, primary_key=True)
     create = Column(DateTime, default=func.now())
 
 
-class TickerColumn():
+class TickerColumn:
     __abstract__ = True
 
     ticker = Column(String(10))

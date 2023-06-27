@@ -1,5 +1,6 @@
 from requests import post
-from keys import token, MYID
+
+from keys import MYID, token
 
 
 def send_message(text_message):

@@ -1,15 +1,16 @@
 from aiogram import Dispatcher
-from aiogram.types import Message
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
+from aiogram.types import Message
 from emoji import emojize
-from keys import MYID
+
+from ..filters import AdminID
 from .bot_button import kb, kb_database
 from .commands_main import check_and_get_value
-from ..filters import AdminID
-from trade.check_price import connected_tickers
 from database.manager import Manager
 from database.temporary_data.temp_db import DBState
+from keys import MYID
+from trade.check_price import connected_tickers
 
 
 async def get_database(message: Message):

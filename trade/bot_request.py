@@ -1,11 +1,12 @@
-from requests import get
-from pybit.unified_trading import HTTP
 from emoji import emojize
-from keys import api_key, api_secret
+from pybit.unified_trading import HTTP
+from requests import get
+
 from bot_modules.send_message import send_message
 from bot_modules.text_message import InfoMessage
 from database.manager import Manager
 from database.models import OpenedOrderDB, StopVolumeDB
+from keys import api_key, api_secret
 
 session = HTTP(
     testnet=True,
@@ -13,7 +14,7 @@ session = HTTP(
     api_secret=api_secret)
 
 
-class Market():
+class Market:
     @staticmethod
     def get_symbol(symbol: str) -> str:
         url = (

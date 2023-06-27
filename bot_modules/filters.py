@@ -1,6 +1,7 @@
+from dataclasses import dataclass
+
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
-from dataclasses import dataclass
 
 
 @dataclass

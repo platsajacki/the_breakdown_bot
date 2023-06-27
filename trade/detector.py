@@ -3,7 +3,7 @@ from database.manager import Manager
 from database.models import TickerDB, UnsuitableLevelsDB
 
 
-class LevelDetector():
+class LevelDetector:
     @staticmethod
     def check_level(ticker, level, trend) -> bool:
         if trend == 'long':

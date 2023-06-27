@@ -1,17 +1,18 @@
 from aiogram import Dispatcher
-from aiogram.types import Message
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
+from aiogram.types import Message
 from emoji import emojize
-from keys import MYID
-from .bot_button import kb, kb_check_prices, kb_long_short
+
 from ..filters import AdminID
-from database.models import TickerDB
+from .bot_button import kb, kb_check_prices, kb_long_short
 from database.manager import Manager
+from database.models import TickerDB
 from database.temporary_data.temp_db import DBState
+from keys import MYID
+from trade.bot_request import Market
 from trade.check_price import start_check_tickers
 from trade.detector import LevelDetector
-from trade.bot_request import Market
 
 
 def check_and_get_value(message) -> float:
