@@ -1,4 +1,4 @@
-from aiogram import Dispatcher
+from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
@@ -120,11 +120,15 @@ async def trade_short(message: Message):
     await start(message)
 
 
-def reg_handler_main(dp: Dispatcher):
-    dp.message.register(check_prices, Command('check_prices'), AdminID(MYID))
-    dp.message.register(start_add_level, Command('add_level'), AdminID(MYID))
-    dp.message.register(enter_level, StateFilter(DBState.ticker))
-    dp.message.register(enter_trend, StateFilter(DBState.lvl_db))
-    dp.message.register(add_level, StateFilter(DBState.trend))
-    dp.message.register(trade_long, Command('trade_long'), AdminID(MYID))
-    dp.message.register(trade_short, Command('trade_short'), AdminID(MYID))
+def reg_handler_main(router: Router):
+    router.message.register(
+        check_prices, Command('check_prices'), AdminID(MYID)
+    )
+    router.message.register(
+        start_add_level, Command('add_level'), AdminID(MYID)
+    )
+    router.message.register(enter_level, StateFilter(DBState.ticker))
+    router.message.register(enter_trend, StateFilter(DBState.lvl_db))
+    router.message.register(add_level, StateFilter(DBState.trend))
+    router.message.register(trade_long, Command('trade_long'), AdminID(MYID))
+    router.message.register(trade_short, Command('trade_short'), AdminID(MYID))

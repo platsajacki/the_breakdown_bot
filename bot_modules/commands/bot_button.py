@@ -23,6 +23,10 @@ short = KeyboardButton(text='short')
 '''Keyboard db'''
 change_stop = KeyboardButton(text='/change_stop')
 connected_tickers = KeyboardButton(text='/connected_tickers')
+query = KeyboardButton(text='/query')
+active = KeyboardButton(text='/active')
+spend = KeyboardButton(text='/spend')
+unsuiteble = KeyboardButton(text='/unsuiteble')
 
 '''Add buttons'''
 kb = ReplyKeyboardMarkup(
@@ -51,6 +55,12 @@ kb_long_short = ReplyKeyboardMarkup(
 
 kb_database = ReplyKeyboardMarkup(
     keyboard=[
-        [change_stop], [connected_tickers], [back]
+        [change_stop], [connected_tickers], [query], [back]
+    ], resize_keyboard=True
+)
+
+kb_query = ReplyKeyboardMarkup(
+    keyboard=[
+        [active], [spend], [unsuiteble], [back]
     ], resize_keyboard=True
 )

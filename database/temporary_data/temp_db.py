@@ -11,3 +11,9 @@ class DBState(StatesGroup):
     lvl_db = State()
     trend = State()
     stop_volume = State()
+
+
+class DBQuery(StatesGroup):
+    ticker = State()
+    limit = State()
+    trend = State()

@@ -50,6 +50,18 @@ class Manager:
         return row
 
     @staticmethod
+    def get_limit_query(table, ticker, trend, limit):
+        query = (
+            sess_db.query(table)
+            .filter(table.ticker == ticker, table.trend == trend)
+            .order_by(table.level)
+            .limit(limit=limit)
+        ).all()
+        return [
+            q.__dict__ for q in query
+        ]
+
+    @staticmethod
     def select_trend_tickers(trend):
         query = (
             sess_db.query(TickerDB.ticker).distinct()

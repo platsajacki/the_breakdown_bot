@@ -39,3 +39,8 @@ Marking price - {mark_price};
 Unrealised PNL - {unrealised_pnl};
 Stop-loss - {stop_loss};
 Take-profit - {take_profit}.'''
+
+    QUERY_LIMIT: str = '''{ticker} - {trend}
+LVL - {level}
+Create - {create}
+'''

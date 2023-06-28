@@ -1,19 +1,20 @@
-from aiogram.types import Message
 from aiogram.filters import Command
+from aiogram.types import Message
 from emoji import emojize
-from keys import MYID
-from bot_modules.create_bot import dp, bot
+
 from bot_modules.commands.bot_button import kb
+from bot_modules.commands.commands_db import reg_handler_db
 from bot_modules.commands.commands_info import reg_handler_info
 from bot_modules.commands.commands_main import reg_handler_main
-from bot_modules.commands.commands_db import reg_handler_db
+from bot_modules.create_bot import bot, dp, router
+from keys import MYID
 
-reg_handler_main(dp)
-reg_handler_info(dp)
-reg_handler_db(dp)
+reg_handler_main(router)
+reg_handler_info(router)
+reg_handler_db(router)
 
 
-@dp.message(Command('start'))
+@router.message(Command('start'))
 async def start(message: Message):
     if message.from_user.id == MYID:
         await message.answer(
@@ -27,4 +28,5 @@ async def start(message: Message):
 
 
 if __name__ == '__main__':
+    dp.include_router(router)
     dp.run_polling(bot)

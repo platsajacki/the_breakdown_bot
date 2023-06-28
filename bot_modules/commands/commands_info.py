@@ -1,4 +1,4 @@
-from aiogram import Dispatcher
+from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
@@ -70,12 +70,12 @@ async def get_positions(message: Message, state: FSMContext):
 
 
 async def get_ticker_position(message: Message, state: FSMContext):
-    tiker = message.text.upper()
+    ticker = message.text.upper()
     await message.answer(
         emojize(':man_technologist:')
     )
-    if Market.get_symbol(tiker) == 'OK':
-        open_positions = Market.get_open_positions(tiker)
+    if Market.get_symbol(ticker) == 'OK':
+        open_positions = Market.get_open_positions(ticker)
         if open_positions == 'None':
             await message.answer(
                 'There are no open positions.'
@@ -101,15 +101,15 @@ async def get_back(message: Message):
     await message.answer('Main menu.', reply_markup=kb)
 
 
-def reg_handler_info(dp: Dispatcher):
-    dp.message.register(get_info, Command('info'), AdminID(MYID))
-    dp.message.register(get_balance, Command('balance'), AdminID(MYID))
-    dp.message.register(get_orders, Command('orders'), AdminID(MYID))
-    dp.message.register(get_back, Command('back'), AdminID(MYID))
-    dp.message.register(get_positions, Command('positions'), AdminID(MYID))
-    dp.message.register(
+def reg_handler_info(router: Router):
+    router.message.register(get_info, Command('info'), AdminID(MYID))
+    router.message.register(get_balance, Command('balance'), AdminID(MYID))
+    router.message.register(get_orders, Command('orders'), AdminID(MYID))
+    router.message.register(get_back, Command('back'), AdminID(MYID))
+    router.message.register(get_positions, Command('positions'), AdminID(MYID))
+    router.message.register(
         get_ticker_position, StateFilter(TickerState.ticker_position)
     )
-    dp.message.register(
+    router.message.register(
             get_ticker_order, StateFilter(TickerState.ticker_order)
     )
