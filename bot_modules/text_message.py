@@ -42,5 +42,4 @@ Take-profit - {take_profit}.'''
 
     QUERY_LIMIT: str = '''{ticker} - {trend}
 LVL - {level}
-Create - {create}
-'''
+Create - {create}'''

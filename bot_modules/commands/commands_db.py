@@ -107,6 +107,7 @@ async def get_queryset_lvl(message: Message, state: FSMContext):
     await state.update_data(trend=trend)
     data = await state.get_data()
     for query in Manager.get_limit_query(**data):
+        query['create'] = query['create'].strftime('%H:%M %d.%m.%Y')
         await message.answer(InfoMessage.QUERY_LIMIT.format(**query))
     await message.answer(
             f'Done!{emojize(":check_mark_button:")}',
