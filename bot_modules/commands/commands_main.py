@@ -6,6 +6,7 @@ from emoji import emojize
 
 from ..filters import AdminID
 from .bot_button import kb, kb_check_prices, kb_long_short
+from constant import LONG, SHORT
 from database.manager import Manager
 from database.models import TickerDB
 from database.temporary_data.temp_db import DBState
@@ -99,7 +100,7 @@ async def start(message):
 
 
 async def trade_long(message: Message):
-    Manager.changing_trend('long')
+    Manager.changing_trend(LONG)
     await message.answer(
         f'Long trading activated! {emojize(":check_mark_button:")}'
     )
@@ -109,7 +110,7 @@ async def trade_long(message: Message):
 
 
 async def trade_short(message: Message):
-    Manager.changing_trend('short')
+    Manager.changing_trend(SHORT)
     await message.answer(
         f'Short trading activated! {emojize(":check_mark_button:")}'
     )

@@ -1,4 +1,5 @@
 from .bot_request import Market
+from constant import LONG, SHORT
 from database.manager import Manager
 from database.models import TickerDB, UnsuitableLevelsDB
 
@@ -6,12 +7,12 @@ from database.models import TickerDB, UnsuitableLevelsDB
 class LevelDetector:
     @staticmethod
     def check_level(ticker, level, trend) -> bool:
-        if trend == 'long':
+        if trend == LONG:
             return (
                 level > Market.get_mark_price(ticker)
                 and level not in Manager.get_level_by_trend(ticker, trend)
             )
-        if trend == 'short':
+        else:
             return (
                 level < Market.get_mark_price(ticker)
                 and level not in Manager.get_level_by_trend(ticker, trend)
@@ -25,7 +26,7 @@ class LevelDetector:
             }
             Manager.add_to_table(UnsuitableLevelsDB, data)
             Manager.delete_row(TickerDB, id)
-        if trend == 'long' and level < Market.get_mark_price(ticker):
+        if trend == LONG and level < Market.get_mark_price(ticker):
             delete_unsuitable_lvl(id, ticker, level, trend)
-        if trend == 'short' and level > Market.get_mark_price(ticker):
+        if trend == SHORT and level > Market.get_mark_price(ticker):
             delete_unsuitable_lvl(id, ticker, level, trend)

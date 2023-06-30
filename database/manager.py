@@ -3,6 +3,7 @@ from sqlalchemy import func, select
 from .database import conn, engine, sess_db
 from .models import Base, StopVolumeDB, TickerDB, TrendDB
 from bot_modules.send_message import send_message
+from constant import LONG
 
 
 class Manager:
@@ -72,7 +73,7 @@ class Manager:
     @staticmethod
     def get_current_level(ticker, trend):
         level = None
-        if trend == 'long':
+        if trend == LONG:
             level = (
                 sess_db.query(func.min(TickerDB.level))
                 .filter(

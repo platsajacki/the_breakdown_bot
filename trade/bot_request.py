@@ -4,6 +4,7 @@ from requests import get
 
 from bot_modules.send_message import send_message
 from bot_modules.text_message import InfoMessage
+from constant import LINEAR, USDT
 from database.manager import Manager
 from database.models import OpenedOrderDB, StopVolumeDB
 from keys import api_key, api_secret
@@ -19,16 +20,16 @@ class Market:
     def get_symbol(symbol: str) -> str:
         url = (
             'https://api.bybit.com/'
-            f'v5/market/tickers?category=linear&symbol={symbol}USDT'
+            f'v5/market/tickers?category={LINEAR}&symbol={symbol}{USDT}'
         )
         response = get(url)
         return response.json()['retMsg']
 
     @staticmethod
     def get_mark_price(ticker) -> float:
-        symbol: str = ticker + 'USDT'
+        symbol: str = f'{ticker}{USDT}'
         info = session.get_tickers(
-            category='linear', symbol=symbol
+            category=LINEAR, symbol=symbol
         )
         mark_price = float(info['result']['list'][0]['markPrice'])
         return mark_price
@@ -39,11 +40,11 @@ class Market:
         '''Calculation of transaction volume'''
         min_order_qty: str = (
             session.get_instruments_info(
-                category='linear',
+                category=LINEAR,
                 symbol=symbol)
             ['result']['list'][0]
             ['priceFilter']['minPrice']
-            )
+        )
         round_volume: int = len(min_order_qty.split('.')[1])
         asset_volume: str = (
             str(round(
@@ -57,7 +58,7 @@ class Market:
             triggerDirection: int = 2
         '''Opening an order'''
         session.place_order(
-            category='linear',
+            category=LINEAR,
             symbol=symbol,
             side=side,
             orderType='Limit',
@@ -85,7 +86,7 @@ class Market:
 
     @staticmethod
     def get_wallet_balance() -> dict[str, float]:
-        info = session.get_wallet_balance(accountType='CONTRACT', coin='USDT')
+        info = session.get_wallet_balance(accountType='CONTRACT', coin=USDT)
         coin = info['result']['list'][0]['coin'][0]
         equity = round(
             float(coin['equity']), 2
@@ -102,13 +103,14 @@ class Market:
         info_wallet = {'equity': equity,
                        'unreal_pnl': unreal_pnl,
                        'balance': balance,
-                       'real_pnl': real_pnl}
+                       'real_pnl': real_pnl
+                       }
         return info_wallet
 
     @staticmethod
     def get_open_orders(ticker: str) -> list[dict]:
-        symbol: str = ticker + 'USDT'
-        info = session.get_open_orders(symbol=symbol, category='linear')
+        symbol: str = f'{ticker}{USDT}'
+        info = session.get_open_orders(symbol=symbol, category=LINEAR)
         orders = info['result']['list']
         orders_list = []
         if orders == []:
@@ -128,8 +130,8 @@ class Market:
 
     @staticmethod
     def get_open_positions(ticker: str) -> list[dict]:
-        symbol: str = ticker + 'USDT'
-        info = session.get_positions(symbol=symbol, category='linear')
+        symbol: str = f'{ticker}{USDT}'
+        info = session.get_positions(symbol=symbol, category=LINEAR)
         positions = info['result']['list']
         positions_list = []
         if positions[0]['side'] == 'None':
