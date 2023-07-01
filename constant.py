@@ -2,6 +2,7 @@ LINEAR: str = 'linear'
 
 LONG: str = 'long'
 SHORT: str = 'short'
+TRENDS: list[str, str] = [LONG, SHORT]
 
 BUY: str = 'Buy'
 SELL: str = 'Sell'

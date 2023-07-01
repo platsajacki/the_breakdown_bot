@@ -8,6 +8,7 @@ from ..filters import AdminID
 from ..text_message import InfoMessage
 from .bot_button import kb, kb_database, kb_query, kb_long_short
 from .commands_main import check_and_get_value
+from constant import TRENDS
 from database.models import TickerDB, SpentLevelsDB, UnsuitableLevelsDB
 from database.manager import Manager
 from database.temporary_data.temp_db import DBState, DBQuery
@@ -32,7 +33,6 @@ async def add_stop_volume(message: Message, state: FSMContext):
     try:
         volume = check_and_get_value(message)
         Manager.changing_stop(volume)
-        await state.clear()
         await message.answer(
             'The stop volume has been changed! '
             f'{emojize(":check_mark_button:")}',
@@ -42,6 +42,8 @@ async def add_stop_volume(message: Message, state: FSMContext):
         await message.answer(
             'The value entered is incorrect! Try again:'
         )
+        await state.set_state(DBState.stop_volume)
+    await state.clear()
 
 
 async def get_connected_tickers(message: Message):
@@ -81,7 +83,6 @@ async def get_limit_lvls(message: Message, state: FSMContext):
         await state.set_state(DBQuery.limit)
     else:
         await message.answer('Ticker not found, try again:')
-        await state.clear()
         await state.set_state(DBQuery.ticker)
 
 
@@ -98,21 +99,28 @@ async def get_query_trend(message: Message, state: FSMContext):
         await message.answer(
             'The value entered is incorrect! Try again:'
         )
-        await state.clear()
         await state.set_state(DBQuery.limit)
 
 
 async def get_queryset_lvl(message: Message, state: FSMContext):
     trend = message.text.lower()
-    await state.update_data(trend=trend)
-    data = await state.get_data()
-    for query in Manager.get_limit_query(**data):
-        query['create'] = query['create'].strftime('%H:%M %d.%m.%Y')
-        await message.answer(InfoMessage.QUERY_LIMIT.format(**query))
-    await message.answer(
-        f'Done!{emojize(":check_mark_button:")}',
-        reply_markup=kb
-    )
+    if trend in TRENDS:
+        await state.update_data(trend=trend)
+        data = await state.get_data()
+        print(data)
+        for query in Manager.get_limit_query(**data):
+            query['create'] = query['create'].strftime('%H:%M %d.%m.%Y')
+            await message.answer(InfoMessage.QUERY_LIMIT.format(**query))
+        await message.answer(
+            f'Done!{emojize(":check_mark_button:")}',
+            reply_markup=kb
+        )
+    else:
+        await message.answer(
+            'The value entered is incorrect! Try again:'
+        )
+        await state.set_state(DBQuery.trend)
+    await state.clear()
 
 
 def reg_handler_db(router: Router):

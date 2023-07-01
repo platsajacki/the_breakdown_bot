@@ -32,10 +32,10 @@ async def get_orders(message: Message, state: FSMContext):
 
 async def get_ticker_order(message: Message, state: FSMContext):
     ticker = message.text.upper()
-    await message.answer(
-        emojize(':man_technologist:')
-    )
     if Market.get_symbol(ticker) == 'OK':
+        await message.answer(
+            emojize(':man_technologist:')
+        )
         open_orders = Market.get_open_orders(ticker)
         if open_orders == []:
             await message.answer(
@@ -44,7 +44,6 @@ async def get_ticker_order(message: Message, state: FSMContext):
             await message.answer(
                 emojize(':man_shrugging:'), reply_markup=kb
             )
-            await state.clear()
         for order in open_orders:
             entry_point = float(order['entry_point'])
             if entry_point != 0:
@@ -60,7 +59,6 @@ async def get_ticker_order(message: Message, state: FSMContext):
         await state.clear()
     else:
         await message.answer('Ticker not found, try again:')
-        await state.clear()
         await state.set_state(TickerState.ticker_order)
 
 
@@ -71,10 +69,10 @@ async def get_positions(message: Message, state: FSMContext):
 
 async def get_ticker_position(message: Message, state: FSMContext):
     ticker = message.text.upper()
-    await message.answer(
-        emojize(':man_technologist:')
-    )
     if Market.get_symbol(ticker) == 'OK':
+        await message.answer(
+            emojize(':man_technologist:')
+        )
         open_positions = Market.get_open_positions(ticker)
         if open_positions == 'None':
             await message.answer(
@@ -83,7 +81,6 @@ async def get_ticker_position(message: Message, state: FSMContext):
             await message.answer(
                 emojize(':man_shrugging:'), reply_markup=kb
             )
-            await state.clear()
         else:
             for position in open_positions:
                 await message.answer(
@@ -93,7 +90,6 @@ async def get_ticker_position(message: Message, state: FSMContext):
         await state.clear()
     else:
         await message.answer('Ticker not found, try again:')
-        await state.clear()
         await state.set_state(TickerState.ticker_position)
 
 

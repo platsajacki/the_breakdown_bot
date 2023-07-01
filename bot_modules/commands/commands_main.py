@@ -6,10 +6,10 @@ from emoji import emojize
 
 from ..filters import AdminID
 from .bot_button import kb, kb_check_prices, kb_long_short
-from constant import LONG, SHORT
+from constant import LONG, SHORT, TRENDS
 from database.manager import Manager
 from database.models import TickerDB
-from database.temporary_data.temp_db import DBState
+from database.temporary_data.temp_db import DBQuery, DBState
 from keys import MYID
 from trade.bot_request import Market
 from trade.check_price import start_check_tickers
@@ -37,7 +37,6 @@ async def enter_level(message: Message, state: FSMContext):
         await state.set_state(DBState.lvl_db)
     else:
         await message.answer('Ticker not found, try again:')
-        await state.clear()
         await state.set_state(DBState.ticker)
 
 
@@ -58,8 +57,14 @@ async def enter_trend(message: Message, state: FSMContext):
 
 async def add_level(message: Message, state: FSMContext):
     trend = message.text.lower()
-    await state.update_data(trend=trend)
-    data = await state.get_data()
+    if trend in TRENDS:
+        await state.update_data(trend=trend)
+        data = await state.get_data()
+    else:
+        await message.answer(
+            'The value entered is incorrect! Try again:'
+        )
+        await state.set_state(DBQuery.trend)
     if LevelDetector.check_level(**data):
         Manager.add_to_table(TickerDB, data)
         await message.answer(
