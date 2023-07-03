@@ -55,7 +55,7 @@ class Manager:
         query = (
             sess_db.query(table)
             .filter(table.ticker == ticker, table.trend == trend)
-            .order_by(table.level)
+            .order_by(table.level if trend == LONG else table.level.desc())
             .limit(limit=limit)
         ).all()
         return [
