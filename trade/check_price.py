@@ -5,8 +5,8 @@ from .param_position import Long, Short
 from constant import (
     BUY, COEF_LEVEL_LONG, COEF_LEVEL_SHORT, LINEAR, SELL, SHORT, USDT, LONG
 )
-from database.manager import Manager
-from database.models import TickerDB, TrendDB
+from database.manager import Manager, transferring_row
+from database.models import TrendDB, SpentLevelsDB
 
 
 connected_tickers = set()
@@ -15,7 +15,8 @@ session = WebSocket(testnet=True, channel_type=LINEAR)
 
 
 def check_long(symbol: str, mark_price: float, round_price: int):
-    query = Manager.get_current_level(symbol[:-4], LONG)
+    ticker = symbol[:-4]
+    query = Manager.get_current_level(ticker, LONG)
     if query is not None:
         id, level = query['id'], query['level']
         calc_level: float = level * COEF_LEVEL_LONG
@@ -24,11 +25,15 @@ def check_long(symbol: str, mark_price: float, round_price: int):
             Market.open_pos(
                 *long_calc.get_param_position(), BUY
             )
-            Manager.delete_row(TickerDB, id)
+            transferring_row(
+                table=SpentLevelsDB, id=id,
+                ticker=ticker, level=level, trend=LONG
+            )
 
 
 def check_short(symbol: str, mark_price: float, round_price: int):
-    query = Manager.get_current_level(symbol[:-4], SHORT)
+    ticker = symbol[:-4]
+    query = Manager.get_current_level(ticker, SHORT)
     if query is not None:
         id, level = query['id'], query['level']
         calc_level: float = level * COEF_LEVEL_SHORT
@@ -37,7 +42,10 @@ def check_short(symbol: str, mark_price: float, round_price: int):
             Market.open_pos(
                 *short_calc.get_param_position(), SELL
             )
-            Manager.delete_row(TickerDB, id)
+            transferring_row(
+                table=SpentLevelsDB, id=id,
+                ticker=ticker, level=level, trend=SHORT
+            )
 
 
 def handle_message(msg):

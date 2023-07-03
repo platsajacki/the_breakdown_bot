@@ -10,8 +10,8 @@ class Position:
     round_price: int
     COEF_STOP: ClassVar[float] = 0.01
     COEF_LUFT: ClassVar[float] = 0.25
-    COEF_TRIGGER_LONG: ClassVar[float] = 0.9985
-    COEF_TRIGGER_SHORT: ClassVar[float] = 1.0015
+    COEF_TRIGGER_LONG: ClassVar[float] = 0.9995
+    COEF_TRIGGER_SHORT: ClassVar[float] = 1.0005
     COEF_PROFIT: ClassVar[float] = 4
 
     def calculate_stop(self) -> float:

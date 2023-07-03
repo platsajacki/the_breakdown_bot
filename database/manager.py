@@ -108,6 +108,14 @@ class Manager:
         return set(map(lambda query: query[0], query))
 
 
+def transferring_row(table, id, ticker, level, trend):
+    data = {
+        'ticker': ticker, 'level': level, 'trend': trend
+    }
+    Manager.add_to_table(table, data)
+    Manager.delete_row(TickerDB, id)
+
+
 Base.metadata.create_all(engine)
 
 if Manager.get_row_by_id(StopVolumeDB, 1) is None:
