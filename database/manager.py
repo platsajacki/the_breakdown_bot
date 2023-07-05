@@ -8,16 +8,18 @@ from constant import LONG
 
 class Manager:
     @staticmethod
-    def add_to_table(table, data):
+    def add_to_table(table, data, commit=True):
         row = table(**data)
         sess_db.add(row)
-        sess_db.commit()
+        if commit:
+            sess_db.commit()
 
     @staticmethod
-    def delete_row(table, id):
+    def delete_row(table, id, commit=True):
         row = sess_db.query(table).filter(table.id == id).one()
         sess_db.delete(row)
-        sess_db.commit()
+        if commit:
+            sess_db.commit()
 
     @staticmethod
     def get_all_rows(table):
@@ -72,21 +74,16 @@ class Manager:
 
     @staticmethod
     def get_current_level(ticker, trend):
-        level = None
-        if trend == LONG:
-            level = (
-                sess_db.query(func.min(TickerDB.level))
-                .filter(
-                    TickerDB.ticker == ticker,
-                    TickerDB.trend == trend)
-            ).one_or_none()[0]
-        else:
-            level = (
-                sess_db.query(func.max(TickerDB.level))
-                .filter(
-                    TickerDB.ticker == ticker,
-                    TickerDB.trend == trend)
-            ).one_or_none()[0]
+        level = (
+            sess_db.query(
+                func.min(TickerDB.level) if trend == LONG
+                else func.max(TickerDB.level)
+            )
+            .filter(
+                TickerDB.ticker == ticker,
+                TickerDB.trend == trend
+            )
+        ).one_or_none()[0]
         if level is None:
             return None
         row = (
@@ -112,8 +109,9 @@ def transferring_row(table, id, ticker, level, trend):
     data = {
         'ticker': ticker, 'level': level, 'trend': trend
     }
-    Manager.add_to_table(table, data)
-    Manager.delete_row(TickerDB, id)
+    Manager.add_to_table(table, data, False)
+    Manager.delete_row(TickerDB, id, False)
+    sess_db.commit()
 
 
 Base.metadata.create_all(engine)
