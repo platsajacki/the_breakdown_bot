@@ -1,17 +1,19 @@
 from emoji import emojize
+from pybit.exceptions import InvalidRequestError
 from pybit.unified_trading import HTTP
 from requests import get
 
 from bot_modules.send_message import send_message
 from bot_modules.text_message import InfoMessage
-from constant import LINEAR, USDT, API_KEY, API_SECRET
+from constant import API_KEY, API_SECRET, BUY, LINEAR, USDT
 from database.manager import Manager
 from database.models import OpenedOrderDB, StopVolumeDB
 
 session = HTTP(
     testnet=True,
     api_key=API_KEY,
-    api_secret=API_SECRET)
+    api_secret=API_SECRET
+)
 
 
 class Market:
@@ -21,8 +23,7 @@ class Market:
             'https://api.bybit.com/'
             f'v5/market/tickers?category={LINEAR}&symbol={symbol}{USDT}'
         )
-        response = get(url)
-        return response.json()['retMsg']
+        return get(url).json()['retMsg']
 
     @staticmethod
     def get_mark_price(ticker) -> float:
@@ -35,7 +36,7 @@ class Market:
 
     @staticmethod
     def open_pos(symbol: str, entry_point: float, stop: float,
-                 take_profit: float, trigger: float, side: str):
+                 take_profit: float, trigger: float, side: str) -> None:
         '''Calculation of transaction volume'''
         min_order_qty: str = (
             session.get_instruments_info(
@@ -51,33 +52,37 @@ class Market:
                  / abs(entry_point - stop)), round_volume))
         )
         '''Setting up a trigger'''
-        if side == 'Buy':
+        if side == BUY:
             triggerDirection: int = 1
         else:
             triggerDirection: int = 2
         '''Opening an order'''
-        session.place_order(
-            category=LINEAR,
-            symbol=symbol,
-            side=side,
-            orderType='Limit',
-            qty=asset_volume,
-            tryggeBy='MarkPrice',
-            triggerDirection=triggerDirection,
-            triggerPrice=str(trigger),
-            price=str(entry_point),
-            takeProfit=str(take_profit),
-            stopLoss=str(stop),
-            orderFilter='Order')
-        open_order_params = {'symbol': symbol,
-                             'asset_volume': asset_volume,
-                             'trigger': trigger,
-                             'entry_point': entry_point,
-                             'stop_loss': stop,
-                             'take_profit': take_profit
-                             }
+        try:
+            session.place_order(
+                category=LINEAR,
+                symbol=symbol,
+                side=side,
+                orderType='Limit',
+                qty=asset_volume,
+                tryggeBy='MarkPrice',
+                triggerDirection=triggerDirection,
+                triggerPrice=str(trigger),
+                price=str(entry_point),
+                takeProfit=str(take_profit),
+                stopLoss=str(stop),
+                orderFilter='Order')
+        except InvalidRequestError as error:
+            send_message(error)
+        open_order_params: dict[str, str | float] = {
+            'symbol': symbol,
+            'asset_volume': asset_volume,
+            'trigger': trigger,
+            'entry_point': entry_point,
+            'stop_loss': stop,
+            'take_profit': take_profit
+        }
         Manager.add_to_table(OpenedOrderDB, open_order_params)
-        text_message = (
+        text_message: str = (
             InfoMessage.OPEN_ORDER_MESSAGE
             .format(smile=emojize(':money_bag:'), **open_order_params)
         )
@@ -99,11 +104,12 @@ class Market:
         real_pnl = round(
             float(coin['cumRealisedPnl']), 2
         )
-        info_wallet = {'equity': equity,
-                       'unreal_pnl': unreal_pnl,
-                       'balance': balance,
-                       'real_pnl': real_pnl
-                       }
+        info_wallet: dict[str, float] = {
+            'equity': equity,
+            'unreal_pnl': unreal_pnl,
+            'balance': balance,
+            'real_pnl': real_pnl
+        }
         return info_wallet
 
     @staticmethod
@@ -115,15 +121,16 @@ class Market:
         if orders == []:
             return orders
         for order in orders:
-            order_info = {'symbol': symbol,
-                          'side': order['side'],
-                          'entry_point': order['price'],
-                          'qty': order['qty'],
-                          'trigger_price': order['triggerPrice'],
-                          'stop_loss': order['stopLoss'],
-                          'take_profit': order['takeProfit'],
-                          'order_type': order['orderType']
-                          }
+            order_info: dict[str, str] = {
+                'symbol': symbol,
+                'side': order['side'],
+                'entry_point': order['price'],
+                'qty': order['qty'],
+                'trigger_price': order['triggerPrice'],
+                'stop_loss': order['stopLoss'],
+                'take_profit': order['takeProfit'],
+                'order_type': order['orderType']
+            }
             orders_list.append(order_info)
         return orders_list
 
@@ -136,15 +143,16 @@ class Market:
         if positions[0]['side'] == 'None':
             return 'None'
         for position in positions:
-            position_info = {'symbol': symbol,
-                             'side': position['side'],
-                             'size': position['size'],
-                             'leverage': position['leverage'],
-                             'avg_price': position['avgPrice'],
-                             'mark_price': position['markPrice'],
-                             'unrealised_pnl': position['unrealisedPnl'],
-                             'stop_loss': position['stopLoss'],
-                             'take_profit': position['takeProfit']
-                             }
+            position_info: dict[str, str] = {
+                'symbol': symbol,
+                'side': position['side'],
+                'size': position['size'],
+                'leverage': position['leverage'],
+                'avg_price': position['avgPrice'],
+                'mark_price': position['markPrice'],
+                'unrealised_pnl': position['unrealisedPnl'],
+                'stop_loss': position['stopLoss'],
+                'take_profit': position['takeProfit']
+            }
             positions_list.append(position_info)
         return positions_list
