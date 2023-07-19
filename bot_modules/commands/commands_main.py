@@ -6,11 +6,10 @@ from emoji import emojize
 
 from ..filters import AdminID
 from .bot_button import kb, kb_check_prices, kb_long_short
-from constant import LONG, SHORT, TRENDS
+from constant import LONG, SHORT, TRENDS, MYID
 from database.manager import Manager
 from database.models import TickerDB
 from database.temporary_data.temp_db import DBQuery, DBState
-from keys import MYID
 from trade.bot_request import Market
 from trade.check_price import start_check_tickers
 from trade.detector import LevelDetector

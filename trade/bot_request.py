@@ -4,15 +4,14 @@ from requests import get
 
 from bot_modules.send_message import send_message
 from bot_modules.text_message import InfoMessage
-from constant import LINEAR, USDT
+from constant import LINEAR, USDT, API_KEY, API_SECRET
 from database.manager import Manager
 from database.models import OpenedOrderDB, StopVolumeDB
-from keys import api_key, api_secret
 
 session = HTTP(
     testnet=True,
-    api_key=api_key,
-    api_secret=api_secret)
+    api_key=API_KEY,
+    api_secret=API_SECRET)
 
 
 class Market:

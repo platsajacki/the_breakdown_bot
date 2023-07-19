@@ -1,10 +1,10 @@
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from keys import database, host, password, user
+from constant import DATABASE, HOST, PASSWORD, LOGIN
 
 engine = create_engine(
-    f'postgresql+psycopg2://{user}:{password}@{host}/{database}', echo=True)
+    f'postgresql+psycopg2://{LOGIN}:{PASSWORD}@{HOST}/{DATABASE}', echo=True)
 meta = MetaData(schema='public')
 
 conn = engine.connect()

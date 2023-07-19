@@ -8,11 +8,10 @@ from ..filters import AdminID
 from ..text_message import InfoMessage
 from .bot_button import kb, kb_database, kb_query, kb_long_short
 from .commands_main import check_and_get_value
-from constant import TRENDS
+from constant import TRENDS, MYID
 from database.models import TickerDB, SpentLevelsDB, UnsuitableLevelsDB
 from database.manager import Manager
 from database.temporary_data.temp_db import DBState, DBQuery
-from keys import MYID
 from trade.check_price import connected_tickers
 from trade.bot_request import Market
 

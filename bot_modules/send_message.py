@@ -1,9 +1,9 @@
 from requests import post
 
-from keys import MYID, token
+from constant import MYID, TOKEN
 
 
 def send_message(text_message):
-    url = (f'https://api.telegram.org/bot{token}/sendmessage?'
+    url = (f'https://api.telegram.org/bot{TOKEN}/sendmessage?'
            f'chat_id={MYID}&text={text_message}')
     post(url)

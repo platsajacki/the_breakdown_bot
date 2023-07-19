@@ -7,8 +7,8 @@ from emoji import emojize
 from ..filters import AdminID
 from ..text_message import InfoMessage
 from .bot_button import kb, kb_info
+from constant import MYID
 from database.temporary_data.temp_db import TickerState
-from keys import MYID
 from trade.bot_request import Market
 
 
