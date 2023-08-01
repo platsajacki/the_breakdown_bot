@@ -1,3 +1,5 @@
+from typing import Any
+
 from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -8,7 +10,7 @@ from ..filters import AdminID
 from ..text_message import InfoMessage
 from .bot_button import kb, kb_database, kb_query, kb_long_short
 from .commands_main import check_and_get_value
-from constant import TRENDS, MYID
+from constants import TRENDS, MYID, SYMBOL_OK
 from database.models import TickerDB, SpentLevelsDB, UnsuitableLevelsDB
 from database.manager import Manager
 from database.temporary_data.temp_db import DBState, DBQuery
@@ -16,21 +18,21 @@ from trade.check_price import connected_tickers
 from trade.bot_request import Market
 
 
-async def get_database(message: Message):
+async def get_database(message: Message) -> None:
     await message.answer(
         'Choose next step.',
         reply_markup=kb_database
     )
 
 
-async def change_stop(message: Message, state: FSMContext):
+async def change_stop(message: Message, state: FSMContext) -> None:
     await message.answer('Enter the stop volume:')
     await state.set_state(DBState.stop_volume)
 
 
-async def add_stop_volume(message: Message, state: FSMContext):
+async def add_stop_volume(message: Message, state: FSMContext) -> None:
     try:
-        volume = check_and_get_value(message)
+        volume: float = check_and_get_value(message)
         Manager.changing_stop(volume)
         await message.answer(
             'The stop volume has been changed! '
@@ -45,38 +47,38 @@ async def add_stop_volume(message: Message, state: FSMContext):
     await state.clear()
 
 
-async def get_connected_tickers(message: Message):
+async def get_connected_tickers(message: Message) -> None:
     await message.answer(f'''Connected tickers:
     {connected_tickers}''')
 
 
-async def get_query(message: Message):
+async def get_query(message: Message) -> None:
     await message.answer(
         'What request should be sent?', reply_markup=kb_query
     )
 
 
-async def get_active_lvls(message: Message, state: FSMContext):
+async def get_active_lvls(message: Message, state: FSMContext) -> None:
     await message.answer('Enter the ticker:')
     await state.update_data(table=TickerDB)
     await state.set_state(DBQuery.ticker)
 
 
-async def get_spend_lvls(message: Message, state: FSMContext):
+async def get_spend_lvls(message: Message, state: FSMContext) -> None:
     await message.answer('Enter the ticker:')
     await state.update_data(table=SpentLevelsDB)
     await state.set_state(DBQuery.ticker)
 
 
-async def get_unsuiteble_lvls(message: Message, state: FSMContext):
+async def get_unsuiteble_lvls(message: Message, state: FSMContext) -> None:
     await message.answer('Enter the ticker:')
     await state.update_data(table=UnsuitableLevelsDB)
     await state.set_state(DBQuery.ticker)
 
 
-async def get_limit_lvls(message: Message, state: FSMContext):
+async def get_limit_lvls(message: Message, state: FSMContext) -> None:
     ticker = message.text.upper()
-    if Market.get_symbol(ticker) == 'OK':
+    if Market.get_symbol(ticker) == SYMBOL_OK:
         await state.update_data(ticker=ticker)
         await message.answer('Enter the limit:')
         await state.set_state(DBQuery.limit)
@@ -85,9 +87,9 @@ async def get_limit_lvls(message: Message, state: FSMContext):
         await state.set_state(DBQuery.ticker)
 
 
-async def get_query_trend(message: Message, state: FSMContext):
+async def get_query_trend(message: Message, state: FSMContext) -> None:
     try:
-        limit = int(message.text)
+        limit: int = int(message.text)
         await state.update_data(limit=limit)
         await message.answer(
             'Enter the trend:',
@@ -101,11 +103,11 @@ async def get_query_trend(message: Message, state: FSMContext):
         await state.set_state(DBQuery.limit)
 
 
-async def get_queryset_lvl(message: Message, state: FSMContext):
-    trend = message.text.lower()
+async def get_queryset_lvl(message: Message, state: FSMContext) -> None:
+    trend: str = message.text.lower()
     if trend in TRENDS:
         await state.update_data(trend=trend)
-        data = await state.get_data()
+        data: dict[str: Any] = await state.get_data()
         for query in Manager.get_limit_query(**data):
             query['create'] = query['create'].strftime('%H:%M %d.%m.%Y')
             await message.answer(InfoMessage.QUERY_LIMIT.format(**query))
@@ -121,7 +123,7 @@ async def get_queryset_lvl(message: Message, state: FSMContext):
     await state.clear()
 
 
-def reg_handler_db(router: Router):
+def reg_handler_db(router: Router) -> None:
     router.message.register(get_database, Command('database'), AdminID(MYID))
     router.message.register(change_stop, Command('change_stop'), AdminID(MYID))
     router.message.register(add_stop_volume, StateFilter(DBState.stop_volume))

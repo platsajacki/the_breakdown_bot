@@ -2,18 +2,18 @@ from aiogram.filters.state import State, StatesGroup
 
 
 class TickerState(StatesGroup):
-    ticker_order = State()
-    ticker_position = State()
+    ticker_order: State = State()
+    ticker_position: State = State()
 
 
 class DBState(StatesGroup):
-    ticker = State()
-    lvl_db = State()
-    trend = State()
-    stop_volume = State()
+    ticker: State = State()
+    lvl_db: State = State()
+    trend: State = State()
+    stop_volume: State = State()
 
 
 class DBQuery(StatesGroup):
-    ticker = State()
-    limit = State()
-    trend = State()
+    ticker: State = State()
+    limit: State = State()
+    trend: State = State()

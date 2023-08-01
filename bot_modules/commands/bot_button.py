@@ -1,65 +1,66 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
 '''Keyboard'''
-check_prices = KeyboardButton(text='/check_prices')
-add_level = KeyboardButton(text='/add_level')
-database = KeyboardButton(text='/database')
+check_prices: KeyboardButton = KeyboardButton(text='/check_prices')
+add_level: KeyboardButton = KeyboardButton(text='/add_level')
+database: KeyboardButton = KeyboardButton(text='/database')
 
 '''Keyboard info'''
-info = KeyboardButton(text='/info')
-balance = KeyboardButton(text='/balance')
-orders = KeyboardButton(text='/orders')
-positions = KeyboardButton(text='/positions')
-back = KeyboardButton(text='/back')
+info: KeyboardButton = KeyboardButton(text='/info')
+balance: KeyboardButton = KeyboardButton(text='/balance')
+orders: KeyboardButton = KeyboardButton(text='/orders')
+positions: KeyboardButton = KeyboardButton(text='/positions')
+back: KeyboardButton = KeyboardButton(text='/back')
 
 '''Keyboard check_price'''
-long_trend = KeyboardButton(text='/trade_long')
-short_trend = KeyboardButton(text='/trade_short')
+long_trend: KeyboardButton = KeyboardButton(text='/trade_long')
+short_trend: KeyboardButton = KeyboardButton(text='/trade_short')
 
 '''Keyboard choise of a trend'''
-long = KeyboardButton(text='long')
-short = KeyboardButton(text='short')
+long: KeyboardButton = KeyboardButton(text='long')
+short: KeyboardButton = KeyboardButton(text='short')
 
 '''Keyboard db'''
-change_stop = KeyboardButton(text='/change_stop')
-connected_tickers = KeyboardButton(text='/connected_tickers')
-query = KeyboardButton(text='/query')
-active = KeyboardButton(text='/active')
-spend = KeyboardButton(text='/spend')
-unsuiteble = KeyboardButton(text='/unsuiteble')
+change_stop: KeyboardButton = KeyboardButton(text='/change_stop')
+connected_tickers: KeyboardButton = KeyboardButton(text='/connected_tickers')
+query: KeyboardButton = KeyboardButton(text='/query')
+active: KeyboardButton = KeyboardButton(text='/active')
+spend: KeyboardButton = KeyboardButton(text='/spend')
+unsuiteble: KeyboardButton = KeyboardButton(text='/unsuiteble')
 
 '''Add buttons'''
-kb = ReplyKeyboardMarkup(
+kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
     keyboard=[
         [add_level], [check_prices], [info], [database]
     ],
     resize_keyboard=True
 )
 
-kb_info = ReplyKeyboardMarkup(
+kb_info: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
     keyboard=[
         [balance], [orders], [positions], [back]
     ], resize_keyboard=True
 )
 
-kb_check_prices = ReplyKeyboardMarkup(
+kb_check_prices: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
     keyboard=[
         [long_trend], [short_trend], [back]
     ], resize_keyboard=True
 )
-kb_long_short = ReplyKeyboardMarkup(
+
+kb_long_short: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
     keyboard=[
         [long, short]
     ], resize_keyboard=True
 )
 
-kb_database = ReplyKeyboardMarkup(
+kb_database: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
     keyboard=[
         [change_stop], [connected_tickers], [query], [back]
     ], resize_keyboard=True
 )
 
-kb_query = ReplyKeyboardMarkup(
+kb_query: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
     keyboard=[
         [active], [spend], [unsuiteble], [back]
     ], resize_keyboard=True

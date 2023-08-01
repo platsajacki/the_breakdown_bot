@@ -15,27 +15,27 @@ class Position:
     COEF_PROFIT: ClassVar[float] = 4
 
     def calculate_stop(self) -> float:
-        calculatet_stop = self.level * self.COEF_STOP
+        calculatet_stop: float = self.level * self.COEF_STOP
         return calculatet_stop
 
     def calculate_luft(self) -> float:
-        luft = self.calculate_stop() * self.COEF_LUFT
+        luft: float = self.calculate_stop() * self.COEF_LUFT
         return luft
 
 
 class Long(Position):
     '''Calculation of a long position.'''
-    def get_param_position(self) -> tuple[float]:
-        entry_point = round(
+    def get_param_position(self) -> tuple[str, float, float, float, float]:
+        entry_point: float = round(
             self.level + super().calculate_luft(), self.round_price
         )
-        trigger = round(
+        trigger: float = round(
             entry_point * self.COEF_TRIGGER_LONG, self.round_price
         )
-        stop = round(
+        stop: float = round(
             entry_point - super().calculate_stop(), self.round_price
         )
-        take_profit = round(
+        take_profit: float = round(
             entry_point + self.COEF_PROFIT * super().calculate_stop(),
             self.round_price
         )
@@ -44,17 +44,17 @@ class Long(Position):
 
 class Short(Position):
     '''Calculation of a short position.'''
-    def get_param_position(self) -> tuple[float]:
-        entry_point = round(
+    def get_param_position(self) -> tuple[str, float, float, float, float]:
+        entry_point: float = round(
             self.level - super().calculate_luft(), self.round_price
         )
-        trigger = round(
+        trigger: float = round(
             entry_point * self.COEF_TRIGGER_SHORT, self.round_price
         )
-        stop = round(
+        stop: float = round(
             entry_point + super().calculate_stop(), self.round_price
         )
-        take_profit = round(
+        take_profit: float = round(
             entry_point - self.COEF_PROFIT * super().calculate_stop(),
             self.round_price
         )

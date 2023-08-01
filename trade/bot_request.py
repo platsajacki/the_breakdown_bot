@@ -1,3 +1,5 @@
+from typing import Any
+
 from emoji import emojize
 from pybit.exceptions import InvalidRequestError
 from pybit.unified_trading import HTTP
@@ -5,11 +7,11 @@ from requests import get
 
 from bot_modules.send_message import send_message
 from bot_modules.text_message import InfoMessage
-from constant import API_KEY, API_SECRET, BUY, LINEAR, USDT
+from constants import API_KEY, API_SECRET, BUY, CONTRACT, LINEAR, USDT
 from database.manager import Manager
 from database.models import OpenedOrderDB, StopVolumeDB
 
-session = HTTP(
+session: HTTP = HTTP(
     testnet=True,
     api_key=API_KEY,
     api_secret=API_SECRET
@@ -19,7 +21,7 @@ session = HTTP(
 class Market:
     @staticmethod
     def get_symbol(symbol: str) -> str:
-        url = (
+        url: str = (
             'https://api.bybit.com/'
             f'v5/market/tickers?category={LINEAR}&symbol={symbol}{USDT}'
         )
@@ -28,7 +30,7 @@ class Market:
     @staticmethod
     def get_mark_price(ticker) -> float:
         symbol: str = f'{ticker}{USDT}'
-        info = session.get_tickers(
+        info: dict[str, Any] = session.get_tickers(
             category=LINEAR, symbol=symbol
         )
         mark_price = float(info['result']['list'][0]['markPrice'])
@@ -90,18 +92,20 @@ class Market:
 
     @staticmethod
     def get_wallet_balance() -> dict[str, float]:
-        info = session.get_wallet_balance(accountType='CONTRACT', coin=USDT)
-        coin = info['result']['list'][0]['coin'][0]
-        equity = round(
+        info: dict[str, Any] = session.get_wallet_balance(
+            accountType=CONTRACT, coin=USDT
+        )
+        coin: str = info['result']['list'][0]['coin'][0]
+        equity: float = round(
             float(coin['equity']), 2
         )
-        unreal_pnl = round(
+        unreal_pnl: float = round(
             float(coin['unrealisedPnl']), 2
         )
-        balance = round(
+        balance: float = round(
             float(coin['walletBalance']), 2
         )
-        real_pnl = round(
+        real_pnl: float = round(
             float(coin['cumRealisedPnl']), 2
         )
         info_wallet: dict[str, float] = {
@@ -113,13 +117,15 @@ class Market:
         return info_wallet
 
     @staticmethod
-    def get_open_orders(ticker: str) -> list[dict]:
+    def get_open_orders(ticker: str) -> list[dict[str, str]] | None:
         symbol: str = f'{ticker}{USDT}'
-        info = session.get_open_orders(symbol=symbol, category=LINEAR)
-        orders = info['result']['list']
-        orders_list = []
-        if orders == []:
-            return orders
+        info: dict[str, Any] = session.get_open_orders(
+            symbol=symbol, category=LINEAR
+        )
+        orders: list[dict[str, Any]] = info['result']['list']
+        orders_list: list[dict[str, str]] = []
+        if orders == orders_list:
+            return None
         for order in orders:
             order_info: dict[str, str] = {
                 'symbol': symbol,
@@ -135,13 +141,13 @@ class Market:
         return orders_list
 
     @staticmethod
-    def get_open_positions(ticker: str) -> list[dict]:
+    def get_open_positions(ticker: str) -> list[dict[str, str]] | None:
         symbol: str = f'{ticker}{USDT}'
         info = session.get_positions(symbol=symbol, category=LINEAR)
-        positions = info['result']['list']
-        positions_list = []
+        positions: list[dict[str, Any]] = info['result']['list']
+        positions_list: list[dict[str, str]] = []
         if positions[0]['side'] == 'None':
-            return 'None'
+            return None
         for position in positions:
             position_info: dict[str, str] = {
                 'symbol': symbol,

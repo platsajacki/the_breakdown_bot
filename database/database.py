@@ -1,17 +1,19 @@
 from sqlalchemy import MetaData, create_engine
+from sqlalchemy.engine.base import Connection, Engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from constant import DATABASE, HOST, PASSWORD, LOGIN
+from constants import DATABASE, HOST, LOGIN, PASSWORD
 
-engine = create_engine(
-    f'postgresql+psycopg2://{LOGIN}:{PASSWORD}@{HOST}/{DATABASE}', echo=True)
-meta = MetaData(schema='public')
+engine: Engine = create_engine(
+    f'postgresql+psycopg2://{LOGIN}:{PASSWORD}@{HOST}/{DATABASE}', echo=True
+)
+meta: MetaData = MetaData(schema='public')
 
-conn = engine.connect()
+conn: Connection = engine.connect()
 
-Session = sessionmaker(engine)
-sess_db = Session()
+Session: sessionmaker = sessionmaker(engine)
+sess_db: Session = Session()
 
 
 class Base(DeclarativeBase):
-    metadata = meta
+    metadata: MetaData = meta

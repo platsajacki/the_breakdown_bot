@@ -1,3 +1,5 @@
+from typing import Any
+
 from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -6,7 +8,7 @@ from emoji import emojize
 
 from ..filters import AdminID
 from .bot_button import kb, kb_check_prices, kb_long_short
-from constant import LONG, SHORT, TRENDS, MYID
+from constants import LONG, SHORT, TRENDS, MYID, SYMBOL_OK
 from database.manager import Manager
 from database.models import TickerDB
 from database.temporary_data.temp_db import DBQuery, DBState
@@ -23,14 +25,14 @@ def check_and_get_value(message) -> float:
     return value
 
 
-async def start_add_level(message: Message, state: FSMContext):
+async def start_add_level(message: Message, state: FSMContext) -> None:
     await message.answer('Enter the ticker:')
     await state.set_state(DBState.ticker)
 
 
-async def enter_level(message: Message, state: FSMContext):
+async def enter_level(message: Message, state: FSMContext) -> None:
     ticker = message.text.upper()
-    if Market.get_symbol(ticker) == 'OK':
+    if Market.get_symbol(ticker) == SYMBOL_OK:
         await state.update_data(ticker=ticker)
         await message.answer('Enter the level:')
         await state.set_state(DBState.lvl_db)
@@ -39,7 +41,7 @@ async def enter_level(message: Message, state: FSMContext):
         await state.set_state(DBState.ticker)
 
 
-async def enter_trend(message: Message, state: FSMContext):
+async def enter_trend(message: Message, state: FSMContext) -> None:
     try:
         level = check_and_get_value(message)
         await state.update_data(level=level)
@@ -54,11 +56,11 @@ async def enter_trend(message: Message, state: FSMContext):
         )
 
 
-async def add_level(message: Message, state: FSMContext):
-    trend = message.text.lower()
+async def add_level(message: Message, state: FSMContext) -> None:
+    trend: str = message.text.lower()
     if trend in TRENDS:
         await state.update_data(trend=trend)
-        data = await state.get_data()
+        data: dict[str, Any] = await state.get_data()
     else:
         await message.answer(
             'The value entered is incorrect! Try again:'
@@ -78,14 +80,14 @@ async def add_level(message: Message, state: FSMContext):
     await state.clear()
 
 
-async def check_prices(message: Message):
+async def check_prices(message: Message) -> None:
     await message.answer(
         'Choose the trend direction:',
         reply_markup=kb_check_prices
     )
 
 
-async def start(message):
+async def start(message) -> None:
     await message.answer(
         'Analyzing the levels...'
     )
@@ -103,7 +105,7 @@ async def start(message):
     start_check_tickers()
 
 
-async def trade_long(message: Message):
+async def trade_long(message: Message) -> None:
     Manager.changing_trend(LONG)
     await message.answer(
         f'Long trading activated! {emojize(":check_mark_button:")}'
@@ -113,7 +115,7 @@ async def trade_long(message: Message):
     await start(message)
 
 
-async def trade_short(message: Message):
+async def trade_short(message: Message) -> None:
     Manager.changing_trend(SHORT)
     await message.answer(
         f'Short trading activated! {emojize(":check_mark_button:")}'
@@ -125,7 +127,7 @@ async def trade_short(message: Message):
     await start(message)
 
 
-def reg_handler_main(router: Router):
+def reg_handler_main(router: Router) -> None:
     router.message.register(
         check_prices, Command('check_prices'), AdminID(MYID)
     )

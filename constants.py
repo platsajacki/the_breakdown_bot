@@ -16,6 +16,7 @@ PASSWORD: str = getenv('PASSWORD')
 HOST: str = getenv('HOST')
 
 LINEAR: str = 'linear'
+CONTRACT: str = 'CONTRACT'
 
 LONG: str = 'long'
 SHORT: str = 'short'
@@ -28,3 +29,4 @@ COEF_LEVEL_LONG: float = 0.9975
 COEF_LEVEL_SHORT: float = 1.0025
 
 USDT: str = 'USDT'
+SYMBOL_OK: str = 'OK'
