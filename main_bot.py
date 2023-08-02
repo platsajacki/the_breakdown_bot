@@ -1,8 +1,10 @@
+import logging as log
+import sys
+
 from aiogram.filters import Command
 from aiogram.types import Message
 from emoji import emojize
 
-import setup_log
 from bot_modules.commands.bot_button import kb
 from bot_modules.commands.commands_db import reg_handler_db
 from bot_modules.commands.commands_info import reg_handler_info
@@ -10,6 +12,14 @@ from bot_modules.commands.commands_main import reg_handler_main
 from bot_modules.create_bot import bot, dp, router
 from bot_modules.send_message import send_message
 from constants import MYID
+
+log.basicConfig(
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    level=log.ERROR, stream=sys.stdout
+)
+handler: log.FileHandler = log.FileHandler('bot_log.log')
+handler.setLevel(log.ERROR)
+log.getLogger().addHandler(handler)
 
 
 @router.message(Command('start'))
@@ -33,5 +43,5 @@ if __name__ == '__main__':
         dp.include_router(router)
         dp.run_polling(bot)
     except Exception as error:
-        setup_log.log.error(error, exc_info=True)
+        log.error(error, exc_info=True)
         send_message(error)
