@@ -1,7 +1,6 @@
 from typing import Any
 
 from emoji import emojize
-from pybit.exceptions import InvalidRequestError
 from pybit.unified_trading import HTTP
 from requests import get
 
@@ -59,22 +58,19 @@ class Market:
         else:
             triggerDirection: int = 2
         '''Opening an order'''
-        try:
-            session.place_order(
-                category=LINEAR,
-                symbol=symbol,
-                side=side,
-                orderType='Limit',
-                qty=asset_volume,
-                tryggeBy='MarkPrice',
-                triggerDirection=triggerDirection,
-                triggerPrice=str(trigger),
-                price=str(entry_point),
-                takeProfit=str(take_profit),
-                stopLoss=str(stop),
-                orderFilter='Order')
-        except InvalidRequestError as error:
-            send_message(error)
+        session.place_order(
+            category=LINEAR,
+            symbol=symbol,
+            side=side,
+            orderType='Limit',
+            qty=asset_volume,
+            tryggeBy='MarkPrice',
+            triggerDirection=triggerDirection,
+            triggerPrice=str(trigger),
+            price=str(entry_point),
+            takeProfit=str(take_profit),
+            stopLoss=str(stop),
+            orderFilter='Order')
         open_order_params: dict[str, str | float] = {
             'symbol': symbol,
             'asset_volume': asset_volume,

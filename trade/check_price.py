@@ -1,9 +1,12 @@
+import logging as log
 from typing import Any
 
+from pybit.exceptions import InvalidChannelTypeError
 from pybit.unified_trading import WebSocket
 
 from .bot_request import Market
 from .param_position import Long, Short
+from bot_modules.send_message import send_message
 from constants import (BUY, COEF_LEVEL_LONG, COEF_LEVEL_SHORT, LINEAR, LONG,
                        SELL, SHORT, USDT)
 from database.manager import Manager, transferring_row
@@ -12,7 +15,11 @@ from database.models import SpentLevelsDB, TrendDB
 
 connected_tickers: set[str] = set()
 
-session: WebSocket = WebSocket(testnet=True, channel_type=LINEAR)
+try:
+    session: WebSocket = WebSocket(testnet=True, channel_type=LINEAR)
+except InvalidChannelTypeError as error:
+    log.error(error, exc_info=True)
+    send_message(error)
 
 
 def check_long(symbol: str, mark_price: float, round_price: int) -> None:
