@@ -18,6 +18,7 @@ from trade.detector import LevelDetector
 
 
 def check_and_get_value(message) -> float:
+    """Conversion of the entered value to float."""
     value: str = message.text
     if ',' in value:
         value = value.replace(',', '.')
@@ -26,11 +27,13 @@ def check_and_get_value(message) -> float:
 
 
 async def start_add_level(message: Message, state: FSMContext) -> None:
+    """Start adding a new level."""
     await message.answer('Enter the ticker:')
     await state.set_state(DBState.ticker)
 
 
 async def enter_level(message: Message, state: FSMContext) -> None:
+    """Enter the price of the level."""
     ticker = message.text.upper()
     if Market.get_symbol(ticker) == SYMBOL_OK:
         await state.update_data(ticker=ticker)
@@ -42,6 +45,7 @@ async def enter_level(message: Message, state: FSMContext) -> None:
 
 
 async def enter_trend(message: Message, state: FSMContext) -> None:
+    """Enter a trend for the level"""
     try:
         level = check_and_get_value(message)
         await state.update_data(level=level)
@@ -57,6 +61,10 @@ async def enter_trend(message: Message, state: FSMContext) -> None:
 
 
 async def add_level(message: Message, state: FSMContext) -> None:
+    """
+    Check and add a level that meets the requirements.
+    Or refusal to add.
+    """
     trend: str = message.text.lower()
     if trend in TRENDS:
         await state.update_data(trend=trend)
@@ -81,6 +89,7 @@ async def add_level(message: Message, state: FSMContext) -> None:
 
 
 async def check_prices(message: Message) -> None:
+    """Choose the direction of trade."""
     await message.answer(
         'Choose the trend direction:',
         reply_markup=kb_check_prices
@@ -88,6 +97,7 @@ async def check_prices(message: Message) -> None:
 
 
 async def start(message) -> None:
+    """Start the selection of checking levels by trend."""
     await message.answer(
         'Analyzing the levels...'
     )
@@ -106,6 +116,7 @@ async def start(message) -> None:
 
 
 async def trade_long(message: Message) -> None:
+    """Change the trend to a long one."""
     Manager.changing_trend(LONG)
     await message.answer(
         f'Long trading activated! {emojize(":check_mark_button:")}'
@@ -116,6 +127,7 @@ async def trade_long(message: Message) -> None:
 
 
 async def trade_short(message: Message) -> None:
+    """Change the trend to a short one."""
     Manager.changing_trend(SHORT)
     await message.answer(
         f'Short trading activated! {emojize(":check_mark_button:")}'
@@ -128,6 +140,7 @@ async def trade_short(message: Message) -> None:
 
 
 def reg_handler_main(router: Router) -> None:
+    """Registration of main commands."""
     router.message.register(
         check_prices, Command('check_prices'), AdminID(MYID)
     )

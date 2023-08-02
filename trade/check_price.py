@@ -12,9 +12,10 @@ from constants import (BUY, COEF_LEVEL_LONG, COEF_LEVEL_SHORT, LINEAR, LONG,
 from database.manager import Manager, transferring_row
 from database.models import SpentLevelsDB, TrendDB
 
-
+# The list of connected tickers.
 connected_tickers: set[str] = set()
 
+# Setup a connection WebSocket.
 try:
     session: WebSocket = WebSocket(testnet=True, channel_type=LINEAR)
 except InvalidChannelTypeError as error:
@@ -23,6 +24,10 @@ except InvalidChannelTypeError as error:
 
 
 def check_long(symbol: str, mark_price: float, round_price: int) -> None:
+    """
+    Check for compliance with long positions.
+    If the position fits the parameters, it opens an order.
+    """
     ticker: str = symbol[:-4]
     query: None | dict[str, int | float] = (
         Manager.get_current_level(ticker, LONG)
@@ -43,6 +48,10 @@ def check_long(symbol: str, mark_price: float, round_price: int) -> None:
 
 
 def check_short(symbol: str, mark_price: float, round_price: int) -> None:
+    """
+    Check for compliance with short positions.
+    If the position fits the parameters, it opens an order.
+    """
     ticker = symbol[:-4]
     query: None | dict[str, int | float] = (
         Manager.get_current_level(ticker, SHORT)
@@ -63,6 +72,7 @@ def check_short(symbol: str, mark_price: float, round_price: int) -> None:
 
 
 def handle_message(msg: dict[str, Any]) -> None:
+    """Stream message handler."""
     symbol: str = msg['data']['symbol']
     mark_price: str = msg['data']['markPrice']
     round_price: int = len(mark_price.split('.')[1])
@@ -74,12 +84,14 @@ def handle_message(msg: dict[str, Any]) -> None:
 
 
 def connect_ticker(ticker) -> None:
+    """Connect the ticker to the stream."""
     connected_tickers.add(ticker)
     symbol: str = f'{ticker}{USDT}'
     session.ticker_stream(symbol=symbol, callback=handle_message)
 
 
 def start_check_tickers() -> None:
+    """Determine the direction of trade. Start the stream."""
     if Manager.get_row_by_id(TrendDB, 1).trend == LONG:
         for ticker in Manager.select_trend_tickers(LONG):
             ticker: str = ticker[0]

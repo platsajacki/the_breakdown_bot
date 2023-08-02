@@ -13,6 +13,7 @@ from trade.bot_request import Market
 
 
 async def get_info(message: Message) -> None:
+    """Choose an information request."""
     await message.answer(
         'What information is needed?',
         reply_markup=kb_info
@@ -20,17 +21,20 @@ async def get_info(message: Message) -> None:
 
 
 async def get_balance(message: Message) -> None:
+    """Send a message with the wallet balance."""
     await message.answer(
             InfoMessage.WALLET_MASSAGE.format(**Market.get_wallet_balance())
     )
 
 
 async def get_orders(message: Message, state: FSMContext) -> None:
+    """Request for open orders."""
     await message.answer('Enter the ticker:')
     await state.set_state(TickerState.ticker_order)
 
 
 async def get_ticker_order(message: Message, state: FSMContext) -> None:
+    """Select a ticker to request orders."""
     ticker: str = message.text.upper()
     if Market.get_symbol(ticker) == SYMBOL_OK:
         await message.answer(
@@ -66,11 +70,13 @@ async def get_ticker_order(message: Message, state: FSMContext) -> None:
 
 
 async def get_positions(message: Message, state: FSMContext) -> None:
+    """Request for open positions."""
     await message.answer('Enter the ticker:')
     await state.set_state(TickerState.ticker_position)
 
 
 async def get_ticker_position(message: Message, state: FSMContext) -> None:
+    """Choose a ticker to request positions."""
     ticker: str = message.text.upper()
     if Market.get_symbol(ticker) == SYMBOL_OK:
         await message.answer(
@@ -99,10 +105,12 @@ async def get_ticker_position(message: Message, state: FSMContext) -> None:
 
 
 async def get_back(message: Message) -> None:
+    """Go back."""
     await message.answer('Main menu.', reply_markup=kb)
 
 
 def reg_handler_info(router: Router) -> None:
+    """Registration of info commands."""
     router.message.register(get_info, Command('info'), AdminID(MYID))
     router.message.register(get_balance, Command('balance'), AdminID(MYID))
     router.message.register(get_orders, Command('orders'), AdminID(MYID))

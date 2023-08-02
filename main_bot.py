@@ -13,6 +13,7 @@ from bot_modules.create_bot import bot, dp, router
 from bot_modules.send_message import send_message
 from constants import MYID
 
+# Setup logging.
 log.basicConfig(
     format='%(asctime)s [%(levelname)s] %(message)s',
     level=log.ERROR, stream=sys.stdout
@@ -24,6 +25,10 @@ log.getLogger().addHandler(handler)
 
 @router.message(Command('start'))
 async def start(message: Message):
+    """
+    The "Start" command checks who started the work.
+    If it is not an admin, then the client is not allowed.
+    """
     if message.from_user.id == MYID:
         await message.answer(
             f'The Breakdown Bot activeted! {emojize(":fire:")}',

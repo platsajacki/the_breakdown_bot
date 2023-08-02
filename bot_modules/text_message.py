@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class InfoMessage:
+    """The class contains message templates."""
     WALLET_MASSAGE: str = '''Equity - {equity};
 Unrealised PNL - {unreal_pnl};
 Balance - {balance};

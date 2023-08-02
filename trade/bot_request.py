@@ -10,6 +10,7 @@ from constants import API_KEY, API_SECRET, BUY, CONTRACT, LINEAR, USDT
 from database.manager import Manager
 from database.models import OpenedOrderDB, StopVolumeDB
 
+# Setup a connection with the exchange.
 session: HTTP = HTTP(
     testnet=True,
     api_key=API_KEY,
@@ -18,8 +19,10 @@ session: HTTP = HTTP(
 
 
 class Market:
+    """The class responsible for requests from the exchange."""
     @staticmethod
     def get_symbol(symbol: str) -> str:
+        """Check the symbol in the exchange listing."""
         url: str = (
             'https://api.bybit.com/'
             f'v5/market/tickers?category={LINEAR}&symbol={symbol}{USDT}'
@@ -28,17 +31,19 @@ class Market:
 
     @staticmethod
     def get_mark_price(ticker) -> float:
+        """Request for a ticker marking price."""
         symbol: str = f'{ticker}{USDT}'
         info: dict[str, Any] = session.get_tickers(
             category=LINEAR, symbol=symbol
         )
-        mark_price = float(info['result']['list'][0]['markPrice'])
+        mark_price: float = float(info['result']['list'][0]['markPrice'])
         return mark_price
 
     @staticmethod
     def open_pos(symbol: str, entry_point: float, stop: float,
                  take_profit: float, trigger: float, side: str) -> None:
-        '''Calculation of transaction volume'''
+        """Round the position parameters and open it."""
+        # Calculation of transaction volume
         min_order_qty: str = (
             session.get_instruments_info(
                 category=LINEAR,
@@ -47,17 +52,18 @@ class Market:
             ['priceFilter']['minPrice']
         )
         round_volume: int = len(min_order_qty.split('.')[1])
+        # Calculation of rounding.
         asset_volume: str = (
             str(round(
                 (Manager.get_row_by_id(StopVolumeDB, 1).usdt_volume
                  / abs(entry_point - stop)), round_volume))
         )
-        '''Setting up a trigger'''
+        # Set up a trigger.
         if side == BUY:
             triggerDirection: int = 1
         else:
             triggerDirection: int = 2
-        '''Opening an order'''
+        # Open an order.
         session.place_order(
             category=LINEAR,
             symbol=symbol,
@@ -79,6 +85,8 @@ class Market:
             'stop_loss': stop,
             'take_profit': take_profit
         }
+        # Write the opened order to the table
+        # and send a message about opening a position.
         Manager.add_to_table(OpenedOrderDB, open_order_params)
         text_message: str = (
             InfoMessage.OPEN_ORDER_MESSAGE
@@ -88,6 +96,7 @@ class Market:
 
     @staticmethod
     def get_wallet_balance() -> dict[str, float]:
+        """Request a wallet balance in USDT."""
         info: dict[str, Any] = session.get_wallet_balance(
             accountType=CONTRACT, coin=USDT
         )
@@ -114,6 +123,7 @@ class Market:
 
     @staticmethod
     def get_open_orders(ticker: str) -> list[dict[str, str]] | None:
+        """Request for open orders."""
         symbol: str = f'{ticker}{USDT}'
         info: dict[str, Any] = session.get_open_orders(
             symbol=symbol, category=LINEAR
@@ -138,6 +148,7 @@ class Market:
 
     @staticmethod
     def get_open_positions(ticker: str) -> list[dict[str, str]] | None:
+        """Request for open positions."""
         symbol: str = f'{ticker}{USDT}'
         info = session.get_positions(symbol=symbol, category=LINEAR)
         positions: list[dict[str, Any]] = info['result']['list']

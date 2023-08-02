@@ -4,7 +4,7 @@ from typing import ClassVar
 
 @dataclass
 class Position:
-    '''The base class of positions'''
+    """The base class of positions."""
     symbol: str
     level: float
     round_price: int
@@ -15,17 +15,24 @@ class Position:
     COEF_PROFIT: ClassVar[float] = 4
 
     def calculate_stop(self) -> float:
+        """Calculation of the stop-loss."""
         calculatet_stop: float = self.level * self.COEF_STOP
         return calculatet_stop
 
     def calculate_luft(self) -> float:
+        """
+        Calculation of the luft.
+        Luft - the distance from the level to the entry point
+        to avoid opening on a false breakdown.
+        """
         luft: float = self.calculate_stop() * self.COEF_LUFT
         return luft
 
 
 class Long(Position):
-    '''Calculation of a long position.'''
+    """The class represents a position based on price growth."""
     def get_param_position(self) -> tuple[str, float, float, float, float]:
+        """Calculation of a long position."""
         entry_point: float = round(
             self.level + super().calculate_luft(), self.round_price
         )
@@ -43,8 +50,9 @@ class Long(Position):
 
 
 class Short(Position):
-    '''Calculation of a short position.'''
+    """The class represents a position based on declining price."""
     def get_param_position(self) -> tuple[str, float, float, float, float]:
+        """Calculation of a short position."""
         entry_point: float = round(
             self.level - super().calculate_luft(), self.round_price
         )

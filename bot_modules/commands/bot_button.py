@@ -1,26 +1,26 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-'''Keyboard'''
+# Keyboard
 check_prices: KeyboardButton = KeyboardButton(text='/check_prices')
 add_level: KeyboardButton = KeyboardButton(text='/add_level')
 database: KeyboardButton = KeyboardButton(text='/database')
 
-'''Keyboard info'''
+# Keyboard info
 info: KeyboardButton = KeyboardButton(text='/info')
 balance: KeyboardButton = KeyboardButton(text='/balance')
 orders: KeyboardButton = KeyboardButton(text='/orders')
 positions: KeyboardButton = KeyboardButton(text='/positions')
 back: KeyboardButton = KeyboardButton(text='/back')
 
-'''Keyboard check_price'''
+# Keyboard check_price
 long_trend: KeyboardButton = KeyboardButton(text='/trade_long')
 short_trend: KeyboardButton = KeyboardButton(text='/trade_short')
 
-'''Keyboard choise of a trend'''
+# Keyboard choise of a trend
 long: KeyboardButton = KeyboardButton(text='long')
 short: KeyboardButton = KeyboardButton(text='short')
 
-'''Keyboard db'''
+# Keyboard db
 change_stop: KeyboardButton = KeyboardButton(text='/change_stop')
 connected_tickers: KeyboardButton = KeyboardButton(text='/connected_tickers')
 query: KeyboardButton = KeyboardButton(text='/query')
@@ -28,7 +28,7 @@ active: KeyboardButton = KeyboardButton(text='/active')
 spend: KeyboardButton = KeyboardButton(text='/spend')
 unsuiteble: KeyboardButton = KeyboardButton(text='/unsuiteble')
 
-'''Add buttons'''
+# Add buttons
 kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
     keyboard=[
         [add_level], [check_prices], [info], [database]
