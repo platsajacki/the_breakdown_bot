@@ -14,12 +14,14 @@ from bot_modules.send_message import send_message
 from constants import MYID
 
 # Setup logging.
+log_format: str = '%(asctime)s [%(levelname)s] %(message)s: %(exc_info)s'
 log.basicConfig(
-    format='%(asctime)s [%(levelname)s] %(message)s',
+    format=log_format,
     level=log.ERROR, stream=sys.stdout
 )
 handler: log.FileHandler = log.FileHandler('bot_log.log')
 handler.setLevel(log.ERROR)
+handler.setFormatter(log.Formatter(log_format))
 log.getLogger().addHandler(handler)
 
 
@@ -48,5 +50,5 @@ if __name__ == '__main__':
         dp.include_router(router)
         dp.run_polling(bot)
     except Exception as error:
-        log.error(error, exc_info=True)
+        log.error(error)
         send_message(error)

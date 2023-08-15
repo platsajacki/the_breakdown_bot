@@ -12,4 +12,4 @@ def send_message(text_message: str) -> None:
                     f'chat_id={MYID}&text={text_message}')
         post(url)
     except TelegramMessageError as error:
-        log.error(error, exc_info=True)
+        log.error(error)

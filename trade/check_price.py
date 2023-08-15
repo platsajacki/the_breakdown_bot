@@ -19,7 +19,7 @@ connected_tickers: set[str] = set()
 try:
     session: WebSocket = WebSocket(testnet=True, channel_type=LINEAR)
 except InvalidChannelTypeError as error:
-    log.error(error, exc_info=True)
+    log.error(error)
     send_message(error)
 
 
