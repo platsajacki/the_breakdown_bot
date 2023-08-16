@@ -1,44 +1,36 @@
 from typing import Any
 
-from sqlalchemy import Select, func, select
-from sqlalchemy.engine.cursor import CursorResult
+from sqlalchemy import func
 from sqlalchemy.engine.row import Row
 
-from .database import conn, engine, sess_db
+from .database import Session, engine
 from .models import Base, StopVolumeDB, TickerDB, TrendDB
 from bot_modules.send_message import send_message
 from constants import LONG
+from decorators import database_return, database_transaction
 
 
 class Manager:
     """Query database manager."""
     @staticmethod
+    @database_transaction
     def add_to_table(
-        table: Base, data: dict[str, Any], commit: bool = True
+        sess_db: Session, table: Base, data: dict[str, Any]
     ) -> None:
         """Add records to the table."""
         row: Base = table(**data)
         sess_db.add(row)
-        if commit:
-            sess_db.commit()
 
     @staticmethod
-    def delete_row(table: Base, id: int, commit: bool = True) -> None:
+    @database_transaction
+    def delete_row(sess_db: Session, table: Base, id: int) -> None:
         """Delete records in the table."""
         row: Base = sess_db.query(table).filter(table.id == id).one()
         sess_db.delete(row)
-        if commit:
-            sess_db.commit()
 
     @staticmethod
-    def get_all_rows(table: Base) -> CursorResult:
-        """Query all table rows."""
-        query: Select = select(table)
-        result: CursorResult = conn.execute(query)
-        return result
-
-    @staticmethod
-    def changing_trend(trend: str) -> None:
+    @database_transaction
+    def changing_trend(sess_db: Session, trend: str) -> None:
         """Change the direction of the trend."""
         row: TrendDB = sess_db.query(TrendDB).get(1)
         if row is not None:
@@ -46,10 +38,10 @@ class Manager:
         else:
             row: TrendDB = TrendDB(trend=trend)
             sess_db.add(row)
-        sess_db.commit()
 
     @staticmethod
-    def changing_stop(volume: float) -> None:
+    @database_transaction
+    def changing_stop(sess_db: Session, volume: float) -> None:
         """Change in the value of the stop."""
         row: StopVolumeDB = sess_db.query(StopVolumeDB).get(1)
         if row is not None:
@@ -57,17 +49,25 @@ class Manager:
         else:
             row: StopVolumeDB = StopVolumeDB(usdt_volume=volume)
             sess_db.add(row)
-        sess_db.commit()
 
     @staticmethod
-    def get_row_by_id(table: Base, id: int) -> Base:
+    @database_return
+    def get_all_rows(sess_db: Session, table: Base) -> list[dict[str, Any]]:
+        """Query all table rows."""
+        query = sess_db.query(table).all()
+        return [q.__dict__ for q in query]
+
+    @staticmethod
+    @database_return
+    def get_row_by_id(sess_db: Session, table: Base, id: int) -> Base:
         """Request a row by id."""
         row: Base = sess_db.query(table).get(id)
         return row
 
     @staticmethod
+    @database_return
     def get_limit_query(
-        table: Base, ticker: str, trend: str, limit: int
+        sess_db: Session, table: Base, ticker: str, trend: str, limit: int
     ) -> list[dict[str, Any]]:
         """Request a certain number of table rows."""
         query: list[Base] = (
@@ -79,7 +79,8 @@ class Manager:
         return [q.__dict__ for q in query]
 
     @staticmethod
-    def select_trend_tickers(trend: str) -> list[Row]:
+    @database_return
+    def select_trend_tickers(sess_db: Session, trend: str) -> list[Row]:
         """Request all tickers by the trend."""
         query: list[Row] = (
             sess_db.query(TickerDB.ticker).distinct()
@@ -88,8 +89,9 @@ class Manager:
         return query
 
     @staticmethod
+    @database_return
     def get_current_level(
-        ticker: str, trend: str
+        sess_db: Session, ticker: str, trend: str
     ) -> None | dict[str, int | float]:
         """
         Request a level to check the compliance
@@ -116,7 +118,10 @@ class Manager:
         return rows
 
     @staticmethod
-    def get_level_by_trend(ticker: str, trend: str) -> set[float]:
+    @database_return
+    def get_level_by_trend(
+        sess_db: Session, ticker: str, trend: str
+    ) -> set[float]:
         """Request ticker levels for the selected trend."""
         query: list[Row] = (
             sess_db
@@ -134,13 +139,13 @@ def transferring_row(
     data: dict[str, str | float] = {
         'ticker': ticker, 'level': level, 'trend': trend
     }
-    Manager.add_to_table(table, data, False)
-    Manager.delete_row(TickerDB, id, False)
-    sess_db.commit()
+    Manager.add_to_table(table, data)
+    Manager.delete_row(TickerDB, id)
 
 
 # Create tables in the database defined in the metadata.
 Base.metadata.create_all(engine)
+
 
 # If the stop is not defined, then set the standard one.
 if Manager.get_row_by_id(StopVolumeDB, 1) is None:

@@ -105,7 +105,7 @@ async def start(message) -> None:
         emojize(':man_technologist:')
     )
     for row in Manager.get_all_rows(TickerDB):
-        LevelDetector.check_levels(**row._asdict())
+        LevelDetector.check_levels(**row)
     await message.answer(
         f'Done! {emojize(":check_mark_button:")}'
     )

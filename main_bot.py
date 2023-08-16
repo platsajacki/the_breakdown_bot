@@ -1,5 +1,4 @@
 import logging as log
-import sys
 
 from aiogram.filters import Command
 from aiogram.types import Message
@@ -15,10 +14,6 @@ from constants import MYID
 
 # Setup logging.
 log_format: str = '%(asctime)s [%(levelname)s] %(message)s: %(exc_info)s'
-log.basicConfig(
-    format=log_format,
-    level=log.ERROR, stream=sys.stdout
-)
 handler: log.FileHandler = log.FileHandler('bot_log.log')
 handler.setLevel(log.ERROR)
 handler.setFormatter(log.Formatter(log_format))

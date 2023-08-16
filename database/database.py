@@ -1,5 +1,5 @@
 from sqlalchemy import MetaData, create_engine
-from sqlalchemy.engine.base import Connection, Engine
+from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from constants import DATABASE, HOST, LOGIN, PASSWORD
@@ -10,10 +10,7 @@ engine: Engine = create_engine(
 )
 meta: MetaData = MetaData(schema='public')
 
-conn: Connection = engine.connect()
-
-Session: sessionmaker = sessionmaker(engine)
-sess_db: Session = Session()
+Session: sessionmaker = sessionmaker(engine, expire_on_commit=False)
 
 
 class Base(DeclarativeBase):
