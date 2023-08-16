@@ -2,6 +2,14 @@
 
 Author: Menyukhov Vyacheslav | email: menyukhov@bk.ru
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Features](#features)
+- [Libraries Used](#libraries-used)
+- [Project Setup and Configuration](#project-setup-and-configuration)
+- [Conclusion](#conclusion)
+
 ## Introduction
 
 This trading bot is designed to provide automated trading capabilities with strict money management and risk management strategies. The bot can be easily controlled through Telegram, allowing users to monitor and manage their trades conveniently from their mobile devices or computers. The bot is built using the following libraries: aiogram, SQLAlchemy, requests, and pybit.
@@ -29,6 +37,53 @@ The trading bot has been developed using the following key libraries:
 3. **requests**
 4. **pybit**
 5. **WebSocket**
+
+## Project Setup and Configuration
+
+**Create a Virtual Environment**
+Start by creating and activating a virtual environment to isolate the project's dependencies:
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+**Create a `.env` File**
+Create a `.env` file in the project's root directory and add the following lines, replacing the values with your own:
+    
+```python
+# API keys for ByBit exchange
+API_KEY=your_key
+API_SECRET=your_secret
+
+# Telegram bot token
+TOKEN=your_token
+
+# Admin ID
+MYID=your_id
+
+# PostgreSQL database access
+DATABASE=database_name
+LOGIN=your_login
+PASSWORD=your_password
+HOST=your_host
+```
+
+**Install Dependencies**
+Install the required dependencies listed in the requirements.txt file:
+    
+```bash
+pip install -r requirements.txt
+```
+
+**Run the Project**
+You are now ready to run the project. Execute the following command:
+
+```bash
+python main_bot.py
+```
+
+The project is now successfully set up and configured with your environment variables.
 
 ## Conclusion
 
