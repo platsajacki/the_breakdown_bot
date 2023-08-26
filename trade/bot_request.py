@@ -49,7 +49,7 @@ class Market:
                 category=LINEAR,
                 symbol=symbol)
             ['result']['list'][0]
-            ['priceFilter']['minPrice']
+            ['lotSizeFilter']['minOrderQty']
         )
         round_volume: int = len(min_order_qty.split('.')[1])
         # Calculation of rounding.
