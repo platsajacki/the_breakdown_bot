@@ -51,7 +51,11 @@ class Market:
             ['result']['list'][0]
             ['lotSizeFilter']['minOrderQty']
         )
-        round_volume: int = len(min_order_qty.split('.')[1])
+        round_volume: int = (
+            len(min_order_qty.split('.')[1])
+            if '.' in min_order_qty
+            else 0
+        )
         # Calculation of rounding.
         asset_volume: str = (
             str(round(

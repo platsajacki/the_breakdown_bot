@@ -42,7 +42,7 @@ def handle_message(msg: dict[str, Any]) -> None:
             avg_price: str = position['avgPrice']
             round_price: int = (
                 len(avg_price.split('.')[1])
-                if '.' in position['avgPrice']
+                if '.' in avg_price
                 else 0
             )
             avg_price: float = float(avg_price)
