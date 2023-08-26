@@ -6,6 +6,7 @@ load_dotenv()
 # API.
 API_KEY: str = getenv('API_KEY')
 API_SECRET: str = getenv('API_SECRET')
+CUSTOM_PING_INTERVAL: int = 10
 
 # Telegram token.
 TOKEN: str = getenv('TOKEN')

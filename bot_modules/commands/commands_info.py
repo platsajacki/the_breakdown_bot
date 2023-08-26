@@ -52,7 +52,7 @@ async def get_ticker_order(message: Message, state: FSMContext) -> None:
             )
         else:
             for order in open_orders:
-                entry_point: float = float(order['entry_point'])
+                entry_point: float = float(order['price'])
                 if entry_point != 0:
                     await message.answer(
                         InfoMessage.ORDER_MESSAGE.format(**order),

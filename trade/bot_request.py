@@ -11,7 +11,7 @@ from database.manager import Manager
 from database.models import OpenedOrderDB, StopVolumeDB
 
 # Setup a connection with the exchange.
-session: HTTP = HTTP(
+session_http: HTTP = HTTP(
     testnet=True,
     api_key=API_KEY,
     api_secret=API_SECRET
@@ -21,11 +21,11 @@ session: HTTP = HTTP(
 class Market:
     """The class responsible for requests from the exchange."""
     @staticmethod
-    def get_symbol(symbol: str) -> str:
+    def get_symbol(ticker: str) -> str:
         """Check the symbol in the exchange listing."""
         url: str = (
             'https://api.bybit.com/'
-            f'v5/market/tickers?category={LINEAR}&symbol={symbol}{USDT}'
+            f'v5/market/tickers?category={LINEAR}&symbol={ticker}{USDT}'
         )
         return get(url).json()['retMsg']
 
@@ -33,7 +33,7 @@ class Market:
     def get_mark_price(ticker) -> float:
         """Request for a ticker marking price."""
         symbol: str = f'{ticker}{USDT}'
-        info: dict[str, Any] = session.get_tickers(
+        info: dict[str, Any] = session_http.get_tickers(
             category=LINEAR, symbol=symbol
         )
         mark_price: float = float(info['result']['list'][0]['markPrice'])
@@ -45,7 +45,7 @@ class Market:
         """Round the position parameters and open it."""
         # Calculation of transaction volume
         min_order_qty: str = (
-            session.get_instruments_info(
+            session_http.get_instruments_info(
                 category=LINEAR,
                 symbol=symbol)
             ['result']['list'][0]
@@ -64,7 +64,7 @@ class Market:
         else:
             triggerDirection: int = 2
         # Open an order.
-        session.place_order(
+        session_http.place_order(
             category=LINEAR,
             symbol=symbol,
             side=side,
@@ -76,7 +76,8 @@ class Market:
             price=str(entry_point),
             takeProfit=str(take_profit),
             stopLoss=str(stop),
-            orderFilter='Order')
+            orderFilter='Order'
+        )
         open_order_params: dict[str, str | float] = {
             'symbol': symbol,
             'asset_volume': asset_volume,
@@ -97,7 +98,7 @@ class Market:
     @staticmethod
     def get_wallet_balance() -> dict[str, float]:
         """Request a wallet balance in USDT."""
-        info: dict[str, Any] = session.get_wallet_balance(
+        info: dict[str, Any] = session_http.get_wallet_balance(
             accountType=CONTRACT, coin=USDT
         )
         coin: str = info['result']['list'][0]['coin'][0]
@@ -125,47 +126,33 @@ class Market:
     def get_open_orders(ticker: str) -> list[dict[str, str]] | None:
         """Request for open orders."""
         symbol: str = f'{ticker}{USDT}'
-        info: dict[str, Any] = session.get_open_orders(
+        info: dict[str, Any] = session_http.get_open_orders(
             symbol=symbol, category=LINEAR
         )
         orders: list[dict[str, Any]] = info['result']['list']
         orders_list: list[dict[str, str]] = []
         if orders == orders_list:
             return None
-        for order in orders:
-            order_info: dict[str, str] = {
-                'symbol': symbol,
-                'side': order['side'],
-                'entry_point': order['price'],
-                'qty': order['qty'],
-                'trigger_price': order['triggerPrice'],
-                'stop_loss': order['stopLoss'],
-                'take_profit': order['takeProfit'],
-                'order_type': order['orderType']
-            }
-            orders_list.append(order_info)
-        return orders_list
+        return orders
 
     @staticmethod
     def get_open_positions(ticker: str) -> list[dict[str, str]] | None:
         """Request for open positions."""
         symbol: str = f'{ticker}{USDT}'
-        info = session.get_positions(symbol=symbol, category=LINEAR)
+        info = session_http.get_positions(symbol=symbol, category=LINEAR)
         positions: list[dict[str, Any]] = info['result']['list']
-        positions_list: list[dict[str, str]] = []
         if positions[0]['side'] == 'None':
             return None
-        for position in positions:
-            position_info: dict[str, str] = {
-                'symbol': symbol,
-                'side': position['side'],
-                'size': position['size'],
-                'leverage': position['leverage'],
-                'avg_price': position['avgPrice'],
-                'mark_price': position['markPrice'],
-                'unrealised_pnl': position['unrealisedPnl'],
-                'stop_loss': position['stopLoss'],
-                'take_profit': position['takeProfit']
-            }
-            positions_list.append(position_info)
-        return positions_list
+        return positions
+
+    @staticmethod
+    def set_trailing_stop(
+        symbol: str, trailing_stop: str, active_price: str
+    ) -> None:
+        session_http.set_trading_stop(
+            symbol=symbol,
+            category=LINEAR,
+            trailingStop=trailing_stop,
+            activePrice=active_price,
+            positionIdx=0
+        )

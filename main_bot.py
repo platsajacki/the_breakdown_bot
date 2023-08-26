@@ -11,6 +11,7 @@ from bot_modules.commands.commands_main import reg_handler_main
 from bot_modules.create_bot import bot, dp, router
 from bot_modules.send_message import send_message
 from constants import MYID
+from trade.check_positions import start_execution
 
 # Setup logging.
 log_format: str = '%(asctime)s [%(levelname)s] %(message)s: %(exc_info)s'
@@ -42,6 +43,7 @@ reg_handler_db(router)
 
 if __name__ == '__main__':
     try:
+        start_execution()
         dp.include_router(router)
         dp.run_polling(bot)
     except Exception as error:

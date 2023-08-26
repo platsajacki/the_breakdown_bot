@@ -8,7 +8,7 @@ from .bot_request import Market
 from .param_position import Long, Short
 from bot_modules.send_message import send_message
 from constants import (BUY, COEF_LEVEL_LONG, COEF_LEVEL_SHORT, LINEAR, LONG,
-                       SELL, SHORT, USDT)
+                       SELL, SHORT, USDT, CUSTOM_PING_INTERVAL)
 from database.manager import Manager, transferring_row
 from database.models import SpentLevelsDB, TrendDB
 
@@ -17,7 +17,8 @@ connected_tickers: set[str] = set()
 
 # Setup a connection WebSocket.
 try:
-    session: WebSocket = WebSocket(testnet=True, channel_type=LINEAR)
+    session_public: WebSocket = WebSocket(testnet=True, channel_type=LINEAR)
+    session_public.ping_interval: int = CUSTOM_PING_INTERVAL
 except InvalidChannelTypeError as error:
     log.error(error)
     send_message(error)
@@ -87,7 +88,7 @@ def connect_ticker(ticker) -> None:
     """Connect the ticker to the stream."""
     connected_tickers.add(ticker)
     symbol: str = f'{ticker}{USDT}'
-    session.ticker_stream(symbol=symbol, callback=handle_message)
+    session_public.ticker_stream(symbol=symbol, callback=handle_message)
 
 
 def start_check_tickers() -> None:
