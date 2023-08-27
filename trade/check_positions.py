@@ -6,7 +6,9 @@ from .bot_request import Market
 from .param_position import Long, Short
 from bot_modules.send_message import send_message
 from bot_modules.text_message import InfoMessage
-from constants import API_KEY, API_SECRET, CUSTOM_PING_INTERVAL, BUY
+from constants import (
+    API_KEY, API_SECRET, CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT, BUY
+)
 
 # Setup a connection WebSocket.
 session_privat: WebSocket = WebSocket(
@@ -66,3 +68,4 @@ def handle_message(msg: dict[str, Any]) -> None:
 def start_execution() -> None:
     session_privat.execution_stream(callback=handle_message)
     session_privat.ping_interval: int = CUSTOM_PING_INTERVAL
+    session_privat.ping_timeout: int = CUSTOM_PING_TIMEOUT

@@ -7,8 +7,10 @@ from pybit.unified_trading import WebSocket
 from .bot_request import Market
 from .param_position import Long, Short
 from bot_modules.send_message import send_message
-from constants import (BUY, COEF_LEVEL_LONG, COEF_LEVEL_SHORT, LINEAR, LONG,
-                       SELL, SHORT, USDT, CUSTOM_PING_INTERVAL)
+from constants import (
+    BUY, COEF_LEVEL_LONG, COEF_LEVEL_SHORT, LINEAR, LONG,
+    SELL, SHORT, USDT, CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT
+)
 from database.manager import Manager, transferring_row
 from database.models import SpentLevelsDB, TrendDB
 
@@ -19,6 +21,7 @@ connected_tickers: set[str] = set()
 try:
     session_public: WebSocket = WebSocket(testnet=True, channel_type=LINEAR)
     session_public.ping_interval: int = CUSTOM_PING_INTERVAL
+    session_public.ping_timeout: int = CUSTOM_PING_TIMEOUT
 except InvalidChannelTypeError as error:
     log.error(error)
     send_message(error)
