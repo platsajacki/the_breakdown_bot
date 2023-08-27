@@ -106,7 +106,7 @@ async def get_back(message: Message) -> None:
 
 def reg_handler_info(router: Router) -> None:
     """Registration of info commands."""
-    router.message.register(get_info, Command('info'), AdminID(MYID))
+    router.message.register(get_info, Command('info_market'), AdminID(MYID))
     router.message.register(get_balance, Command('balance'), AdminID(MYID))
     router.message.register(get_orders, Command('orders'), AdminID(MYID))
     router.message.register(get_back, Command('back'), AdminID(MYID))

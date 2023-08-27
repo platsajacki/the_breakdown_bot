@@ -138,7 +138,9 @@ async def get_queryset_lvl(message: Message, state: FSMContext) -> None:
 
 def reg_handler_db(router: Router) -> None:
     """Registration of db commands."""
-    router.message.register(get_database, Command('database'), AdminID(MYID))
+    router.message.register(
+        get_database, Command('info_database'), AdminID(MYID)
+    )
     router.message.register(change_stop, Command('change_stop'), AdminID(MYID))
     router.message.register(add_stop_volume, StateFilter(DBState.stop_volume))
     router.message.register(
