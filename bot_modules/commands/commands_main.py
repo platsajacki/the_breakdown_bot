@@ -4,11 +4,13 @@ from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from emoji import emojize
 
 from ..filters import AdminID
 from .bot_button import kb, kb_check_prices, kb_long_short
-from constants import LONG, SHORT, TRENDS, MYID, SYMBOL_OK
+from constants import (
+    LONG, SHORT, TRENDS, MYID, SYMBOL_OK, CHART_DECREASING,
+    CHECK_MARK_BUTTON, MAN_TECHNOLOGIST, CHART_INCREASING
+)
 from database.manager import Manager
 from database.models import TickerDB
 from database.temporary_data.temp_db import DBQuery, DBState
@@ -77,7 +79,7 @@ async def add_level(message: Message, state: FSMContext) -> None:
     if LevelDetector.check_level(**data):
         Manager.add_to_table(TickerDB, data)
         await message.answer(
-            f'Level is added! {emojize(":check_mark_button:")}',
+            f'Level is added! {CHECK_MARK_BUTTON}',
             reply_markup=kb
         )
     else:
@@ -101,16 +103,14 @@ async def start(message) -> None:
     await message.answer(
         'Analyzing the levels...'
     )
-    await message.answer(
-        emojize(':man_technologist:')
-    )
+    await message.answer(MAN_TECHNOLOGIST)
     for row in Manager.get_all_rows(TickerDB):
         LevelDetector.check_levels(**row)
     await message.answer(
-        f'Done! {emojize(":check_mark_button:")}'
+        f'Done! {CHECK_MARK_BUTTON}'
     )
     await message.answer(
-        f'Price check started! {emojize(":check_mark_button:")}'
+        f'Price check started! {CHECK_MARK_BUTTON}'
     )
     start_check_tickers()
 
@@ -119,10 +119,9 @@ async def trade_long(message: Message) -> None:
     """Change the trend to a long one."""
     Manager.changing_trend(LONG)
     await message.answer(
-        f'Long trading activated! {emojize(":check_mark_button:")}'
+        f'Long trading activated! {CHECK_MARK_BUTTON}'
     )
-    await message.answer(emojize(':chart_increasing:'),
-                         reply_markup=kb)
+    await message.answer(CHART_INCREASING, reply_markup=kb)
     await start(message)
 
 
@@ -130,12 +129,9 @@ async def trade_short(message: Message) -> None:
     """Change the trend to a short one."""
     Manager.changing_trend(SHORT)
     await message.answer(
-        f'Short trading activated! {emojize(":check_mark_button:")}'
+        f'Short trading activated! {CHECK_MARK_BUTTON}'
     )
-    await message.answer(
-        emojize(':chart_decreasing:'),
-        reply_markup=kb
-    )
+    await message.answer(CHART_DECREASING, reply_markup=kb)
     await start(message)
 
 

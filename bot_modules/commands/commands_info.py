@@ -2,12 +2,11 @@ from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from emoji import emojize
 
 from ..filters import AdminID
 from ..text_message import InfoMessage
 from .bot_button import kb, kb_info
-from constants import MYID, SYMBOL_OK
+from constants import MYID, SYMBOL_OK, MAN_TECHNOLOGIST, MAN_SHRUGGING
 from database.temporary_data.temp_db import TickerState
 from trade.bot_request import Market
 
@@ -37,9 +36,7 @@ async def get_ticker_order(message: Message, state: FSMContext) -> None:
     """Select a ticker to request orders."""
     ticker: str = message.text.upper()
     if Market.get_symbol(ticker) == SYMBOL_OK:
-        await message.answer(
-            emojize(':man_technologist:')
-        )
+        await message.answer(MAN_TECHNOLOGIST)
         open_orders: list[dict[str, str]] | None = (
             Market.get_open_orders(ticker)
         )
@@ -48,7 +45,7 @@ async def get_ticker_order(message: Message, state: FSMContext) -> None:
                 'There are no open orders.'
             )
             await message.answer(
-                emojize(':man_shrugging:'), reply_markup=kb
+                MAN_SHRUGGING, reply_markup=kb
             )
         else:
             for order in open_orders:
@@ -79,9 +76,7 @@ async def get_ticker_position(message: Message, state: FSMContext) -> None:
     """Choose a ticker to request positions."""
     ticker: str = message.text.upper()
     if Market.get_symbol(ticker) == SYMBOL_OK:
-        await message.answer(
-            emojize(':man_technologist:')
-        )
+        await message.answer(MAN_TECHNOLOGIST)
         open_positions: list[dict[str, str]] | None = (
             Market.get_open_positions(ticker)
         )
@@ -90,7 +85,7 @@ async def get_ticker_position(message: Message, state: FSMContext) -> None:
                 'There are no open positions.'
             )
             await message.answer(
-                emojize(':man_shrugging:'), reply_markup=kb
+                MAN_SHRUGGING, reply_markup=kb
             )
         else:
             for position in open_positions:

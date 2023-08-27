@@ -1,23 +1,26 @@
 from dataclasses import dataclass
 
+from constants import MONEY_WITH_WINGS, MONEY_BAG, ROCKET, COIN
+
 
 @dataclass
 class InfoMessage:
     """The class contains message templates."""
-    WALLET_MASSAGE: str = '''Equity - {equity};
+    WALLET_MASSAGE: str = f'_______{MONEY_BAG}_______' + '''
+Equity - {equity};
 Unrealised PNL - {unreal_pnl};
 Balance - {balance};
 Realised PNL - {real_pnl}.'''
 
     OPEN_ORDER_MESSAGE: str = '''The order was opened!
-{smile}{symbol}{smile}
+''' + f'{MONEY_WITH_WINGS} ' + '''{symbol}:
 Asset volume - {asset_volume};
 Trigger - {trigger};
 Entry point - {entry_point};
 Stop-loss - {stop_loss};
 Take-profit - {take_profit}.'''
 
-    ORDER_MESSAGE: str = '''{symbol}:
+    ORDER_MESSAGE: str = f'{MONEY_WITH_WINGS} ' + '''{symbol}:
 Side - {side};
 Entry point - {price};
 Asset volume - {qty};
@@ -25,13 +28,13 @@ Trigger - {triggerPrice};
 Stop-loss - {stopLoss};
 Take-profit - {takeProfit}.'''
 
-    ORDER_TP_SL_MESSAGE: str = '''{symbol}:
+    ORDER_TP_SL_MESSAGE: str = f'{MONEY_WITH_WINGS} ' + '''{symbol}:
 Side - {side};
 Asset volume - {qty};
 Trigger - {triggerPrice};
 Order type - {orderType}.'''
 
-    POSITION_MESSAGE: str = '''{symbol}:
+    POSITION_MESSAGE: str = f'{COIN} ' + '''{symbol}:
 Side - {side};
 Asset volume - {size};
 Leverage - {leverage};
@@ -42,11 +45,11 @@ Stop-loss - {stopLoss};
 Trailing stop - {trailingStop};
 Take-profit - {takeProfit}.'''
 
-    TRADE_MESSAGE: str = '''{symbol}:
+    TRADE_MESSAGE: str = f'{ROCKET} ' + '''{symbol}:
 Side - {side};
 Asset volume - {execQty};
 Price - {execPrice}.'''
 
-    QUERY_LIMIT: str = '''{ticker} - {trend}
-LVL - {level}
-Create - {create}'''
+    QUERY_LIMIT: str = '''{ticker} - {trend}:
+LVL - {level};
+Create - {create}.'''

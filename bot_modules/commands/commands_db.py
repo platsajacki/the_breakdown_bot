@@ -4,13 +4,12 @@ from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from emoji import emojize
 
 from ..filters import AdminID
 from ..text_message import InfoMessage
 from .bot_button import kb, kb_database, kb_query, kb_long_short
 from .commands_main import check_and_get_value
-from constants import TRENDS, MYID, SYMBOL_OK
+from constants import TRENDS, MYID, SYMBOL_OK, CHECK_MARK_BUTTON
 from database.models import TickerDB, SpentLevelsDB, UnsuitableLevelsDB
 from database.manager import Manager
 from database.temporary_data.temp_db import DBState, DBQuery
@@ -38,8 +37,7 @@ async def add_stop_volume(message: Message, state: FSMContext) -> None:
         volume: float = check_and_get_value(message)
         Manager.changing_stop(volume)
         await message.answer(
-            'The stop volume has been changed! '
-            f'{emojize(":check_mark_button:")}',
+            f'The stop volume has been changed! {CHECK_MARK_BUTTON}',
             reply_markup=kb
         )
     except ValueError:
@@ -127,7 +125,7 @@ async def get_queryset_lvl(message: Message, state: FSMContext) -> None:
             query['create'] = query['create'].strftime('%H:%M %d.%m.%Y')
             await message.answer(InfoMessage.QUERY_LIMIT.format(**query))
         await message.answer(
-            f'Done!{emojize(":check_mark_button:")}',
+            f'Done!{CHECK_MARK_BUTTON}',
             reply_markup=kb
         )
     else:

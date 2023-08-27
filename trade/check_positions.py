@@ -1,3 +1,4 @@
+from time import time
 from typing import Any
 
 from pybit.unified_trading import WebSocket
@@ -7,7 +8,8 @@ from .param_position import Long, Short
 from bot_modules.send_message import send_message
 from bot_modules.text_message import InfoMessage
 from constants import (
-    API_KEY, API_SECRET, CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT, BUY
+    API_KEY, API_SECRET, CUSTOM_PING_INTERVAL,
+    CUSTOM_PING_TIMEOUT, BUY, MINUTE_IN_MILLISECONDS
 )
 
 # Setup a connection WebSocket.
@@ -25,44 +27,48 @@ def handle_message(msg: dict[str, Any]) -> None:
     Check the trailing stop, if there is none, set.
     """
     for trade in msg['data']:
-        send_message(
-            'Conducted trade - '
-            f'{InfoMessage.TRADE_MESSAGE.format(**trade)}'
-        )
-        symbol: str = trade['symbol']
-        position: list[dict[str, str]] | None = (
-            Market.get_open_positions(ticker=symbol[:-4])
-        )
-        if position is None:
-            send_message('The position is completely closed.')
-            continue
-        position: dict[str, str] = position[0]
-        if (
-            float(trade['closedSize']) == 0
-            and float(position['trailingStop']) == 0
-        ):
-            avg_price: str = position['avgPrice']
-            round_price: int = (
-                len(avg_price.split('.')[1])
-                if '.' in avg_price
-                else 0
+        exec_time: int = int(trade['execTime'])
+        now_in_milliseconds: int = round(time() * 1000)
+        if now_in_milliseconds - exec_time < MINUTE_IN_MILLISECONDS:
+            send_message(
+                'Conducted trade '
+                f'{InfoMessage.TRADE_MESSAGE.format(**trade)}'
             )
-            avg_price: float = float(avg_price)
-            if trade['side'] == BUY:
-                trailing_stop, active_price = (
-                    Long.get_trailing_stop_param(avg_price, round_price)
-                )
-            else:
-                trailing_stop, active_price = (
-                    Short.get_trailing_stop_param(avg_price, round_price)
-                )
-            Market.set_trailing_stop(
-                symbol, str(trailing_stop), str(active_price)
+            symbol: str = trade['symbol']
+            position: list[dict[str, str]] | None = (
+                Market.get_open_positions(ticker=symbol[:-4])
             )
-        send_message(
-            'Total position - '
-            f'{InfoMessage.POSITION_MESSAGE.format(**position)}'
-        )
+            if position is None:
+                send_message('The position is completely closed.')
+                continue
+            position: dict[str, str] = position[0]
+            if (
+                float(trade['closedSize']) == 0
+                and float(position['trailingStop']) == 0
+            ):
+                avg_price: str = position['avgPrice']
+                round_price: int = (
+                    len(avg_price.split('.')[1])
+                    if '.' in avg_price
+                    else 0
+                )
+                avg_price: float = float(avg_price)
+                if trade['side'] == BUY:
+                    trailing_stop, active_price = (
+                        Long.get_trailing_stop_param(avg_price, round_price)
+                    )
+                else:
+                    trailing_stop, active_price = (
+                        Short.get_trailing_stop_param(avg_price, round_price)
+                    )
+                Market.set_trailing_stop(
+                    symbol, str(trailing_stop), str(active_price)
+                )
+                position['trailingStop'] = trailing_stop
+            send_message(
+                'Total position '
+                f'{InfoMessage.POSITION_MESSAGE.format(**position)}'
+            )
 
 
 def start_execution() -> None:

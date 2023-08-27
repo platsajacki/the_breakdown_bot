@@ -1,6 +1,5 @@
 from typing import Any
 
-from emoji import emojize
 from pybit.unified_trading import HTTP
 from requests import get
 
@@ -95,7 +94,7 @@ class Market:
         Manager.add_to_table(OpenedOrderDB, open_order_params)
         text_message: str = (
             InfoMessage.OPEN_ORDER_MESSAGE
-            .format(smile=emojize(':money_bag:'), **open_order_params)
+            .format(**open_order_params)
         )
         send_message(text_message)
 
