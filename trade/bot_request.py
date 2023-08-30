@@ -1,5 +1,6 @@
 from typing import Any
 
+from pybit.exceptions import InvalidRequestError
 from pybit.unified_trading import HTTP
 from requests import get
 
@@ -67,20 +68,23 @@ class Market:
         else:
             triggerDirection: int = 2
         # Open an order.
-        session_http.place_order(
-            category=LINEAR,
-            symbol=symbol,
-            side=side,
-            orderType='Limit',
-            qty=asset_volume,
-            tryggeBy='MarkPrice',
-            triggerDirection=triggerDirection,
-            triggerPrice=str(trigger),
-            price=str(entry_point),
-            takeProfit=str(take_profit),
-            stopLoss=str(stop),
-            orderFilter='Order'
-        )
+        try:
+            session_http.place_order(
+                category=LINEAR,
+                symbol=symbol,
+                side=side,
+                orderType='Limit',
+                qty=asset_volume,
+                tryggeBy='MarkPrice',
+                triggerDirection=triggerDirection,
+                triggerPrice=str(trigger),
+                price=str(entry_point),
+                takeProfit=str(take_profit),
+                stopLoss=str(stop),
+                orderFilter='Order'
+            )
+        except InvalidRequestError as error:
+            send_message(error)
         open_order_params: dict[str, str | float] = {
             'symbol': symbol,
             'asset_volume': asset_volume,
@@ -152,10 +156,13 @@ class Market:
     def set_trailing_stop(
         symbol: str, trailing_stop: str, active_price: str
     ) -> None:
-        session_http.set_trading_stop(
-            symbol=symbol,
-            category=LINEAR,
-            trailingStop=trailing_stop,
-            activePrice=active_price,
-            positionIdx=0
-        )
+        try:
+            session_http.set_trading_stop(
+                symbol=symbol,
+                category=LINEAR,
+                trailingStop=trailing_stop,
+                activePrice=active_price,
+                positionIdx=0
+            )
+        except InvalidRequestError as error:
+            send_message(error)
