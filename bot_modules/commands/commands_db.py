@@ -54,7 +54,8 @@ async def get_connected_tickers(message: Message) -> None:
         await message.answer('There are no tickers connected.')
     else:
         await message.answer(
-            f'Connected tickers: {", ".join(connected_tickers)}'
+            f'Connected tickers: {", ".join(connected_tickers)}. '
+            f'Total: {len(connected_tickers)}.'
         )
 
 
