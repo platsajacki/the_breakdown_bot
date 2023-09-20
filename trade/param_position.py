@@ -13,7 +13,7 @@ class Position:
     COEF_TRIGGER_LONG: ClassVar[float] = 0.9995
     COEF_TRIGGER_SHORT: ClassVar[float] = 1.0005
     COEF_PROFIT: ClassVar[float] = 5
-    COEF_TRAILING_STOP: ClassVar[float] = 0.02
+    COEF_TRAILING_STOP: ClassVar[float] = 0.01
 
     def calculate_stop(self) -> float:
         """Calculation of the stop-loss."""
