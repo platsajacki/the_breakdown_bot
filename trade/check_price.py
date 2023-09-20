@@ -23,7 +23,7 @@ try:
     session_public.ping_interval: int = CUSTOM_PING_INTERVAL
     session_public.ping_timeout: int = CUSTOM_PING_TIMEOUT
 except InvalidChannelTypeError as error:
-    log.error(error)
+    log.error(error, exc_info=True)
     send_message(error)
 
 
@@ -91,7 +91,11 @@ def connect_ticker(ticker) -> None:
     """Connect the ticker to the stream."""
     connected_tickers.add(ticker)
     symbol: str = f'{ticker}{USDT}'
-    session_public.ticker_stream(symbol=symbol, callback=handle_message)
+    try:
+        session_public.ticker_stream(symbol=symbol, callback=handle_message)
+    except Exception as error:
+        log.error(error, exc_info=True)
+        send_message(error)
 
 
 def start_check_tickers() -> None:
