@@ -99,8 +99,9 @@ class Manager:
         """
         level: float = (
             sess_db.query(
-                func.min(TickerDB.level) if trend == LONG
-                else func.max(TickerDB.level)
+                func.min(TickerDB.level)
+                if trend == LONG else
+                func.max(TickerDB.level)
             )
             .filter(
                 TickerDB.ticker == ticker,
@@ -113,7 +114,8 @@ class Manager:
             sess_db.query(TickerDB.id, TickerDB.level)
             .filter(
                 TickerDB.ticker == ticker,
-                TickerDB.level == level)
+                TickerDB.level == level
+            )
         ).one()._asdict()
         return rows
 
