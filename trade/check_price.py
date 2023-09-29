@@ -1,7 +1,6 @@
 import logging as log
 from typing import Any
 
-from pybit.exceptions import InvalidChannelTypeError
 from pybit.unified_trading import WebSocket
 
 from .bot_request import Market
@@ -13,6 +12,7 @@ from constants import (
 )
 from database.manager import Manager, transferring_row
 from database.models import SpentLevelsDB, TrendDB
+from exceptions import WSSessionPublicError
 
 # The list of connected tickers.
 connected_tickers: set[str] = set()
@@ -22,7 +22,7 @@ try:
     session_public: WebSocket = WebSocket(testnet=True, channel_type=LINEAR)
     session_public.ping_interval: int = CUSTOM_PING_INTERVAL
     session_public.ping_timeout: int = CUSTOM_PING_TIMEOUT
-except InvalidChannelTypeError as error:
+except WSSessionPublicError as error:
     log.error(error, exc_info=True)
     send_message(error)
 

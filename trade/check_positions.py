@@ -1,3 +1,4 @@
+import logging as log
 from time import time
 from typing import Any
 
@@ -7,18 +8,21 @@ from .bot_request import Market
 from .param_position import Long, Short
 from bot_modules.send_message import send_message
 from bot_modules.text_message import InfoMessage
-from constants import (
-    API_KEY, API_SECRET, CUSTOM_PING_INTERVAL,
-    CUSTOM_PING_TIMEOUT, BUY, MINUTE_IN_MILLISECONDS
-)
+from constants import (API_KEY, API_SECRET, BUY, CUSTOM_PING_INTERVAL,
+                       CUSTOM_PING_TIMEOUT, MINUTE_IN_MILLISECONDS)
+from exceptions import WSSessionPrivateError
 
 # Setup a connection WebSocket.
-session_privat: WebSocket = WebSocket(
-    testnet=True,
-    api_key=API_KEY,
-    api_secret=API_SECRET,
-    channel_type='private'
-)
+try:
+    session_privat: WebSocket = WebSocket(
+        testnet=True,
+        api_key=API_KEY,
+        api_secret=API_SECRET,
+        channel_type='private'
+    )
+except WSSessionPrivateError as error:
+    log.error(error, exc_info=True)
+    send_message(error)
 
 
 def handle_message(msg: dict[str, Any]) -> None:

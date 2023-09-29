@@ -1,3 +1,4 @@
+import logging as log
 from typing import Any
 
 from pybit.exceptions import InvalidRequestError
@@ -9,13 +10,18 @@ from bot_modules.text_message import InfoMessage
 from constants import API_KEY, API_SECRET, BUY, CONTRACT, LINEAR, USDT
 from database.manager import Manager
 from database.models import OpenedOrderDB, StopVolumeDB
+from exceptions import HTTPSessionError
 
 # Setup a connection with the exchange.
-session_http: HTTP = HTTP(
-    testnet=True,
-    api_key=API_KEY,
-    api_secret=API_SECRET
-)
+try:
+    session_http: HTTP = HTTP(
+        testnet=True,
+        api_key=API_KEY,
+        api_secret=API_SECRET
+    )
+except HTTPSessionError as error:
+    log.error(error, exc_info=True)
+    send_message(error)
 
 
 class Market:
@@ -32,9 +38,8 @@ class Market:
     @staticmethod
     def get_mark_price(ticker) -> float:
         """Request for a ticker marking price."""
-        symbol: str = f'{ticker}{USDT}'
         info: dict[str, Any] = session_http.get_tickers(
-            category=LINEAR, symbol=symbol
+            category=LINEAR, symbol=f'{ticker}{USDT}'
         )
         mark_price: float = float(info['result']['list'][0]['markPrice'])
         return mark_price
