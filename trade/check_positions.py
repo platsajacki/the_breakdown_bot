@@ -8,7 +8,7 @@ from .bot_request import Market
 from .param_position import Long, Short
 from bot_modules.send_message import send_message
 from bot_modules.text_message import InfoMessage
-from constants import (API_KEY, API_SECRET, BUY, CUSTOM_PING_INTERVAL,
+from constants import (API_KEY, API_SECRET, BUY, CUSTOM_PING_INTERVAL, LINEAR,
                        CUSTOM_PING_TIMEOUT, MINUTE_IN_MILLISECONDS)
 from exceptions import WSSessionPrivateError
 
@@ -33,7 +33,10 @@ def handle_message(msg: dict[str, Any]) -> None:
     for trade in msg['data']:
         exec_time: int = int(trade['execTime'])
         now_in_milliseconds: int = round(time() * 1000)
-        if now_in_milliseconds - exec_time < MINUTE_IN_MILLISECONDS:
+        if (
+            now_in_milliseconds - exec_time < MINUTE_IN_MILLISECONDS
+            and trade['category'] == LINEAR
+        ):
             send_message(
                 'Conducted trade '
                 f'{InfoMessage.TRADE_MESSAGE.format(**trade)}'
