@@ -33,10 +33,7 @@ class Position:
     @staticmethod
     def get_trailing_stop(avg_price: float, round_price: float) -> float:
         """Calculate the trailing stop."""
-        return round(
-            avg_price * Position.COEF_TRAILING_STOP,
-            round_price
-        )
+        return round(avg_price * Position.COEF_TRAILING_STOP, round_price)
 
 
 class Long(Position):
@@ -53,21 +50,15 @@ class Long(Position):
             entry_point - super().calculate_stop(), self.round_price
         )
         take_profit: float = round(
-            entry_point + self.COEF_PROFIT * super().calculate_stop(),
-            self.round_price
+            entry_point + self.COEF_PROFIT * super().calculate_stop(), self.round_price
         )
         return self.ticker, entry_point, stop, take_profit, trigger
 
     @staticmethod
-    def get_trailing_stop_param(
-            avg_price: float, round_price: int
-    ) -> tuple[float, float]:
+    def get_trailing_stop_param(avg_price: float, round_price: int) -> tuple[float, float]:
         """Calculate the trailing stop parameters for a long position."""
         trailing_stop: float = Long.get_trailing_stop(avg_price, round_price)
-        active_price: float = round(
-            avg_price + avg_price * Long.COEF_ACTIVE_PRICE,
-            round_price
-        )
+        active_price: float = round(avg_price + avg_price * Long.COEF_ACTIVE_PRICE, round_price)
         return trailing_stop, active_price
 
 
@@ -90,13 +81,8 @@ class Short(Position):
         )
         return self.ticker, entry_point, stop, take_profit, trigger
 
-    def get_trailing_stop_param(
-           avg_price: float, round_price: int
-    ) -> tuple[float, float]:
+    def get_trailing_stop_param(avg_price: float, round_price: int) -> tuple[float, float]:
         """Calculate the trailing stop parameters for a short position."""
         trailing_stop: float = Short.get_trailing_stop(avg_price, round_price)
-        active_price: float = round(
-            avg_price - avg_price * Short.COEF_ACTIVE_PRICE,
-            round_price
-        )
+        active_price: float = round(avg_price - avg_price * Short.COEF_ACTIVE_PRICE, round_price)
         return trailing_stop, active_price

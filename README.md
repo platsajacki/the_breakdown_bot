@@ -71,7 +71,7 @@ HOST=your_host
 
 **Install Dependencies**
 Install the required dependencies listed in the requirements.txt file:
-    
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -80,7 +80,7 @@ pip install -r requirements.txt
 You are now ready to run the project. Execute the following command:
 
 ```bash
-python main_bot.py
+python main.py
 ```
 
 The project is now successfully set up and configured with your environment variables.
