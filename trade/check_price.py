@@ -28,49 +28,29 @@ except WSSessionPublicError as error:
 
 
 def check_long(ticker: str, mark_price: float, round_price: int) -> None:
-    """
-    Check for compliance with long positions.
-    If the position fits the parameters, it opens an order.
-    """
-    query: None | dict[str, int | float] = (
-        Manager.get_current_level(ticker, LONG)
-    )
+    """Check for compliance with long positions. If the position fits the parameters, it opens an order."""
+    query: None | dict[str, int | float] = Manager.get_current_level(ticker, LONG)
     if query is not None:
         id: int = query['id']
         level: float = query['level']
         calc_level: float = level * COEF_LEVEL_LONG
         if calc_level < mark_price < level:
             long_calc = Long(ticker, level, round_price)
-            Market.open_pos(
-                *long_calc.get_param_position(), BUY
-            )
-            transferring_row(
-                table=SpentLevelsDB, id=id,
-                ticker=ticker, level=level, trend=LONG
-            )
+            Market.open_pos(*long_calc.get_param_position(), BUY)
+            transferring_row(table=SpentLevelsDB, id=id, ticker=ticker, level=level, trend=LONG)
 
 
 def check_short(ticker: str, mark_price: float, round_price: int) -> None:
-    """
-    Check for compliance with short positions.
-    If the position fits the parameters, it opens an order.
-    """
-    query: None | dict[str, int | float] = (
-        Manager.get_current_level(ticker, SHORT)
-    )
+    """Check for compliance with short positions. If the position fits the parameters, it opens an order."""
+    query: None | dict[str, int | float] = Manager.get_current_level(ticker, SHORT)
     if query is not None:
         id: int = query['id']
         level: float = query['level']
         calc_level: float = level * COEF_LEVEL_SHORT
         if calc_level > mark_price > level:
             short_calc = Short(ticker, level, round_price)
-            Market.open_pos(
-                *short_calc.get_param_position(), SELL
-            )
-            transferring_row(
-                table=SpentLevelsDB, id=id,
-                ticker=ticker, level=level, trend=SHORT
-            )
+            Market.open_pos(*short_calc.get_param_position(), SELL)
+            transferring_row(table=SpentLevelsDB, id=id, ticker=ticker, level=level, trend=SHORT)
 
 
 def handle_message(msg: dict[str, Any]) -> None:
@@ -89,9 +69,7 @@ def connect_ticker(ticker) -> None:
     """Connect the ticker to the stream."""
     connected_tickers.add(ticker)
     try:
-        session_public.ticker_stream(
-            symbol=f'{ticker}{USDT}', callback=handle_message
-        )
+        session_public.ticker_stream(symbol=f'{ticker}{USDT}', callback=handle_message)
     except Exception as error:
         log.error(error, exc_info=True)
         send_message(error)

@@ -27,14 +27,9 @@ async def start(message: Message):
     If it is not an admin, then the client is not allowed.
     """
     if message.from_user.id == MYID:
-        await message.answer(
-            f'The Breakdown Bot activeted! {FIRE}',
-            reply_markup=kb
-        )
+        await message.answer(f'The Breakdown Bot activeted! {FIRE}', reply_markup=kb)
     else:
-        await message.answer(
-            f'Access is denied! {NO_ENTRY}'
-        )
+        await message.answer(f'Access is denied! {NO_ENTRY}')
 
 reg_handler_main(router)
 reg_handler_info(router)

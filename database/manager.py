@@ -14,9 +14,7 @@ class Manager:
     """Query database manager."""
     @staticmethod
     @database_transaction
-    def add_to_table(
-        sess_db: Session, table: Base, data: dict[str, Any]
-    ) -> None:
+    def add_to_table(sess_db: Session, table: Base, data: dict[str, Any]) -> None:
         """Add records to the table."""
         row: Base = table(**data)
         sess_db.add(row)
@@ -66,9 +64,7 @@ class Manager:
 
     @staticmethod
     @database_return
-    def get_limit_query(
-        sess_db: Session, table: Base, ticker: str, trend: str, limit: int
-    ) -> list[dict[str, Any]]:
+    def get_limit_query(sess_db: Session, table: Base, ticker: str, trend: str, limit: int) -> list[dict[str, Any]]:
         """Request a certain number of table rows."""
         query: list[Base] = (
             sess_db.query(table)
@@ -82,21 +78,13 @@ class Manager:
     @database_return
     def select_trend_tickers(sess_db: Session, trend: str) -> list[Row]:
         """Request all tickers by the trend."""
-        query: list[Row] = (
-            sess_db.query(TickerDB.ticker).distinct()
-            .filter(TickerDB.trend == trend).all()
-        )
+        query: list[Row] = sess_db.query(TickerDB.ticker).distinct().filter(TickerDB.trend == trend).all()
         return query
 
     @staticmethod
     @database_return
-    def get_current_level(
-        sess_db: Session, ticker: str, trend: str
-    ) -> None | dict[str, int | float]:
-        """
-        Request a level to check the compliance
-        of the parameters of the opening of the transaction.
-        """
+    def get_current_level(sess_db: Session, ticker: str, trend: str) -> None | dict[str, int | float]:
+        """Request a level to check the compliance of the parameters of the opening of the transaction."""
         level: float = (
             sess_db.query(
                 func.min(TickerDB.level)
@@ -121,9 +109,7 @@ class Manager:
 
     @staticmethod
     @database_return
-    def get_level_by_trend(
-        sess_db: Session, ticker: str, trend: str
-    ) -> set[float]:
+    def get_level_by_trend(sess_db: Session, ticker: str, trend: str) -> set[float]:
         """Request ticker levels for the selected trend."""
         query: list[Row] = (
             sess_db
@@ -134,13 +120,9 @@ class Manager:
         return set(map(lambda query: query[0], query))
 
 
-def transferring_row(
-        table: Base, id: int, ticker: str, level: float, trend: str
-):
+def transferring_row(table: Base, id: int, ticker: str, level: float, trend: str) -> None:
     """Transfer a row from one table to another."""
-    data: dict[str, str | float] = {
-        'ticker': ticker, 'level': level, 'trend': trend
-    }
+    data: dict[str, str | float] = {'ticker': ticker, 'level': level, 'trend': trend}
     Manager.add_to_table(table, data)
     Manager.delete_row(TickerDB, id)
 

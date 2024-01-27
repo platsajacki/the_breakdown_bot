@@ -30,38 +30,20 @@ unsuiteble: KeyboardButton = KeyboardButton(text='/unsuiteble')
 
 # Add buttons
 kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
-    keyboard=[
-        [add_level], [check_prices], [info_market], [info_database]
-    ],
-    resize_keyboard=True
+    keyboard=[[add_level], [check_prices], [info_market], [info_database]], resize_keyboard=True
 )
-
 kb_info: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
-    keyboard=[
-        [balance], [orders], [positions], [back]
-    ], resize_keyboard=True
+    keyboard=[[balance], [orders], [positions], [back]], resize_keyboard=True
 )
-
 kb_check_prices: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
-    keyboard=[
-        [long_trend], [short_trend], [back]
-    ], resize_keyboard=True
+    keyboard=[[long_trend], [short_trend], [back]], resize_keyboard=True
 )
-
 kb_long_short: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
-    keyboard=[
-        [long, short]
-    ], resize_keyboard=True
+    keyboard=[[long, short]], resize_keyboard=True
 )
-
 kb_database: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
-    keyboard=[
-        [change_stop], [connected_tickers], [query], [back]
-    ], resize_keyboard=True
+    keyboard=[[change_stop], [connected_tickers], [query], [back]], resize_keyboard=True
 )
-
 kb_query: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
-    keyboard=[
-        [active], [spend], [unsuiteble], [back]
-    ], resize_keyboard=True
+    keyboard=[[active], [spend], [unsuiteble], [back]], resize_keyboard=True
 )

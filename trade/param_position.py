@@ -27,8 +27,7 @@ class Position:
         Luft - the distance from the level to the entry point
         to avoid opening on a false breakdown.
         """
-        luft: float = self.calculate_stop() * self.COEF_LUFT
-        return luft
+        return self.calculate_stop() * self.COEF_LUFT
 
     @staticmethod
     def get_trailing_stop(avg_price: float, round_price: float) -> float:

@@ -8,25 +8,14 @@ class LevelDetector:
     """The class that checks for compliance with price requirements."""
     @staticmethod
     def check_level(ticker: str, level: float, trend: str) -> bool:
-        """
-        The method that checks the new levels
-        for compliance when they are entered.
-        """
+        """The method that checks the new levels for compliance when they are entered."""
         if trend == LONG:
-            return (
-                level > Market.get_mark_price(ticker)
-                and level not in Manager.get_level_by_trend(ticker, trend)
-            )
+            return level > Market.get_mark_price(ticker) and level not in Manager.get_level_by_trend(ticker, trend)
         else:
-            return (
-                level < Market.get_mark_price(ticker)
-                and level not in Manager.get_level_by_trend(ticker, trend)
-            )
+            return level < Market.get_mark_price(ticker) and level not in Manager.get_level_by_trend(ticker, trend)
 
     @staticmethod
-    def check_levels(
-        id: int, ticker: str, level: float, trend: str, **kwargs
-    ) -> None:
+    def check_levels(id: int, ticker: str, level: float, trend: str, **kwargs) -> None:
         """
         A method that checks the levels which
         are already written to the database for compliance.
