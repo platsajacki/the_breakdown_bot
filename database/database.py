@@ -8,8 +8,8 @@ from constants import DATABASE, HOST, LOGIN, PASSWORD
 engine: Engine = create_engine(f'postgresql+psycopg2://{LOGIN}:{PASSWORD}@{HOST}/{DATABASE}', echo=True)
 meta: MetaData = MetaData(schema='public')
 
-Session: sessionmaker = sessionmaker(engine, expire_on_commit=False)
+Session = sessionmaker(engine, expire_on_commit=False)
 
 
 class Base(DeclarativeBase):
-    metadata: MetaData = meta
+    metadata = meta

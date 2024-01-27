@@ -1,12 +1,11 @@
 from typing import Any
 
-from sqlalchemy import func
-from sqlalchemy.engine.row import Row
+from sqlalchemy import Row, func
 
-from .database import Session, engine
-from .models import Base, StopVolumeDB, TickerDB, TrendDB
 from bot_modules.send_message import send_message
 from constants import LONG
+from database.database import Session, engine
+from database.models import Base, StopVolumeDB, TickerDB, TrendDB
 from decorators import database_return, database_transaction
 
 
@@ -16,51 +15,45 @@ class Manager:
     @database_transaction
     def add_to_table(sess_db: Session, table: Base, data: dict[str, Any]) -> None:
         """Add records to the table."""
-        row: Base = table(**data)
-        sess_db.add(row)
+        sess_db.add(table(**data))
 
     @staticmethod
     @database_transaction
     def delete_row(sess_db: Session, table: Base, id: int) -> None:
         """Delete records in the table."""
-        row: Base = sess_db.query(table).filter(table.id == id).one()
-        sess_db.delete(row)
+        sess_db.delete(sess_db.query(table).filter(table.id == id).one())
 
     @staticmethod
     @database_transaction
     def changing_trend(sess_db: Session, trend: str) -> None:
         """Change the direction of the trend."""
-        row: TrendDB = sess_db.query(TrendDB).get(1)
+        row: Row = sess_db.query(TrendDB).get(1)
         if row is not None:
             row.trend: str = trend
         else:
-            row: TrendDB = TrendDB(trend=trend)
-            sess_db.add(row)
+            sess_db.add(TrendDB(trend=trend))
 
     @staticmethod
     @database_transaction
     def changing_stop(sess_db: Session, volume: float) -> None:
         """Change in the value of the stop."""
-        row: StopVolumeDB = sess_db.query(StopVolumeDB).get(1)
+        row: Row = sess_db.query(StopVolumeDB).get(1)
         if row is not None:
             row.usdt_volume: float = volume
         else:
-            row: StopVolumeDB = StopVolumeDB(usdt_volume=volume)
-            sess_db.add(row)
+            sess_db.add(StopVolumeDB(usdt_volume=volume))
 
     @staticmethod
     @database_return
     def get_all_rows(sess_db: Session, table: Base) -> list[dict[str, Any]]:
         """Query all table rows."""
-        query = sess_db.query(table).all()
-        return [q.__dict__ for q in query]
+        return [q.__dict__ for q in sess_db.query(table).all()]
 
     @staticmethod
     @database_return
     def get_row_by_id(sess_db: Session, table: Base, id: int) -> Base:
         """Request a row by id."""
-        row: Base = sess_db.query(table).get(id)
-        return row
+        return sess_db.query(table).get(id)
 
     @staticmethod
     @database_return
@@ -78,8 +71,7 @@ class Manager:
     @database_return
     def select_trend_tickers(sess_db: Session, trend: str) -> list[Row]:
         """Request all tickers by the trend."""
-        query: list[Row] = sess_db.query(TickerDB.ticker).distinct().filter(TickerDB.trend == trend).all()
-        return query
+        return sess_db.query(TickerDB.ticker).distinct().filter(TickerDB.trend == trend).all()
 
     @staticmethod
     @database_return

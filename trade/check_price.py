@@ -3,16 +3,24 @@ from typing import Any
 
 from pybit.unified_trading import WebSocket
 
-from .bot_request import Market
-from .param_position import Long, Short
 from bot_modules.send_message import send_message
 from constants import (
-    BUY, COEF_LEVEL_LONG, COEF_LEVEL_SHORT, LINEAR, LONG, SELL, SHORT, USDT,
-    CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT
+    BUY,
+    COEF_LEVEL_LONG,
+    COEF_LEVEL_SHORT,
+    CUSTOM_PING_INTERVAL,
+    CUSTOM_PING_TIMEOUT,
+    LINEAR,
+    LONG,
+    SELL,
+    SHORT,
+    USDT,
 )
 from database.manager import Manager, transferring_row
 from database.models import SpentLevelsDB, TrendDB
 from exceptions import WSSessionPublicError
+from trade.bot_request import Market
+from trade.param_position import Long, Short
 
 # The list of connected tickers.
 connected_tickers: set[str] = set()

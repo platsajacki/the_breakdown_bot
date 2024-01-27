@@ -1,27 +1,27 @@
 from os import getenv
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from emoji import emojize
 
 load_dotenv()
 
 # API.
-API_KEY: str = getenv('API_KEY')
-API_SECRET: str = getenv('API_SECRET')
+API_KEY: str | None = getenv('API_KEY')
+API_SECRET: str | None = getenv('API_SECRET')
 CUSTOM_PING_INTERVAL: int = 10
 CUSTOM_PING_TIMEOUT: int = 5
 
 # Telegram token.
-TOKEN: str = getenv('TOKEN')
+TOKEN: str | None = getenv('TOKEN')
 
 # Admin ID.
-MYID: int = int(getenv('MYID'))
+MYID: int = int(my_id) if (my_id := getenv('MYID')) else 0
 
 # Access to the database.
-DATABASE: str = getenv('DATABASE')
-LOGIN: str = getenv('LOGIN')
-PASSWORD: str = getenv('PASSWORD')
-HOST: str = getenv('HOST')
+DATABASE: str | None = getenv('DATABASE')
+LOGIN: str | None = getenv('LOGIN')
+PASSWORD: str | None = getenv('PASSWORD')
+HOST: str | None = getenv('HOST')
 
 # Trading constants.
 LINEAR: str = 'linear'
@@ -29,7 +29,7 @@ CONTRACT: str = 'CONTRACT'
 
 LONG: str = 'long'
 SHORT: str = 'short'
-TRENDS: list[str, str] = [LONG, SHORT]
+TRENDS: list[str] = [LONG, SHORT]
 
 BUY: str = 'Buy'
 SELL: str = 'Sell'

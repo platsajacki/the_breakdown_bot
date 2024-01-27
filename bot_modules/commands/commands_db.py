@@ -5,16 +5,16 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from ..filters import AdminID
-from ..text_message import InfoMessage
-from .bot_button import kb, kb_database, kb_query, kb_long_short
-from .commands_main import check_and_get_value
-from constants import TRENDS, MYID, SYMBOL_OK, CHECK_MARK_BUTTON
-from database.models import TickerDB, SpentLevelsDB, UnsuitableLevelsDB
+from bot_modules.commands.bot_button import kb, kb_database, kb_long_short, kb_query
+from bot_modules.commands.commands_main import check_and_get_value
+from bot_modules.filters import AdminID
+from bot_modules.text_message import InfoMessage
+from constants import CHECK_MARK_BUTTON, MYID, SYMBOL_OK, TRENDS
 from database.manager import Manager
-from database.temporary_data.temp_db import DBState, DBQuery
-from trade.check_price import connected_tickers
+from database.models import SpentLevelsDB, TickerDB, UnsuitableLevelsDB
+from database.temporary_data.temp_db import DBQuery, DBState
 from trade.bot_request import Market
+from trade.check_price import connected_tickers
 
 
 async def get_database(message: Message) -> None:
@@ -76,8 +76,7 @@ async def get_unsuiteble_lvls(message: Message, state: FSMContext) -> None:
 
 async def get_limit_lvls(message: Message, state: FSMContext) -> None:
     """Select the number of requested levels."""
-    ticker = message.text.upper()
-    if Market.get_symbol(ticker) == SYMBOL_OK:
+    if Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
         await state.update_data(ticker=ticker)
         await message.answer('Enter the limit:')
         await state.set_state(DBQuery.limit)
@@ -89,8 +88,7 @@ async def get_limit_lvls(message: Message, state: FSMContext) -> None:
 async def get_query_trend(message: Message, state: FSMContext) -> None:
     """Select of the query trend."""
     try:
-        limit: int = int(message.text)
-        await state.update_data(limit=limit)
+        await state.update_data(limit=int(message.text))
         await message.answer('Enter the trend:', reply_markup=kb_long_short)
         await state.set_state(DBQuery.trend)
     except ValueError:
@@ -100,10 +98,9 @@ async def get_query_trend(message: Message, state: FSMContext) -> None:
 
 async def get_queryset_lvl(message: Message, state: FSMContext) -> None:
     """The output of the request is a message in a telegram."""
-    trend: str = message.text.lower()
-    if trend in TRENDS:
+    if message.text and (trend := message.text.lower()) in TRENDS:
         await state.update_data(trend=trend)
-        data: dict[str: Any] = await state.get_data()
+        data: dict[str, Any] = await state.get_data()
         for query in Manager.get_limit_query(**data):
             query['create'] = query['create'].strftime('%H:%M %d.%m.%Y')
             await message.answer(

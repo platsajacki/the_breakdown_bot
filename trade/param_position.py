@@ -30,7 +30,7 @@ class Position:
         return self.calculate_stop() * self.COEF_LUFT
 
     @staticmethod
-    def get_trailing_stop(avg_price: float, round_price: float) -> float:
+    def get_trailing_stop(avg_price: float, round_price: int) -> float:
         """Calculate the trailing stop."""
         return round(avg_price * Position.COEF_TRAILING_STOP, round_price)
 
@@ -80,6 +80,7 @@ class Short(Position):
         )
         return self.ticker, entry_point, stop, take_profit, trigger
 
+    @staticmethod
     def get_trailing_stop_param(avg_price: float, round_price: int) -> tuple[float, float]:
         """Calculate the trailing stop parameters for a short position."""
         trailing_stop: float = Short.get_trailing_stop(avg_price, round_price)

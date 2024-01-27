@@ -15,9 +15,12 @@ frozenlist==1.4.1
 greenlet==3.0.3
 idna==3.4
 iniconfig==2.0.0
+isort==5.13.2
 magic-filter==1.0.12
 mccabe==0.7.0
 multidict==6.0.4
+mypy==1.8.0
+mypy-extensions==1.0.0
 packaging==23.1
 pluggy==1.0.0
 psycopg2-binary==2.9.9
@@ -37,6 +40,7 @@ requests==2.31.0
 six==1.16.0
 SQLAlchemy==2.0.25
 tomli==2.0.1
+types-requests==2.31.0.20240125
 typing_extensions==4.9.0
 tzdata==2023.3
 tzlocal==4.3

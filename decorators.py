@@ -9,7 +9,7 @@ def database_transaction(func):
     """The decorator for wrap a function into a database transaction."""
     @wraps(func)
     def wrapper(*args, **kwargs):
-        sess_db: Session = Session()
+        sess_db = Session()
         try:
             sess_db.begin()
             func(sess_db, *args, **kwargs)
@@ -30,7 +30,7 @@ def database_return(func):
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        sess_db: Session = Session()
+        sess_db = Session()
         try:
             sess_db.begin()
             result = func(sess_db, *args, **kwargs)

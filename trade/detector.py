@@ -1,7 +1,7 @@
-from .bot_request import Market
 from constants import LONG, SHORT
 from database.manager import Manager, transferring_row
 from database.models import UnsuitableLevelsDB
+from trade.bot_request import Market
 
 
 class LevelDetector:

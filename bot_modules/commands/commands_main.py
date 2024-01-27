@@ -5,11 +5,18 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from ..filters import AdminID
-from .bot_button import kb, kb_check_prices, kb_long_short
+from bot_modules.commands.bot_button import kb, kb_check_prices, kb_long_short
+from bot_modules.filters import AdminID
 from constants import (
-    LONG, SHORT, TRENDS, MYID, SYMBOL_OK, CHART_DECREASING,
-    CHECK_MARK_BUTTON, MAN_TECHNOLOGIST, CHART_INCREASING
+    CHART_DECREASING,
+    CHART_INCREASING,
+    CHECK_MARK_BUTTON,
+    LONG,
+    MAN_TECHNOLOGIST,
+    MYID,
+    SHORT,
+    SYMBOL_OK,
+    TRENDS,
 )
 from database.manager import Manager
 from database.models import TickerDB
@@ -36,8 +43,7 @@ async def start_add_level(message: Message, state: FSMContext) -> None:
 
 async def enter_level(message: Message, state: FSMContext) -> None:
     """Enter the price of the level."""
-    ticker = message.text.upper()
-    if Market.get_symbol(ticker) == SYMBOL_OK:
+    if Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
         await state.update_data(ticker=ticker)
         await message.answer('Enter the level:')
         await state.set_state(DBState.lvl_db)
