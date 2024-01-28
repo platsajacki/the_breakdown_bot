@@ -7,7 +7,7 @@ from aiogram.types import Message
 
 from bot_modules.commands.bot_button import kb, kb_check_prices, kb_long_short
 from bot_modules.filters import AdminID
-from constants import (
+from settings import (
     CHART_DECREASING,
     CHART_INCREASING,
     CHECK_MARK_BUTTON,
@@ -28,11 +28,10 @@ from trade.detector import LevelDetector
 
 def check_and_get_value(message) -> float:
     """Conversion of the entered value to float."""
-    value: str = message.text
-    if ',' in value:
-        value = value.replace(',', '.')
-    value: float = float(value)
-    return value
+    value_str: str = message.text
+    if ',' in value_str:
+        value_str = value_str.replace(',', '.')
+    return float(value_str)
 
 
 async def start_add_level(message: Message, state: FSMContext) -> None:
@@ -43,7 +42,7 @@ async def start_add_level(message: Message, state: FSMContext) -> None:
 
 async def enter_level(message: Message, state: FSMContext) -> None:
     """Enter the price of the level."""
-    if Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
+    if message.text and Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
         await state.update_data(ticker=ticker)
         await message.answer('Enter the level:')
         await state.set_state(DBState.lvl_db)
@@ -69,12 +68,8 @@ async def enter_trend(message: Message, state: FSMContext) -> None:
 
 
 async def add_level(message: Message, state: FSMContext) -> None:
-    """
-    Check and add a level that meets the requirements.
-    Or refusal to add.
-    """
-    trend: str = message.text.lower()
-    if trend in TRENDS:
+    """Check and add a level that meets the requirements. Or refusal to add."""
+    if message.text and (trend := message.text.lower()) in TRENDS:
         await state.update_data(trend=trend)
         data: dict[str, Any] = await state.get_data()
     else:

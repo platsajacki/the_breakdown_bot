@@ -10,4 +10,4 @@ class AdminID(BaseFilter):
     MYID: int
 
     async def __call__(self, message: Message) -> bool:
-        return message.from_user.id == self.MYID
+        return bool(message.from_user and message.from_user.id == self.MYID)

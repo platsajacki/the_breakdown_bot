@@ -7,7 +7,7 @@ from requests import get
 
 from bot_modules.send_message import send_message
 from bot_modules.text_message import InfoMessage
-from constants import API_KEY, API_SECRET, BUY, CONTRACT, LINEAR, USDT
+from settings import API_KEY, API_SECRET, BUY, CONTRACT, LINEAR, USDT
 from database.manager import Manager
 from database.models import OpenedOrderDB, StopVolumeDB
 from exceptions import HTTPSessionError
@@ -25,7 +25,7 @@ class Market:
     @staticmethod
     def get_symbol(ticker: str) -> str:
         """Check the symbol in the exchange listing."""
-        url: str = f'https://api.bybit.com/v5/market/tickers?category={LINEAR}&symbol={ticker}{USDT}'
+        url: str = f'https://api.bybit.com/v5/market/tickers?category={LINEAR}&symbol={ticker}{USDT}'  # noqa: E231
         return get(url).json()['retMsg']
 
     @staticmethod
@@ -89,7 +89,8 @@ class Market:
     def get_wallet_balance() -> dict[str, float]:
         """Request a wallet balance in USDT."""
         info: dict[str, Any] = session_http.get_wallet_balance(accountType=CONTRACT, coin=USDT)
-        coin: str = info['result']['list'][0]['coin'][0]
+        coin: dict[str, Any] = info['result']['list'][0]['coin'][0]
+        print(coin)
         equity: float = round(
             float(coin['equity']), 2
         )

@@ -4,7 +4,7 @@ from typing import Any
 from pybit.unified_trading import WebSocket
 
 from bot_modules.send_message import send_message
-from constants import (
+from settings import (
     BUY,
     COEF_LEVEL_LONG,
     COEF_LEVEL_SHORT,
@@ -28,8 +28,8 @@ connected_tickers: set[str] = set()
 # Setup a connection WebSocket.
 try:
     session_public: WebSocket = WebSocket(testnet=True, channel_type=LINEAR)
-    session_public.ping_interval: int = CUSTOM_PING_INTERVAL
-    session_public.ping_timeout: int = CUSTOM_PING_TIMEOUT
+    session_public.ping_interval = CUSTOM_PING_INTERVAL
+    session_public.ping_timeout = CUSTOM_PING_TIMEOUT
 except WSSessionPublicError as error:
     log.error(error, exc_info=True)
     send_message(error)
@@ -37,7 +37,7 @@ except WSSessionPublicError as error:
 
 def check_long(ticker: str, mark_price: float, round_price: int) -> None:
     """Check for compliance with long positions. If the position fits the parameters, it opens an order."""
-    query: None | dict[str, int | float] = Manager.get_current_level(ticker, LONG)
+    query: None | dict[str, Any] = Manager.get_current_level(ticker, LONG)
     if query is not None:
         id: int = query['id']
         level: float = query['level']
@@ -50,7 +50,7 @@ def check_long(ticker: str, mark_price: float, round_price: int) -> None:
 
 def check_short(ticker: str, mark_price: float, round_price: int) -> None:
     """Check for compliance with short positions. If the position fits the parameters, it opens an order."""
-    query: None | dict[str, int | float] = Manager.get_current_level(ticker, SHORT)
+    query: None | dict[str, Any] = Manager.get_current_level(ticker, SHORT)
     if query is not None:
         id: int = query['id']
         level: float = query['level']
@@ -64,9 +64,9 @@ def check_short(ticker: str, mark_price: float, round_price: int) -> None:
 def handle_message(msg: dict[str, Any]) -> None:
     """Stream message handler."""
     ticker: str = msg['data']['symbol'][:-4]
-    mark_price: str = msg['data']['markPrice']
-    round_price: int = len(mark_price.split('.')[1])
-    mark_price: float = float(mark_price)
+    mark_price_str: str = msg['data']['markPrice']
+    round_price: int = len(mark_price_str.split('.')[1])
+    mark_price: float = float(mark_price_str)  # type: ignore[no-redef]
     if Manager.get_row_by_id(TrendDB, 1).trend == LONG:
         check_long(ticker, mark_price, round_price)
     else:
@@ -87,11 +87,9 @@ def start_check_tickers() -> None:
     """Determine the direction of trade. Start the stream."""
     if Manager.get_row_by_id(TrendDB, 1).trend == LONG:
         for ticker in Manager.select_trend_tickers(LONG):
-            ticker: str = ticker[0]
-            if ticker not in connected_tickers:
-                connect_ticker(ticker)
+            if ticker[0] not in connected_tickers:
+                connect_ticker(ticker[0])
     else:
         for ticker in Manager.select_trend_tickers(SHORT):
-            ticker: str = ticker[0]
-            if ticker not in connected_tickers:
-                connect_ticker(ticker)
+            if ticker[0] not in connected_tickers:
+                connect_ticker(ticker[0])

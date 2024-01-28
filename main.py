@@ -9,7 +9,7 @@ from bot_modules.commands.commands_info import reg_handler_info
 from bot_modules.commands.commands_main import reg_handler_main
 from bot_modules.create_bot import bot, dp, router
 from bot_modules.send_message import send_message
-from constants import FIRE, MYID, NO_ENTRY
+from settings import FIRE, MYID, NO_ENTRY
 from trade.check_positions import start_execution
 
 # Setup logging.

@@ -6,7 +6,7 @@ from pybit.unified_trading import WebSocket
 
 from bot_modules.send_message import send_message
 from bot_modules.text_message import InfoMessage
-from constants import (
+from settings import (
     API_KEY,
     API_SECRET,
     BUY,
@@ -41,22 +41,22 @@ def handle_message(msg: dict[str, Any]) -> None:
                 f'{InfoMessage.TRADE_MESSAGE.format(**trade)}'
             )
             symbol: str = trade['symbol']
-            position: list[dict[str, str]] | None = Market.get_open_positions(ticker=symbol[:-4])
-            if position is None:
+            position_list: list[dict[str, Any]] | None = Market.get_open_positions(ticker=symbol[:-4])
+            if position_list is None:
                 send_message('The position is completely closed.')
                 continue
-            position: dict[str, str] = position[0]
+            position: dict[str, Any] = position_list[0]
             if (
                 float(trade['closedSize']) == 0
                 and float(position['trailingStop']) == 0
             ):
-                avg_price: str = position['avgPrice']
+                avg_price_str: str = position['avgPrice']
                 round_price: int = (
-                    len(avg_price.split('.')[1])
-                    if '.' in avg_price
+                    len(avg_price_str.split('.')[1])
+                    if '.' in avg_price_str
                     else 0
                 )
-                avg_price: float = float(avg_price)
+                avg_price: float = float(avg_price_str)
                 if trade['side'] == BUY:
                     trailing_stop, active_price = Long.get_trailing_stop_param(avg_price, round_price)
                 else:
@@ -70,5 +70,5 @@ def handle_message(msg: dict[str, Any]) -> None:
 
 def start_execution() -> None:
     session_privat.execution_stream(callback=handle_message)
-    session_privat.ping_interval: int = CUSTOM_PING_INTERVAL
-    session_privat.ping_timeout: int = CUSTOM_PING_TIMEOUT
+    session_privat.ping_interval = CUSTOM_PING_INTERVAL
+    session_privat.ping_timeout = CUSTOM_PING_TIMEOUT

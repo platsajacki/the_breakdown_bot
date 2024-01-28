@@ -6,7 +6,7 @@ from aiogram.types import Message
 from bot_modules.commands.bot_button import kb, kb_info
 from bot_modules.filters import AdminID
 from bot_modules.text_message import InfoMessage
-from constants import MAN_SHRUGGING, MAN_TECHNOLOGIST, MYID, SYMBOL_OK
+from settings import MAN_SHRUGGING, MAN_TECHNOLOGIST, MYID, SYMBOL_OK
 from database.temporary_data.temp_db import TickerState
 from trade.bot_request import Market
 
@@ -29,8 +29,7 @@ async def get_orders(message: Message, state: FSMContext) -> None:
 
 async def get_ticker_order(message: Message, state: FSMContext) -> None:
     """Select a ticker to request orders."""
-    ticker: str = message.text.upper()
-    if Market.get_symbol(ticker) == SYMBOL_OK:
+    if message.text and Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
         await message.answer(MAN_TECHNOLOGIST)
         open_orders: list[dict[str, str]] | None = Market.get_open_orders(ticker)
         if open_orders is None:
@@ -57,8 +56,7 @@ async def get_positions(message: Message, state: FSMContext) -> None:
 
 async def get_ticker_position(message: Message, state: FSMContext) -> None:
     """Choose a ticker to request positions."""
-    ticker: str = message.text.upper()
-    if Market.get_symbol(ticker) == SYMBOL_OK:
+    if message.text and Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
         await message.answer(MAN_TECHNOLOGIST)
         open_positions: list[dict[str, str]] | None = Market.get_open_positions(ticker)
         if open_positions is None:

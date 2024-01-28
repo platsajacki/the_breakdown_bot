@@ -2,14 +2,14 @@ import logging as log
 from functools import wraps
 
 from bot_modules.send_message import send_message
-from database.database import Session
+from database.database import SQLSession
 
 
 def database_transaction(func):
     """The decorator for wrap a function into a database transaction."""
     @wraps(func)
     def wrapper(*args, **kwargs):
-        sess_db = Session()
+        sess_db = SQLSession()
         try:
             sess_db.begin()
             func(sess_db, *args, **kwargs)
@@ -30,7 +30,7 @@ def database_return(func):
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        sess_db = Session()
+        sess_db = SQLSession()
         try:
             sess_db.begin()
             result = func(sess_db, *args, **kwargs)

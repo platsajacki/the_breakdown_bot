@@ -5,23 +5,31 @@ from emoji import emojize
 
 load_dotenv()
 
+
+def get_required_env_var(var_name: str) -> str:
+    """Get the value of a required environment variable."""
+    if (value := getenv(var_name)) is None:
+        raise ValueError(f'Environment variable {var_name} is not set. Please add it to your `.env` file.')
+    return value
+
+
 # API.
-API_KEY: str | None = getenv('API_KEY')
-API_SECRET: str | None = getenv('API_SECRET')
+API_KEY: str = get_required_env_var('API_KEY')
+API_SECRET: str = get_required_env_var('API_SECRET')
 CUSTOM_PING_INTERVAL: int = 10
 CUSTOM_PING_TIMEOUT: int = 5
 
 # Telegram token.
-TOKEN: str | None = getenv('TOKEN')
+TOKEN: str = get_required_env_var('TOKEN')
 
 # Admin ID.
-MYID: int = int(my_id) if (my_id := getenv('MYID')) else 0
+MYID: int = int(get_required_env_var('MYID'))
 
 # Access to the database.
-DATABASE: str | None = getenv('DATABASE')
-LOGIN: str | None = getenv('LOGIN')
-PASSWORD: str | None = getenv('PASSWORD')
-HOST: str | None = getenv('HOST')
+DATABASE: str = get_required_env_var('DATABASE')
+LOGIN: str = get_required_env_var('LOGIN')
+PASSWORD: str = get_required_env_var('PASSWORD')
+HOST: str = get_required_env_var('HOST')
 
 # Trading constants.
 LINEAR: str = 'linear'

@@ -9,7 +9,7 @@ from bot_modules.commands.bot_button import kb, kb_database, kb_long_short, kb_q
 from bot_modules.commands.commands_main import check_and_get_value
 from bot_modules.filters import AdminID
 from bot_modules.text_message import InfoMessage
-from constants import CHECK_MARK_BUTTON, MYID, SYMBOL_OK, TRENDS
+from settings import CHECK_MARK_BUTTON, MYID, SYMBOL_OK, TRENDS
 from database.manager import Manager
 from database.models import SpentLevelsDB, TickerDB, UnsuitableLevelsDB
 from database.temporary_data.temp_db import DBQuery, DBState
@@ -76,7 +76,7 @@ async def get_unsuiteble_lvls(message: Message, state: FSMContext) -> None:
 
 async def get_limit_lvls(message: Message, state: FSMContext) -> None:
     """Select the number of requested levels."""
-    if Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
+    if message.text and Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
         await state.update_data(ticker=ticker)
         await message.answer('Enter the limit:')
         await state.set_state(DBQuery.limit)
@@ -88,7 +88,9 @@ async def get_limit_lvls(message: Message, state: FSMContext) -> None:
 async def get_query_trend(message: Message, state: FSMContext) -> None:
     """Select of the query trend."""
     try:
-        await state.update_data(limit=int(message.text))
+        if message.text and not message.text.isdigit():
+            raise ValueError
+        await state.update_data(limit=int())
         await message.answer('Enter the trend:', reply_markup=kb_long_short)
         await state.set_state(DBQuery.trend)
     except ValueError:
