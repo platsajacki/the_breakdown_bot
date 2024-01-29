@@ -5,8 +5,8 @@ from aiogram.types import Message
 from bot_modules.commands.bot_button import kb, kb_info
 from bot_modules.filters import AdminID
 from bot_modules.text_message import InfoMessage
-from settings import MAN_SHRUGGING, MAN_TECHNOLOGIST, MYID, SYMBOL_OK
 from database.temporary_data.temp_db import TickerState
+from settings import MAN_SHRUGGING, MAN_TECHNOLOGIST, MYID, SYMBOL_OK
 from trade.bot_request import Market
 
 

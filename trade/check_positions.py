@@ -1,10 +1,11 @@
-import logging as log
+import logging
+from logging import config
 from time import time
 from typing import Any
 
 from pybit.unified_trading import WebSocket
 
-from bot_modules.send_message import send_message
+from bot_modules.send_message import log_and_send_error, send_message
 from bot_modules.text_message import InfoMessage
 from settings import (
     API_KEY,
@@ -13,18 +14,21 @@ from settings import (
     CUSTOM_PING_INTERVAL,
     CUSTOM_PING_TIMEOUT,
     LINEAR,
+    LOG_CONFIG,
     MINUTE_IN_MILLISECONDS,
+    TESTNET,
 )
-from exceptions import WSSessionPrivateError
 from trade.bot_request import Market
 from trade.param_position import Long, Short
 
+config.dictConfig(LOG_CONFIG)
+logger = logging.getLogger(__name__)
+
 # Setup a connection WebSocket.
 try:
-    session_privat: WebSocket = WebSocket(testnet=True, api_key=API_KEY, api_secret=API_SECRET, channel_type='private')
-except WSSessionPrivateError as error:
-    log.error(error, exc_info=True)
-    send_message(error)
+    session_privat = WebSocket(testnet=TESTNET, api_key=API_KEY, api_secret=API_SECRET, channel_type='private')
+except Exception as error:
+    log_and_send_error(logger, error, '`WebSocket session_privat`')
 
 
 def handle_message(msg: dict[str, Any]) -> None:

@@ -6,6 +6,9 @@ from aiogram.types import Message
 
 from bot_modules.commands.bot_button import kb, kb_check_prices, kb_long_short
 from bot_modules.filters import AdminID
+from database.manager import Manager
+from database.models import TickerDB
+from database.temporary_data.temp_db import DBQuery, DBState
 from settings import (
     CHART_DECREASING,
     CHART_INCREASING,
@@ -17,9 +20,6 @@ from settings import (
     SYMBOL_OK,
     TRENDS,
 )
-from database.manager import Manager
-from database.models import TickerDB
-from database.temporary_data.temp_db import DBQuery, DBState
 from trade.bot_request import Market
 from trade.check_price import start_check_tickers
 from trade.detector import LevelDetector

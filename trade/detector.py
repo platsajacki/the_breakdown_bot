@@ -1,6 +1,6 @@
-from settings import LONG, SHORT
 from database.manager import Manager, transferring_row
 from database.models import UnsuitableLevelsDB
+from settings import LONG, SHORT
 from trade.bot_request import Market
 
 

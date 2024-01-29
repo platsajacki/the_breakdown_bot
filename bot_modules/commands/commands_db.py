@@ -8,10 +8,10 @@ from bot_modules.commands.bot_button import kb, kb_database, kb_long_short, kb_q
 from bot_modules.commands.commands_main import check_and_get_value
 from bot_modules.filters import AdminID
 from bot_modules.text_message import InfoMessage
-from settings import CHECK_MARK_BUTTON, MYID, SYMBOL_OK, TRENDS
 from database.manager import Manager
 from database.models import SpentLevelsDB, TickerDB, UnsuitableLevelsDB
 from database.temporary_data.temp_db import DBQuery, DBState
+from settings import CHECK_MARK_BUTTON, MYID, SYMBOL_OK, TRENDS
 from trade.bot_request import Market
 from trade.check_price import connected_tickers
 

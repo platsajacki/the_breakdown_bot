@@ -1,8 +1,13 @@
-import logging as log
+import logging
 from functools import wraps
+from logging import config
 
-from bot_modules.send_message import send_message
+from bot_modules.send_message import log_and_send_error
 from database.database import SQLSession
+from settings import LOG_CONFIG
+
+config.dictConfig(LOG_CONFIG)
+logger = logging.getLogger(__name__)
 
 
 def database_transaction(func):
@@ -16,8 +21,7 @@ def database_transaction(func):
             sess_db.commit()
         except Exception as error:
             sess_db.rollback()
-            log.error(error)
-            send_message(error)
+            log_and_send_error(logger, error, '`database_transaction`')
         finally:
             sess_db.close()
     return wrapper
@@ -38,8 +42,7 @@ def database_return(func):
             return result
         except Exception as error:
             sess_db.rollback()
-            log.error(error)
-            send_message(error)
+            log_and_send_error(logger, error, '`database_transaction`')
         finally:
             sess_db.close()
     return wrapper

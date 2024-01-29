@@ -1,21 +1,18 @@
-import logging as log
+import logging
+from logging import config
 
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
-from bot_modules.commands.bot_button import kb
 from bot_modules.commands import get_handler_db, get_handler_info, get_handler_main
+from bot_modules.commands.bot_button import kb
 from bot_modules.create_bot import bot, dp, register_commands, router
-from bot_modules.send_message import send_message
-from settings import FIRE, MYID, NO_ENTRY
+from bot_modules.send_message import log_and_send_error
+from settings import FIRE, LOG_CONFIG, MYID, NO_ENTRY
 from trade.check_positions import start_execution
 
-# Setup logging.
-log_format: str = '%(asctime)s [%(levelname)s] %(message)s: %(exc_info)s'
-handler: log.FileHandler = log.FileHandler('bot_log.log')
-handler.setLevel(log.ERROR)
-handler.setFormatter(log.Formatter(log_format))
-log.getLogger().addHandler(handler)
+config.dictConfig(LOG_CONFIG)
+logger = logging.getLogger(__name__)
 
 
 @router.message(CommandStart())
@@ -29,12 +26,17 @@ async def start(message: Message):
     else:
         await message.answer(f'Access is denied! {NO_ENTRY}')
 
-if __name__ == '__main__':
+
+def main():
+    """Start trading-bot."""
     try:
         register_commands(router, *get_handler_db(), *get_handler_main(), *get_handler_info())
         start_execution()
         dp.include_router(router)
         dp.run_polling(bot)
     except Exception as error:
-        log.error(error)
-        send_message(str(error))
+        log_and_send_error(logger, error)
+
+
+if __name__ in '__main__':
+    main()

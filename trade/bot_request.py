@@ -1,23 +1,24 @@
-import logging as log
+import logging
+from logging import config
 from typing import Any
 
-from pybit.exceptions import InvalidRequestError
 from pybit.unified_trading import HTTP
 from requests import get
 
-from bot_modules.send_message import send_message
+from bot_modules.send_message import log_and_send_error, send_message
 from bot_modules.text_message import InfoMessage
-from settings import API_KEY, API_SECRET, BUY, CONTRACT, LINEAR, USDT
 from database.manager import Manager
 from database.models import OpenedOrderDB, StopVolumeDB
-from exceptions import HTTPSessionError
+from settings import API_KEY, API_SECRET, BUY, CONTRACT, LINEAR, LOG_CONFIG, TESTNET, USDT
+
+config.dictConfig(LOG_CONFIG)
+logger = logging.getLogger(__name__)
 
 # Setup a connection with the exchange.
 try:
-    session_http: HTTP = HTTP(testnet=True, api_key=API_KEY, api_secret=API_SECRET)
-except HTTPSessionError as error:
-    log.error(error, exc_info=True)
-    send_message(error)
+    session_http = HTTP(testnet=TESTNET, api_key=API_KEY, api_secret=API_SECRET)
+except Exception as error:
+    log_and_send_error(logger, error, '`session_http`')
 
 
 class Market:
@@ -32,8 +33,7 @@ class Market:
     def get_mark_price(ticker) -> float:
         """Request for a ticker marking price."""
         info: dict[str, Any] = session_http.get_tickers(category=LINEAR, symbol=f'{ticker}{USDT}')
-        mark_price: float = float(info['result']['list'][0]['markPrice'])
-        return mark_price
+        return float(info['result']['list'][0]['markPrice'])
 
     @staticmethod
     def open_pos(ticker: str, entry_point: float, stop: float, take_profit: float, trigger: float, side: str) -> None:
@@ -69,8 +69,8 @@ class Market:
                 stopLoss=str(stop),
                 orderFilter='Order'
             )
-        except InvalidRequestError as error:
-            send_message(error)
+        except Exception as error:
+            log_and_send_error(logger, error, f'`place_order` {symbol} - {entry_point}')
         open_order_params: dict[str, str | float] = {
             'symbol': symbol,
             'asset_volume': asset_volume,
@@ -82,49 +82,39 @@ class Market:
         # Write the opened order to the table
         # and send a message about opening a position.
         Manager.add_to_table(OpenedOrderDB, open_order_params)
-        text_message: str = InfoMessage.OPEN_ORDER_MESSAGE.format(**open_order_params)
-        send_message(text_message)
+        send_message(InfoMessage.OPEN_ORDER_MESSAGE.format(**open_order_params))
 
     @staticmethod
     def get_wallet_balance() -> dict[str, float]:
         """Request a wallet balance in USDT."""
         info: dict[str, Any] = session_http.get_wallet_balance(accountType=CONTRACT, coin=USDT)
         coin: dict[str, Any] = info['result']['list'][0]['coin'][0]
-        print(coin)
-        equity: float = round(
-            float(coin['equity']), 2
-        )
-        unreal_pnl: float = round(
-            float(coin['unrealisedPnl']), 2
-        )
-        balance: float = round(
-            float(coin['walletBalance']), 2
-        )
-        real_pnl: float = round(
-            float(coin['cumRealisedPnl']), 2
-        )
-        info_wallet: dict[str, float] = {
-            'equity': equity,
-            'unreal_pnl': unreal_pnl,
-            'balance': balance,
-            'real_pnl': real_pnl
+        return {
+            'equity': round(
+                float(coin['equity']), 2
+            ),
+            'unreal_pnl': round(
+                float(coin['unrealisedPnl']), 2
+            ),
+            'balance': round(
+                float(coin['walletBalance']), 2
+            ),
+            'real_pnl': round(
+                float(coin['cumRealisedPnl']), 2
+            ),
         }
-        return info_wallet
 
     @staticmethod
     def get_open_orders(ticker: str) -> list[dict[str, str]] | None:
         """Request for open orders."""
-        symbol: str = f'{ticker}{USDT}'
-        info: dict[str, Any] = session_http.get_open_orders(symbol=symbol, category=LINEAR)
+        info: dict[str, Any] = session_http.get_open_orders(symbol=f'{ticker}{USDT}', category=LINEAR)
         orders: list[dict[str, Any]] = info['result']['list']
-        orders_list: list[dict[str, str]] = []
-        return None if orders == orders_list else orders
+        return None if orders == [] else orders
 
     @staticmethod
     def get_open_positions(ticker: str) -> list[dict[str, str]] | None:
         """Request for open positions."""
-        symbol: str = f'{ticker}{USDT}'
-        info = session_http.get_positions(symbol=symbol, category=LINEAR)
+        info = session_http.get_positions(symbol=f'{ticker}{USDT}', category=LINEAR)
         positions: list[dict[str, Any]] = info['result']['list']
         return None if positions[0]['side'] == 'None' else positions
 
@@ -136,7 +126,7 @@ class Market:
                 category=LINEAR,
                 trailingStop=trailing_stop,
                 activePrice=active_price,
-                positionIdx=0
+                positionIdx=0,
             )
-        except InvalidRequestError as error:
-            send_message(error)
+        except Exception as error:
+            log_and_send_error(logger, error, f'`set_trading_stop` {symbol} - {active_price}')

@@ -1,9 +1,12 @@
-import logging as log
+import logging
+from logging import config
 from typing import Any
 
 from pybit.unified_trading import WebSocket
 
-from bot_modules.send_message import send_message
+from bot_modules.send_message import log_and_send_error
+from database.manager import Manager, transferring_row
+from database.models import SpentLevelsDB, TrendDB
 from settings import (
     BUY,
     COEF_LEVEL_LONG,
@@ -11,28 +14,29 @@ from settings import (
     CUSTOM_PING_INTERVAL,
     CUSTOM_PING_TIMEOUT,
     LINEAR,
+    LOG_CONFIG,
     LONG,
     SELL,
     SHORT,
+    TESTNET,
     USDT,
 )
-from database.manager import Manager, transferring_row
-from database.models import SpentLevelsDB, TrendDB
-from exceptions import WSSessionPublicError
 from trade.bot_request import Market
 from trade.param_position import Long, Short
+
+config.dictConfig(LOG_CONFIG)
+logger = logging.getLogger(__name__)
 
 # The list of connected tickers.
 connected_tickers: set[str] = set()
 
 # Setup a connection WebSocket.
 try:
-    session_public: WebSocket = WebSocket(testnet=True, channel_type=LINEAR)
+    session_public = WebSocket(testnet=TESTNET, channel_type=LINEAR)
     session_public.ping_interval = CUSTOM_PING_INTERVAL
     session_public.ping_timeout = CUSTOM_PING_TIMEOUT
-except WSSessionPublicError as error:
-    log.error(error, exc_info=True)
-    send_message(error)
+except Exception as error:
+    log_and_send_error(logger, error, 'WebSocket `session_public`')
 
 
 def check_long(ticker: str, mark_price: float, round_price: int) -> None:
@@ -79,8 +83,7 @@ def connect_ticker(ticker) -> None:
     try:
         session_public.ticker_stream(symbol=f'{ticker}{USDT}', callback=handle_message)
     except Exception as error:
-        log.error(error, exc_info=True)
-        send_message(error)
+        log_and_send_error(logger, error, f'`ticker_stream` {ticker}')
 
 
 def start_check_tickers() -> None:
