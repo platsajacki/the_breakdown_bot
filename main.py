@@ -1,13 +1,11 @@
 import logging as log
 
-from aiogram.filters import Command
+from aiogram.filters import CommandStart
 from aiogram.types import Message
 
 from bot_modules.commands.bot_button import kb
-from bot_modules.commands.commands_db import reg_handler_db
-from bot_modules.commands.commands_info import reg_handler_info
-from bot_modules.commands.commands_main import reg_handler_main
-from bot_modules.create_bot import bot, dp, router
+from bot_modules.commands import get_handler_db, get_handler_info, get_handler_main
+from bot_modules.create_bot import bot, dp, register_commands, router
 from bot_modules.send_message import send_message
 from settings import FIRE, MYID, NO_ENTRY
 from trade.check_positions import start_execution
@@ -20,7 +18,7 @@ handler.setFormatter(log.Formatter(log_format))
 log.getLogger().addHandler(handler)
 
 
-@router.message(Command('start'))
+@router.message(CommandStart())
 async def start(message: Message):
     """
     The "Start" command checks who started the work.
@@ -31,12 +29,9 @@ async def start(message: Message):
     else:
         await message.answer(f'Access is denied! {NO_ENTRY}')
 
-reg_handler_main(router)
-reg_handler_info(router)
-reg_handler_db(router)
-
 if __name__ == '__main__':
     try:
+        register_commands(router, *get_handler_db(), *get_handler_main(), *get_handler_info())
         start_execution()
         dp.include_router(router)
         dp.run_polling(bot)

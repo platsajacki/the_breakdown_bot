@@ -1,4 +1,3 @@
-from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
@@ -76,12 +75,14 @@ async def get_back(message: Message) -> None:
     await message.answer('Main menu.', reply_markup=kb)
 
 
-def reg_handler_info(router: Router) -> None:
-    """Registration of info commands."""
-    router.message.register(get_info, Command('info_market'), AdminID(MYID))
-    router.message.register(get_balance, Command('balance'), AdminID(MYID))
-    router.message.register(get_orders, Command('orders'), AdminID(MYID))
-    router.message.register(get_back, Command('back'), AdminID(MYID))
-    router.message.register(get_positions, Command('positions'), AdminID(MYID))
-    router.message.register(get_ticker_position, StateFilter(TickerState.ticker_position))
-    router.message.register(get_ticker_order, StateFilter(TickerState.ticker_order))
+def get_handler_info() -> list[tuple]:
+    """Get a list of handlers for info commands registration."""
+    return [
+        (get_info, Command('info_market'), AdminID(MYID)),
+        (get_balance, Command('balance'), AdminID(MYID)),
+        (get_orders, Command('orders'), AdminID(MYID)),
+        (get_back, Command('back'), AdminID(MYID)),
+        (get_positions, Command('positions'), AdminID(MYID)),
+        (get_ticker_position, StateFilter(TickerState.ticker_position)),
+        (get_ticker_order, StateFilter(TickerState.ticker_order)),
+    ]

@@ -1,6 +1,5 @@
 from typing import Any
 
-from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
@@ -88,9 +87,7 @@ async def get_limit_lvls(message: Message, state: FSMContext) -> None:
 async def get_query_trend(message: Message, state: FSMContext) -> None:
     """Select of the query trend."""
     try:
-        if message.text and not message.text.isdigit():
-            raise ValueError
-        await state.update_data(limit=int())
+        await state.update_data(limit=int(message.text))  # type: ignore[arg-type]
         await message.answer('Enter the trend:', reply_markup=kb_long_short)
         await state.set_state(DBQuery.trend)
     except ValueError:
@@ -115,16 +112,18 @@ async def get_queryset_lvl(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-def reg_handler_db(router: Router) -> None:
-    """Registration of db commands."""
-    router.message.register(get_database, Command('info_database'), AdminID(MYID))
-    router.message.register(change_stop, Command('change_stop'), AdminID(MYID))
-    router.message.register(add_stop_volume, StateFilter(DBState.stop_volume))
-    router.message.register(get_connected_tickers, Command('connected_tickers'), AdminID(MYID))
-    router.message.register(get_query, Command('query'), AdminID(MYID))
-    router.message.register(get_active_lvls, Command('active'), AdminID(MYID))
-    router.message.register(get_spend_lvls, Command('spend'), AdminID(MYID))
-    router.message.register(get_unsuiteble_lvls, Command('unsuiteble'), AdminID(MYID))
-    router.message.register(get_limit_lvls, StateFilter(DBQuery.ticker))
-    router.message.register(get_query_trend, StateFilter(DBQuery.limit))
-    router.message.register(get_queryset_lvl, StateFilter(DBQuery.trend))
+def get_handler_db() -> list[tuple]:
+    """Get a list of handlers for db commands registration."""
+    return [
+        (get_database, Command('info_database'), AdminID(MYID)),
+        (change_stop, Command('change_stop'), AdminID(MYID)),
+        (add_stop_volume, StateFilter(DBState.stop_volume)),
+        (get_connected_tickers, Command('connected_tickers'), AdminID(MYID)),
+        (get_query, Command('query'), AdminID(MYID)),
+        (get_active_lvls, Command('active'), AdminID(MYID)),
+        (get_spend_lvls, Command('spend'), AdminID(MYID)),
+        (get_unsuiteble_lvls, Command('unsuiteble'), AdminID(MYID)),
+        (get_limit_lvls, StateFilter(DBQuery.ticker)),
+        (get_query_trend, StateFilter(DBQuery.limit)),
+        (get_queryset_lvl, StateFilter(DBQuery.trend)),
+    ]

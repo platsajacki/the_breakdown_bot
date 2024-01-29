@@ -1,6 +1,5 @@
 from typing import Any
 
-from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
@@ -136,16 +135,14 @@ async def trade_short(message: Message) -> None:
     await start(message)
 
 
-def reg_handler_main(router: Router) -> None:
-    """Registration of main commands."""
-    router.message.register(
-        check_prices, Command('check_prices'), AdminID(MYID)
-    )
-    router.message.register(
-        start_add_level, Command('add_level'), AdminID(MYID)
-    )
-    router.message.register(enter_level, StateFilter(DBState.ticker))
-    router.message.register(enter_trend, StateFilter(DBState.lvl_db))
-    router.message.register(add_level, StateFilter(DBState.trend))
-    router.message.register(trade_long, Command('trade_long'), AdminID(MYID))
-    router.message.register(trade_short, Command('trade_short'), AdminID(MYID))
+def get_handler_main() -> list[tuple]:
+    """Get a list of handlers for main commands registration."""
+    return [
+        (check_prices, Command('check_prices'), AdminID(MYID)),
+        (start_add_level, Command('add_level'), AdminID(MYID)),
+        (enter_level, StateFilter(DBState.ticker)),
+        (enter_trend, StateFilter(DBState.lvl_db)),
+        (add_level, StateFilter(DBState.trend)),
+        (trade_long, Command('trade_long'), AdminID(MYID)),
+        (trade_short, Command('trade_short'), AdminID(MYID)),
+    ]
