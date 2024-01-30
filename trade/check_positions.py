@@ -6,8 +6,6 @@ from typing import Any
 
 from pybit.unified_trading import WebSocket
 
-from bot_modules.send_message import log_and_send_error, send_message
-from bot_modules.text_message import InfoMessage
 from settings import (
     API_KEY,
     API_SECRET,
@@ -19,8 +17,10 @@ from settings import (
     MINUTE_IN_MILLISECONDS,
     TESTNET,
 )
-from trade.bot_request import Market
+from tg_bot.send_message import log_and_send_error, send_message
+from tg_bot.text_message import InfoMessage
 from trade.param_position import Long, Short
+from trade.requests import Market
 
 config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)

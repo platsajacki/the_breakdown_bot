@@ -1,9 +1,9 @@
 from decimal import Decimal
 
-from database.manager import Manager, transferring_row
+from database.managers import Manager, transferring_row
 from database.models import UnsuitableLevelsDB
 from settings import LONG, SHORT
-from trade.bot_request import Market
+from trade.requests import Market
 
 
 class LevelDetector:

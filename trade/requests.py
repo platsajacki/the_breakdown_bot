@@ -6,11 +6,11 @@ from typing import Any
 from pybit.unified_trading import HTTP
 from requests import get
 
-from bot_modules.send_message import log_and_send_error, send_message
-from bot_modules.text_message import InfoMessage
-from database.manager import Manager
+from database.managers import Manager
 from database.models import OpenedOrderDB, StopVolumeDB
 from settings import API_KEY, API_SECRET, BUY, CONTRACT, LINEAR, LOG_CONFIG, TESTNET, USDT
+from tg_bot.send_message import log_and_send_error, send_message
+from tg_bot.text_message import InfoMessage
 
 config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)

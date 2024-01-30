@@ -1,13 +1,10 @@
-from decimal import Decimal
 from typing import Any
 
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from bot_modules.commands.bot_button import kb, kb_check_prices, kb_long_short
-from bot_modules.filters import AdminID
-from database.manager import Manager
+from database.managers import Manager
 from database.models import TickerDB
 from database.temporary_data.temp_db import DBQuery, DBState
 from settings import (
@@ -21,17 +18,12 @@ from settings import (
     SYMBOL_OK,
     TRENDS,
 )
-from trade.bot_request import Market
+from tg_bot.commands.buttons import kb, kb_check_prices, kb_long_short
+from tg_bot.filters import AdminID
+from tg_bot.utils import check_and_get_value
 from trade.check_price import start_check_tickers
 from trade.detector import LevelDetector
-
-
-def check_and_get_value(message) -> Decimal:
-    """Conversion of the entered value to Decimal."""
-    value_str: str = message.text
-    if ',' in value_str:
-        value_str = value_str.replace(',', '.')
-    return Decimal(value_str)
+from trade.requests import Market
 
 
 async def start_add_level(message: Message, state: FSMContext) -> None:

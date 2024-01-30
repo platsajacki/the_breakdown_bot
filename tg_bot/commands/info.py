@@ -1,14 +1,15 @@
 from decimal import Decimal
+
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from bot_modules.commands.bot_button import kb, kb_info
-from bot_modules.filters import AdminID
-from bot_modules.text_message import InfoMessage
 from database.temporary_data.temp_db import TickerState
 from settings import MAN_SHRUGGING, MAN_TECHNOLOGIST, MYID, SYMBOL_OK
-from trade.bot_request import Market
+from tg_bot.commands.buttons import kb, kb_info
+from tg_bot.filters import AdminID
+from tg_bot.text_message import InfoMessage
+from trade.requests import Market
 
 
 async def get_info(message: Message) -> None:

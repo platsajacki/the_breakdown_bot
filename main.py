@@ -4,11 +4,11 @@ from logging import config
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
-from bot_modules.commands import get_handler_db, get_handler_info, get_handler_main
-from bot_modules.commands.bot_button import kb
-from bot_modules.create_bot import bot, dp, register_commands, router
-from bot_modules.send_message import log_and_send_error
 from settings import FIRE, LOG_CONFIG, MYID, NO_ENTRY
+from tg_bot.commands import get_handler_db, get_handler_info, get_handler_main
+from tg_bot.commands.buttons import kb
+from tg_bot.create_bot import bot, dp, register_commands, router
+from tg_bot.send_message import log_and_send_error
 from trade.check_positions import start_execution
 
 config.dictConfig(LOG_CONFIG)

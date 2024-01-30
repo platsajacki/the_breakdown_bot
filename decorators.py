@@ -2,9 +2,9 @@ import logging
 from functools import wraps
 from logging import config
 
-from bot_modules.send_message import log_and_send_error
-from database.database import SQLSession
+from database.db import SQLSession
 from settings import LOG_CONFIG
+from tg_bot.send_message import log_and_send_error
 
 config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)

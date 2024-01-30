@@ -5,8 +5,7 @@ from typing import Any
 
 from pybit.unified_trading import WebSocket
 
-from bot_modules.send_message import log_and_send_error
-from database.manager import Manager, transferring_row
+from database.managers import Manager, transferring_row
 from database.models import SpentLevelsDB, TrendDB
 from settings import (
     BUY,
@@ -22,8 +21,9 @@ from settings import (
     TESTNET,
     USDT,
 )
-from trade.bot_request import Market
+from tg_bot.send_message import log_and_send_error
 from trade.param_position import Long, Short
+from trade.requests import Market
 
 config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)

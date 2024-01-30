@@ -4,11 +4,11 @@ from typing import Any
 from sqlalchemy import Row, func
 from sqlalchemy.orm import Session
 
-from bot_modules.send_message import send_message
-from database.database import engine
+from database.db import engine
 from database.models import Base, StopVolumeDB, TickerDB, TrendDB
 from decorators import database_return, database_transaction
 from settings import LONG
+from tg_bot.send_message import send_message
 
 
 class Manager:
