@@ -1,3 +1,4 @@
+from decimal import Decimal
 from os import getenv
 
 from dotenv import load_dotenv
@@ -26,7 +27,7 @@ TOKEN: str = get_required_env_var('TOKEN')
 
 
 # Admin ID.
-MYID: int = int(get_required_env_var('MYID'))
+MYID = int(get_required_env_var('MYID'))
 
 
 # Access to the database.
@@ -71,8 +72,8 @@ TRENDS: list[str] = [LONG, SHORT]
 BUY: str = 'Buy'
 SELL: str = 'Sell'
 
-COEF_LEVEL_LONG: float = 0.9975
-COEF_LEVEL_SHORT: float = 1.0025
+COEF_LEVEL_LONG = Decimal('0.9975')
+COEF_LEVEL_SHORT = Decimal('1.0025')
 
 USDT: str = 'USDT'
 SYMBOL_OK: str = 'OK'

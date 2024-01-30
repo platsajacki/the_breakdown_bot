@@ -1,4 +1,5 @@
 import logging
+from decimal import Decimal
 from logging import config
 from typing import Any
 
@@ -39,26 +40,26 @@ except Exception as error:
     log_and_send_error(logger, error, 'WebSocket `session_public`')
 
 
-def check_long(ticker: str, mark_price: float, round_price: int) -> None:
+def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None:
     """Check for compliance with long positions. If the position fits the parameters, it opens an order."""
     query: None | dict[str, Any] = Manager.get_current_level(ticker, LONG)
     if query is not None:
         id: int = query['id']
-        level: float = query['level']
-        calc_level: float = level * COEF_LEVEL_LONG
+        level: Decimal = query['level']
+        calc_level: Decimal = level * COEF_LEVEL_LONG
         if calc_level < mark_price < level:
             long_calc = Long(ticker, level, round_price)
             Market.open_pos(*long_calc.get_param_position(), BUY)
             transferring_row(table=SpentLevelsDB, id=id, ticker=ticker, level=level, trend=LONG)
 
 
-def check_short(ticker: str, mark_price: float, round_price: int) -> None:
+def check_short(ticker: str, mark_price: Decimal, round_price: int) -> None:
     """Check for compliance with short positions. If the position fits the parameters, it opens an order."""
     query: None | dict[str, Any] = Manager.get_current_level(ticker, SHORT)
     if query is not None:
         id: int = query['id']
-        level: float = query['level']
-        calc_level: float = level * COEF_LEVEL_SHORT
+        level: Decimal = query['level']
+        calc_level: Decimal = level * COEF_LEVEL_SHORT
         if calc_level > mark_price > level:
             short_calc = Short(ticker, level, round_price)
             Market.open_pos(*short_calc.get_param_position(), SELL)
@@ -70,7 +71,7 @@ def handle_message(msg: dict[str, Any]) -> None:
     ticker: str = msg['data']['symbol'][:-4]
     mark_price_str: str = msg['data']['markPrice']
     round_price: int = len(mark_price_str.split('.')[1])
-    mark_price: float = float(mark_price_str)  # type: ignore[no-redef]
+    mark_price = Decimal(mark_price_str)
     if Manager.get_row_by_id(TrendDB, 1).trend == LONG:
         check_long(ticker, mark_price, round_price)
     else:

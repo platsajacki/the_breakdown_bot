@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import Row, func
@@ -36,7 +37,7 @@ class Manager:
 
     @staticmethod
     @database_transaction
-    def changing_stop(sess_db: Session, volume: float) -> None:
+    def changing_stop(sess_db: Session, volume: Decimal) -> None:
         """Change in the value of the stop."""
         row: Row | None = sess_db.query(StopVolumeDB).get(1)
         if row is not None:
@@ -78,7 +79,7 @@ class Manager:
 
     @staticmethod
     @database_return
-    def get_current_level(sess_db: Session, ticker: str, trend: str) -> None | dict[str, int | float]:
+    def get_current_level(sess_db: Session, ticker: str, trend: str) -> None | dict[str, int | Decimal]:
         """Request a level to check the compliance of the parameters of the opening of the transaction."""
         level: Row[tuple] | None = (
             sess_db.query(
@@ -91,20 +92,17 @@ class Manager:
                 TickerDB.trend == trend
             )
         ).one_or_none()
-        if level is None:
-            return None
-        rows: dict[str, int | float] = (
+        return None if level is None else (
             sess_db.query(TickerDB.id, TickerDB.level)
             .filter(
                 TickerDB.ticker == ticker,
                 TickerDB.level == level[0]
             )
         ).one()._asdict()
-        return rows
 
     @staticmethod
     @database_return
-    def get_level_by_trend(sess_db: Session, ticker: str, trend: str) -> set[float]:
+    def get_level_by_trend(sess_db: Session, ticker: str, trend: str) -> set[Decimal]:
         """Request ticker levels for the selected trend."""
         query: list[Row] = (
             sess_db
@@ -115,9 +113,9 @@ class Manager:
         return set(map(lambda query: query[0], query))
 
 
-def transferring_row(table, id: int, ticker: str, level: float, trend: str) -> None:
+def transferring_row(table, id: int, ticker: str, level: Decimal, trend: str) -> None:
     """Transfer a row from one table to another."""
-    data: dict[str, str | float] = {'ticker': ticker, 'level': level, 'trend': trend}
+    data: dict[str, str | Decimal] = {'ticker': ticker, 'level': level, 'trend': trend}
     Manager.add_to_table(table, data)
     Manager.delete_row(TickerDB, id)
 

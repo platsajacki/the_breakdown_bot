@@ -1,4 +1,5 @@
 import logging
+from decimal import Decimal
 from logging import config
 from time import time
 from typing import Any
@@ -51,8 +52,8 @@ def handle_message(msg: dict[str, Any]) -> None:
                 continue
             position: dict[str, Any] = position_list[0]
             if (
-                float(trade['closedSize']) == 0
-                and float(position['trailingStop']) == 0
+                Decimal(trade['closedSize']) == 0
+                and Decimal(position['trailingStop']) == 0
             ):
                 avg_price_str: str = position['avgPrice']
                 round_price: int = (
@@ -60,7 +61,7 @@ def handle_message(msg: dict[str, Any]) -> None:
                     if '.' in avg_price_str
                     else 0
                 )
-                avg_price: float = float(avg_price_str)
+                avg_price = Decimal(avg_price_str)
                 if trade['side'] == BUY:
                     trailing_stop, active_price = Long.get_trailing_stop_param(avg_price, round_price)
                 else:

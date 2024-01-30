@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Any
 
 from aiogram.filters import Command, StateFilter
@@ -30,7 +31,7 @@ async def change_stop(message: Message, state: FSMContext) -> None:
 async def add_stop_volume(message: Message, state: FSMContext) -> None:
     """Record of the updated stop."""
     try:
-        volume: float = check_and_get_value(message)
+        volume: Decimal = check_and_get_value(message)
         Manager.changing_stop(volume)
         await message.answer(f'The stop volume has been changed! {CHECK_MARK_BUTTON}', reply_markup=kb)
     except ValueError:

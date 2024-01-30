@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import ClassVar
 
 
@@ -6,22 +7,21 @@ from typing import ClassVar
 class Position:
     """The base class of positions."""
     ticker: str
-    level: float
+    level: Decimal
     round_price: int
-    COEF_STOP: ClassVar[float] = 0.01
-    COEF_LUFT: ClassVar[float] = 0.20
-    COEF_TRIGGER_LONG: ClassVar[float] = 0.9995
-    COEF_TRIGGER_SHORT: ClassVar[float] = 1.0005
-    COEF_PROFIT: ClassVar[float] = 5
-    COEF_TRAILING_STOP: ClassVar[float] = 0.02
-    COEF_ACTIVE_PRICE: ClassVar[float] = 0.01
+    COEF_STOP: ClassVar[Decimal] = Decimal('0.01')
+    COEF_LUFT: ClassVar[Decimal] = Decimal('0.20')
+    COEF_TRIGGER_LONG: ClassVar[Decimal] = Decimal('0.9995')
+    COEF_TRIGGER_SHORT: ClassVar[Decimal] = Decimal('1.0005')
+    COEF_PROFIT: ClassVar[Decimal] = Decimal('5')
+    COEF_TRAILING_STOP: ClassVar[Decimal] = Decimal('0.02')
+    COEF_ACTIVE_PRICE: ClassVar[Decimal] = Decimal('0.01')
 
-    def calculate_stop(self) -> float:
+    def calculate_stop(self) -> Decimal:
         """Calculation of the stop-loss."""
-        calculatet_stop: float = self.level * self.COEF_STOP
-        return calculatet_stop
+        return self.level * self.COEF_STOP
 
-    def calculate_luft(self) -> float:
+    def calculate_luft(self) -> Decimal:
         """
         Calculation of the luft.
         Luft - the distance from the level to the entry point
@@ -30,59 +30,59 @@ class Position:
         return self.calculate_stop() * self.COEF_LUFT
 
     @staticmethod
-    def get_trailing_stop(avg_price: float, round_price: int) -> float:
+    def get_trailing_stop(avg_price: Decimal, round_price: int) -> Decimal:
         """Calculate the trailing stop."""
         return round(avg_price * Position.COEF_TRAILING_STOP, round_price)
 
 
 class Long(Position):
     """The class represents a position based on price growth."""
-    def get_param_position(self) -> tuple[str, float, float, float, float]:
+    def get_param_position(self) -> tuple[str, Decimal, Decimal, Decimal, Decimal]:
         """Calculation of a long position."""
-        entry_point: float = round(
+        entry_point: Decimal = round(
             self.level + super().calculate_luft(), self.round_price
         )
-        trigger: float = round(
+        trigger: Decimal = round(
             entry_point * self.COEF_TRIGGER_LONG, self.round_price
         )
-        stop: float = round(
+        stop: Decimal = round(
             entry_point - super().calculate_stop(), self.round_price
         )
-        take_profit: float = round(
+        take_profit: Decimal = round(
             entry_point + self.COEF_PROFIT * super().calculate_stop(), self.round_price
         )
         return self.ticker, entry_point, stop, take_profit, trigger
 
     @staticmethod
-    def get_trailing_stop_param(avg_price: float, round_price: int) -> tuple[float, float]:
+    def get_trailing_stop_param(avg_price: Decimal, round_price: int) -> tuple[Decimal, Decimal]:
         """Calculate the trailing stop parameters for a long position."""
-        trailing_stop: float = Long.get_trailing_stop(avg_price, round_price)
-        active_price: float = round(avg_price + avg_price * Long.COEF_ACTIVE_PRICE, round_price)
+        trailing_stop: Decimal = Long.get_trailing_stop(avg_price, round_price)
+        active_price: Decimal = round(avg_price + avg_price * Long.COEF_ACTIVE_PRICE, round_price)
         return trailing_stop, active_price
 
 
 class Short(Position):
     """The class represents a position based on declining price."""
-    def get_param_position(self) -> tuple[str, float, float, float, float]:
+    def get_param_position(self) -> tuple[str, Decimal, Decimal, Decimal, Decimal]:
         """Calculation of a short position."""
-        entry_point: float = round(
+        entry_point: Decimal = round(
             self.level - super().calculate_luft(), self.round_price
         )
-        trigger: float = round(
+        trigger: Decimal = round(
             entry_point * self.COEF_TRIGGER_SHORT, self.round_price
         )
-        stop: float = round(
+        stop: Decimal = round(
             entry_point + super().calculate_stop(), self.round_price
         )
-        take_profit: float = round(
+        take_profit: Decimal = round(
             entry_point - self.COEF_PROFIT * super().calculate_stop(),
             self.round_price
         )
         return self.ticker, entry_point, stop, take_profit, trigger
 
     @staticmethod
-    def get_trailing_stop_param(avg_price: float, round_price: int) -> tuple[float, float]:
+    def get_trailing_stop_param(avg_price: Decimal, round_price: int) -> tuple[Decimal, Decimal]:
         """Calculate the trailing stop parameters for a short position."""
-        trailing_stop: float = Short.get_trailing_stop(avg_price, round_price)
-        active_price: float = round(avg_price - avg_price * Short.COEF_ACTIVE_PRICE, round_price)
+        trailing_stop: Decimal = Short.get_trailing_stop(avg_price, round_price)
+        active_price: Decimal = round(avg_price - avg_price * Short.COEF_ACTIVE_PRICE, round_price)
         return trailing_stop, active_price

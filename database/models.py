@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Float, Integer, String, func
+from sqlalchemy import Column, DateTime, Integer, Numeric, String, func
 
 from database.database import Base
 
@@ -14,7 +14,7 @@ class TickerColumn:
     __abstract__ = True
 
     ticker = Column(String(10))
-    level = Column(Float)
+    level = Column(Numeric(precision=21, scale=8))
     trend = Column(String(5))
 
 
@@ -31,7 +31,7 @@ class TrendDB(Base, BaseColumn):
 class StopVolumeDB(Base, BaseColumn):
     __tablename__ = 'stop_volume'
 
-    usdt_volume = Column(Float)
+    usdt_volume = Column(Numeric(precision=21, scale=8))
 
 
 class UnsuitableLevelsDB(Base, BaseColumn, TickerColumn):
@@ -46,8 +46,8 @@ class OpenedOrderDB(Base, BaseColumn):
     __tablename__ = 'opened_orders'
 
     symbol = Column(String(14))
-    asset_volume = Column(Float)
-    trigger = Column(Float)
-    entry_point = Column(Float)
-    stop_loss = Column(Float)
-    take_profit = Column(Float)
+    asset_volume = Column(Numeric(precision=21, scale=8))
+    trigger = Column(Numeric(precision=21, scale=8))
+    entry_point = Column(Numeric(precision=21, scale=8))
+    stop_loss = Column(Numeric(precision=21, scale=8))
+    take_profit = Column(Numeric(precision=21, scale=8))

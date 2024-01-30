@@ -1,3 +1,4 @@
+from decimal import Decimal
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
@@ -36,7 +37,7 @@ async def get_ticker_order(message: Message, state: FSMContext) -> None:
             await message.answer(MAN_SHRUGGING, reply_markup=kb)
         else:
             for order in open_orders:
-                entry_point: float = float(order['price'])
+                entry_point = Decimal(order['price'])
                 if entry_point != 0:
                     await message.answer(InfoMessage.ORDER_MESSAGE.format(**order), reply_markup=kb)
                 else:

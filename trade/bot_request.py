@@ -1,4 +1,5 @@
 import logging
+from decimal import Decimal
 from logging import config
 from typing import Any
 
@@ -30,13 +31,15 @@ class Market:
         return get(url).json()['retMsg']
 
     @staticmethod
-    def get_mark_price(ticker) -> float:
+    def get_mark_price(ticker) -> Decimal:
         """Request for a ticker marking price."""
         info: dict[str, Any] = session_http.get_tickers(category=LINEAR, symbol=f'{ticker}{USDT}')
-        return float(info['result']['list'][0]['markPrice'])
+        return Decimal(info['result']['list'][0]['markPrice'])
 
     @staticmethod
-    def open_pos(ticker: str, entry_point: float, stop: float, take_profit: float, trigger: float, side: str) -> None:
+    def open_pos(
+        ticker: str, entry_point: Decimal, stop: Decimal, take_profit: Decimal, trigger: Decimal, side: str
+    ) -> None:
         """Round the position parameters and open it."""
         # Calculation of transaction volume
         min_order_qty: str = (
@@ -71,7 +74,7 @@ class Market:
             )
         except Exception as error:
             log_and_send_error(logger, error, f'`place_order` {symbol} - {entry_point}')
-        open_order_params: dict[str, str | float] = {
+        open_order_params: dict[str, str | Decimal] = {
             'symbol': symbol,
             'asset_volume': asset_volume,
             'trigger': trigger,
@@ -85,22 +88,22 @@ class Market:
         send_message(InfoMessage.OPEN_ORDER_MESSAGE.format(**open_order_params))
 
     @staticmethod
-    def get_wallet_balance() -> dict[str, float]:
+    def get_wallet_balance() -> dict[str, Decimal]:
         """Request a wallet balance in USDT."""
         info: dict[str, Any] = session_http.get_wallet_balance(accountType=CONTRACT, coin=USDT)
         coin: dict[str, Any] = info['result']['list'][0]['coin'][0]
         return {
             'equity': round(
-                float(coin['equity']), 2
+                Decimal(coin['equity']), 2
             ),
             'unreal_pnl': round(
-                float(coin['unrealisedPnl']), 2
+                Decimal(coin['unrealisedPnl']), 2
             ),
             'balance': round(
-                float(coin['walletBalance']), 2
+                Decimal(coin['walletBalance']), 2
             ),
             'real_pnl': round(
-                float(coin['cumRealisedPnl']), 2
+                Decimal(coin['cumRealisedPnl']), 2
             ),
         }
 

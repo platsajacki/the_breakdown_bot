@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Any
 
 from aiogram.filters import Command, StateFilter
@@ -25,12 +26,12 @@ from trade.check_price import start_check_tickers
 from trade.detector import LevelDetector
 
 
-def check_and_get_value(message) -> float:
-    """Conversion of the entered value to float."""
+def check_and_get_value(message) -> Decimal:
+    """Conversion of the entered value to Decimal."""
     value_str: str = message.text
     if ',' in value_str:
         value_str = value_str.replace(',', '.')
-    return float(value_str)
+    return Decimal(value_str)
 
 
 async def start_add_level(message: Message, state: FSMContext) -> None:
