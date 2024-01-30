@@ -17,26 +17,6 @@ def database_transaction(func):
         sess_db = SQLSession()
         try:
             sess_db.begin()
-            func(sess_db, *args, **kwargs)
-            sess_db.commit()
-        except Exception as error:
-            sess_db.rollback()
-            log_and_send_error(logger, error, '`database_transaction`')
-        finally:
-            sess_db.close()
-    return wrapper
-
-
-def database_return(func):
-    """
-    The decorator for wrap a function into a database
-    transaction with a result return.
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        sess_db = SQLSession()
-        try:
-            sess_db.begin()
             result = func(sess_db, *args, **kwargs)
             sess_db.commit()
             return result

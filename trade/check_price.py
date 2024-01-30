@@ -5,7 +5,7 @@ from typing import Any
 
 from pybit.unified_trading import WebSocket
 
-from database.managers import Manager, transferring_row
+from database.managers import RowManager, TickerManager
 from database.models import SpentLevelsDB, TrendDB
 from settings import (
     BUY,
@@ -42,28 +42,24 @@ except Exception as error:
 
 def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None:
     """Check for compliance with long positions. If the position fits the parameters, it opens an order."""
-    query: None | dict[str, Any] = Manager.get_current_level(ticker, LONG)
-    if query is not None:
-        id: int = query['id']
+    if (query := TickerManager.get_current_level(ticker, LONG)) is not None:
         level: Decimal = query['level']
         calc_level: Decimal = level * COEF_LEVEL_LONG
         if calc_level < mark_price < level:
             long_calc = Long(ticker, level, round_price)
             Market.open_pos(*long_calc.get_param_position(), BUY)
-            transferring_row(table=SpentLevelsDB, id=id, ticker=ticker, level=level, trend=LONG)
+            RowManager.transferring_row(table=SpentLevelsDB, id=query['id'], ticker=ticker, level=level, trend=LONG)
 
 
 def check_short(ticker: str, mark_price: Decimal, round_price: int) -> None:
     """Check for compliance with short positions. If the position fits the parameters, it opens an order."""
-    query: None | dict[str, Any] = Manager.get_current_level(ticker, SHORT)
-    if query is not None:
-        id: int = query['id']
+    if (query := TickerManager.get_current_level(ticker, SHORT)) is not None:
         level: Decimal = query['level']
         calc_level: Decimal = level * COEF_LEVEL_SHORT
         if calc_level > mark_price > level:
             short_calc = Short(ticker, level, round_price)
             Market.open_pos(*short_calc.get_param_position(), SELL)
-            transferring_row(table=SpentLevelsDB, id=id, ticker=ticker, level=level, trend=SHORT)
+            RowManager.transferring_row(table=SpentLevelsDB, id=query['id'], ticker=ticker, level=level, trend=SHORT)
 
 
 def handle_message(msg: dict[str, Any]) -> None:
@@ -72,10 +68,10 @@ def handle_message(msg: dict[str, Any]) -> None:
     mark_price_str: str = msg['data']['markPrice']
     round_price: int = len(mark_price_str.split('.')[1])
     mark_price = Decimal(mark_price_str)
-    if Manager.get_row_by_id(TrendDB, 1).trend == LONG:
+    if RowManager.get_row_by_id(TrendDB, 1).trend == LONG:
         check_long(ticker, mark_price, round_price)
-    else:
-        check_short(ticker, mark_price, round_price)
+        return
+    check_short(ticker, mark_price, round_price)
 
 
 def connect_ticker(ticker) -> None:
@@ -89,11 +85,11 @@ def connect_ticker(ticker) -> None:
 
 def start_check_tickers() -> None:
     """Determine the direction of trade. Start the stream."""
-    if Manager.get_row_by_id(TrendDB, 1).trend == LONG:
-        for ticker in Manager.select_trend_tickers(LONG):
+    if RowManager.get_row_by_id(TrendDB, 1).trend == LONG:
+        for ticker in TickerManager.get_tickers_by_trend(LONG):
             if ticker[0] not in connected_tickers:
                 connect_ticker(ticker[0])
     else:
-        for ticker in Manager.select_trend_tickers(SHORT):
+        for ticker in TickerManager.get_tickers_by_trend(SHORT):
             if ticker[0] not in connected_tickers:
                 connect_ticker(ticker[0])

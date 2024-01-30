@@ -10,7 +10,7 @@ load_dotenv()
 def get_required_env_var(var_name: str) -> str:
     """Get the value of a required environment variable."""
     if (value := getenv(var_name)) is None:
-        raise ValueError(f'Environment variable `{var_name}`  is not set. Please add it to your `.env` file.')
+        raise ValueError(f'Environment variable `{var_name}` is not set. Please add it to your `.env` file.')
     return value
 
 
@@ -62,21 +62,21 @@ LOG_CONFIG = {
 
 
 # Trading constants.
-LINEAR: str = 'linear'
-CONTRACT: str = 'CONTRACT'
+LINEAR = 'linear'
+CONTRACT = 'CONTRACT'
 
-LONG: str = 'long'
-SHORT: str = 'short'
+LONG = 'long'
+SHORT = 'short'
 TRENDS: list[str] = [LONG, SHORT]
 
-BUY: str = 'Buy'
-SELL: str = 'Sell'
+BUY = 'Buy'
+SELL = 'Sell'
 
 COEF_LEVEL_LONG = Decimal('0.9975')
 COEF_LEVEL_SHORT = Decimal('1.0025')
-
-USDT: str = 'USDT'
-SYMBOL_OK: str = 'OK'
+STANDART_STOP = Decimal('2.5')
+USDT = 'USDT'
+SYMBOL_OK = 'OK'
 
 
 # Smiles
@@ -94,4 +94,4 @@ COIN: str = emojize(':coin:')
 
 
 # Time
-MINUTE_IN_MILLISECONDS: int = 6000
+MINUTE_IN_MILLISECONDS = 6000

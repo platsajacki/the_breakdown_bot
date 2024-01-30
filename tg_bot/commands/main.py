@@ -4,9 +4,9 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from database.managers import Manager
+from database.managers import ConfigurationManager, RowManager
 from database.models import TickerDB
-from database.temporary_data.temp_db import DBQuery, DBState
+from database.temporary_data import DBQuery, DBState
 from settings import (
     CHART_DECREASING,
     CHART_INCREASING,
@@ -70,7 +70,7 @@ async def add_level(message: Message, state: FSMContext) -> None:
         )
         await state.set_state(DBQuery.trend)
     if LevelDetector.check_level(**data):
-        Manager.add_to_table(TickerDB, data)
+        RowManager.add_row(TickerDB, data)
         await message.answer(
             f'Level is added! {CHECK_MARK_BUTTON}',
             reply_markup=kb
@@ -97,7 +97,7 @@ async def start(message) -> None:
         'Analyzing the levels...'
     )
     await message.answer(MAN_TECHNOLOGIST)
-    for row in Manager.get_all_rows(TickerDB):
+    for row in RowManager.get_all_rows(TickerDB):
         LevelDetector.check_levels(**row)
     await message.answer(
         f'Done! {CHECK_MARK_BUTTON}'
@@ -110,7 +110,7 @@ async def start(message) -> None:
 
 async def trade_long(message: Message) -> None:
     """Change the trend to a long one."""
-    Manager.changing_trend(LONG)
+    ConfigurationManager.change_trend(LONG)
     await message.answer(
         f'Long trading activated! {CHECK_MARK_BUTTON}'
     )
@@ -120,7 +120,7 @@ async def trade_long(message: Message) -> None:
 
 async def trade_short(message: Message) -> None:
     """Change the trend to a short one."""
-    Manager.changing_trend(SHORT)
+    ConfigurationManager.change_trend(SHORT)
     await message.answer(
         f'Short trading activated! {CHECK_MARK_BUTTON}'
     )

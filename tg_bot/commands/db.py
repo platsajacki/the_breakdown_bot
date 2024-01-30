@@ -5,9 +5,9 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from database.managers import Manager
+from database.managers import ConfigurationManager, RowManager
 from database.models import SpentLevelsDB, TickerDB, UnsuitableLevelsDB
-from database.temporary_data.temp_db import DBQuery, DBState
+from database.temporary_data import DBQuery, DBState
 from settings import CHECK_MARK_BUTTON, MYID, SYMBOL_OK, TRENDS
 from tg_bot.commands.buttons import kb, kb_database, kb_long_short, kb_query
 from tg_bot.filters import AdminID
@@ -32,7 +32,7 @@ async def add_stop_volume(message: Message, state: FSMContext) -> None:
     """Record of the updated stop."""
     try:
         volume: Decimal = check_and_get_value(message)
-        Manager.changing_stop(volume)
+        ConfigurationManager.change_stop(volume)
         await message.answer(f'The stop volume has been changed! {CHECK_MARK_BUTTON}', reply_markup=kb)
     except ValueError:
         await message.answer('The value entered is incorrect! Try again:')
@@ -101,7 +101,7 @@ async def get_queryset_lvl(message: Message, state: FSMContext) -> None:
     if message.text and (trend := message.text.lower()) in TRENDS:
         await state.update_data(trend=trend)
         data: dict[str, Any] = await state.get_data()
-        for query in Manager.get_limit_query(**data):
+        for query in RowManager.get_limit_row(**data):
             query['create'] = query['create'].strftime('%H:%M %d.%m.%Y')
             await message.answer(
                 InfoMessage.QUERY_LIMIT.format(**query)

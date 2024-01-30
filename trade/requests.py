@@ -6,7 +6,7 @@ from typing import Any
 from pybit.unified_trading import HTTP
 from requests import get
 
-from database.managers import Manager
+from database.managers import RowManager
 from database.models import OpenedOrderDB, StopVolumeDB
 from settings import API_KEY, API_SECRET, BUY, CONTRACT, LINEAR, LOG_CONFIG, TESTNET, USDT
 from tg_bot.send_message import log_and_send_error, send_message
@@ -52,7 +52,7 @@ class Market:
         round_volume: int = len(min_order_qty.split('.')[1]) if '.' in min_order_qty else 0
         # Calculation of rounding.
         asset_volume: str = (
-            str(round((Manager.get_row_by_id(StopVolumeDB, 1).usdt_volume / abs(entry_point - stop)), round_volume))
+            str(round((RowManager.get_row_by_id(StopVolumeDB, 1).usdt_volume / abs(entry_point - stop)), round_volume))
         )
         # Set up a trigger.
         triggerDirection: int = 1 if side == BUY else 2
@@ -84,7 +84,7 @@ class Market:
         }
         # Write the opened order to the table
         # and send a message about opening a position.
-        Manager.add_to_table(OpenedOrderDB, open_order_params)
+        RowManager.add_row(OpenedOrderDB, open_order_params)
         send_message(InfoMessage.OPEN_ORDER_MESSAGE.format(**open_order_params))
 
     @staticmethod
