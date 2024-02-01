@@ -41,10 +41,7 @@ def handle_message(msg: dict[str, Any]) -> None:
             now_in_milliseconds - exec_time < MINUTE_IN_MILLISECONDS
             and trade['category'] == LINEAR
         ):
-            send_message(
-                'Conducted trade '
-                f'{InfoMessage.TRADE_MESSAGE.format(**trade)}'
-            )
+            send_message(f'Conducted trade {InfoMessage.TRADE_MESSAGE.format(**trade)}')
             symbol: str = trade['symbol']
             position_list: list[dict[str, Any]] | None = Market.get_open_positions(ticker=symbol[:-4])
             if position_list is None:
@@ -73,7 +70,7 @@ def handle_message(msg: dict[str, Any]) -> None:
             send_message(f'Total position {InfoMessage.POSITION_MESSAGE.format(**position)}')
 
 
-def start_execution() -> None:
+def start_execution_stream() -> None:
     session_privat.execution_stream(callback=handle_message)
     session_privat.ping_interval = CUSTOM_PING_INTERVAL
     session_privat.ping_timeout = CUSTOM_PING_TIMEOUT
