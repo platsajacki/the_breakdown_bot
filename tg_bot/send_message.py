@@ -1,8 +1,8 @@
 import logging
 from logging import Logger, config
 
-from tg_bot.create_bot import bot
 from settings import LOG_CONFIG, MYID
+from tg_bot.create_bot import bot
 
 config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
