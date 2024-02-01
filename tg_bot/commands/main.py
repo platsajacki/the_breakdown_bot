@@ -105,7 +105,7 @@ async def start(message) -> None:
     await message.answer(
         f'Price check started! {CHECK_MARK_BUTTON}'
     )
-    start_check_tickers()
+    await start_check_tickers()
 
 
 async def trade_long(message: Message) -> None:

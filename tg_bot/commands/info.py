@@ -30,9 +30,9 @@ async def get_orders(message: Message, state: FSMContext) -> None:
 
 async def get_ticker_order(message: Message, state: FSMContext) -> None:
     """Select a ticker to request orders."""
-    if message.text and Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
+    if message.text and (await Market.get_symbol(ticker := message.text.upper())) == SYMBOL_OK:
         await message.answer(MAN_TECHNOLOGIST)
-        open_orders: list[dict[str, str]] | None = Market.get_open_orders(ticker)
+        open_orders: list[dict[str, str]] | None = await Market.get_open_orders(ticker)
         if open_orders is None:
             await message.answer('There are no open orders.')
             await message.answer(MAN_SHRUGGING, reply_markup=kb)
