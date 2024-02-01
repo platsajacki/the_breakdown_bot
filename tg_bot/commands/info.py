@@ -19,7 +19,7 @@ async def get_info(message: Message) -> None:
 
 async def get_balance(message: Message) -> None:
     """Send a message with the wallet balance."""
-    await message.answer(InfoMessage.WALLET_MASSAGE.format(**Market.get_wallet_balance()))
+    await message.answer(InfoMessage.WALLET_MASSAGE.format(**await Market.get_wallet_balance()))
 
 
 async def get_orders(message: Message, state: FSMContext) -> None:
@@ -59,7 +59,7 @@ async def get_ticker_position(message: Message, state: FSMContext) -> None:
     """Choose a ticker to request positions."""
     if message.text and Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
         await message.answer(MAN_TECHNOLOGIST)
-        open_positions: list[dict[str, str]] | None = Market.get_open_positions(ticker)
+        open_positions: list[dict[str, str]] | None = await Market.get_open_positions(ticker)
         if open_positions is None:
             await message.answer('There are no open positions.')
             await message.answer(MAN_SHRUGGING, reply_markup=kb)

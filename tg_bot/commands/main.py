@@ -98,7 +98,7 @@ async def start(message) -> None:
     )
     await message.answer(MAN_TECHNOLOGIST)
     for row in RowManager.get_all_rows(TickerDB):
-        LevelDetector.check_levels(**row)
+        await LevelDetector.check_levels(**row)
     await message.answer(
         f'Done! {CHECK_MARK_BUTTON}'
     )
