@@ -54,7 +54,7 @@ LOG_CONFIG = {
     },
     'formatters': {
         'fileFormatter': {
-            'format': '%(name)s: %(asctime)s [%(levelname)s] %(funcName)s : %(lineno)d \nLog: %(message)s',
+            'format': '%(name)s: %(asctime)s [%(levelname)s] %(funcName)s : %(lineno)d \nLog: %(message)s\n\n',
             'datefmt': '%d-%m-%Y %H:%M:%S',
         },
     },

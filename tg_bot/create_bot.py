@@ -7,6 +7,7 @@ from settings import TOKEN
 bot: Bot = Bot(TOKEN)
 dp: Dispatcher = Dispatcher(storage=MemoryStorage())
 router: Router = Router()
+dp.include_router(router)
 
 
 def register_commands(router: Router, *commands: tuple) -> None:

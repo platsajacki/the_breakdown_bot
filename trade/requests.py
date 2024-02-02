@@ -3,8 +3,8 @@ from decimal import Decimal
 from logging import config
 from typing import Any
 
+from aiohttp import ClientSession
 from pybit.unified_trading import HTTP
-from requests import get
 
 from database.managers import RowManager
 from database.models import OpenedOrderDB, StopVolumeDB
@@ -15,33 +15,39 @@ from tg_bot.text_message import InfoMessage
 config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
-# Setup a connection with the exchange.
-try:
-    session_http = HTTP(testnet=TESTNET, api_key=API_KEY, api_secret=API_SECRET)
-except Exception as error:
-    log_and_send_error(logger, error, '`session_http`')
+
+async def get_session_http() -> HTTP:
+    """Setup a connection with the exchange."""
+    try:
+        return HTTP(testnet=TESTNET, api_key=API_KEY, api_secret=API_SECRET)
+    except Exception as error:
+        await log_and_send_error(logger, error, '`session_http`')
 
 
 class Market:
     """The class responsible for requests from the exchange."""
     @staticmethod
-    def get_symbol(ticker: str) -> str:
+    async def get_symbol(ticker: str) -> str:
         """Check the symbol in the exchange listing."""
-        url: str = f'https://api.bybit.com/v5/market/tickers?category={LINEAR}&symbol={ticker}{USDT}'  # noqa: E231
-        return get(url).json()['retMsg']
+        url = f'https://api.bybit.com/v5/market/tickers?category={LINEAR}&symbol={ticker}{USDT}'  # noqa: E231
+        async with ClientSession() as session:
+            async with session.get(url) as response:
+                return (await response.json())['retMsg']
 
     @staticmethod
-    def get_mark_price(ticker) -> Decimal:
+    async def get_mark_price(ticker) -> Decimal:
         """Request for a ticker marking price."""
-        info: dict[str, Any] = session_http.get_tickers(category=LINEAR, symbol=f'{ticker}{USDT}')
+        info: dict[str, Any] = (await get_session_http()).get_tickers(category=LINEAR, symbol=f'{ticker}{USDT}')
         return Decimal(info['result']['list'][0]['markPrice'])
 
     @staticmethod
-    def open_pos(
-        ticker: str, entry_point: Decimal, stop: Decimal, take_profit: Decimal, trigger: Decimal, side: str
+    async def open_pos(
+        ticker: str, entry_point: Decimal, stop: Decimal, take_profit: Decimal,
+        trigger: Decimal, side: str, *args: tuple, **kwargs: dict,
     ) -> None:
         """Round the position parameters and open it."""
         # Calculation of transaction volume
+        session_http: HTTP = await get_session_http()
         min_order_qty: str = (
             session_http.get_instruments_info(
                 category=LINEAR,
@@ -51,8 +57,8 @@ class Market:
         )
         round_volume: int = len(min_order_qty.split('.')[1]) if '.' in min_order_qty else 0
         # Calculation of rounding.
-        asset_volume: str = (
-            str(round((RowManager.get_row_by_id(StopVolumeDB, 1).usdt_volume / abs(entry_point - stop)), round_volume))
+        asset_volume = str(
+            round((RowManager.get_row_by_id(StopVolumeDB, 1).usdt_volume / abs(entry_point - stop)), round_volume)
         )
         # Set up a trigger.
         triggerDirection: int = 1 if side == BUY else 2
@@ -73,7 +79,7 @@ class Market:
                 orderFilter='Order'
             )
         except Exception as error:
-            log_and_send_error(logger, error, f'`place_order` {symbol} - {entry_point}')
+            await log_and_send_error(logger, error, f'`place_order` {symbol} - {entry_point}', kwargs.get('main_loop'))
         open_order_params: dict[str, str | Decimal] = {
             'symbol': symbol,
             'asset_volume': asset_volume,
@@ -85,12 +91,12 @@ class Market:
         # Write the opened order to the table
         # and send a message about opening a position.
         RowManager.add_row(OpenedOrderDB, open_order_params)
-        send_message(InfoMessage.OPEN_ORDER_MESSAGE.format(**open_order_params))
+        await send_message(InfoMessage.OPEN_ORDER_MESSAGE.format(**open_order_params), kwargs.get('main_loop'))
 
     @staticmethod
-    def get_wallet_balance() -> dict[str, Decimal]:
+    async def get_wallet_balance() -> dict[str, Decimal]:
         """Request a wallet balance in USDT."""
-        info: dict[str, Any] = session_http.get_wallet_balance(accountType=CONTRACT, coin=USDT)
+        info: dict[str, Any] = (await get_session_http()).get_wallet_balance(accountType=CONTRACT, coin=USDT)
         coin: dict[str, Any] = info['result']['list'][0]['coin'][0]
         return {
             'equity': round(
@@ -108,23 +114,25 @@ class Market:
         }
 
     @staticmethod
-    def get_open_orders(ticker: str) -> list[dict[str, str]] | None:
+    async def get_open_orders(ticker: str) -> list[dict[str, str]] | None:
         """Request for open orders."""
-        info: dict[str, Any] = session_http.get_open_orders(symbol=f'{ticker}{USDT}', category=LINEAR)
+        info: dict[str, Any] = (await get_session_http()).get_open_orders(symbol=f'{ticker}{USDT}', category=LINEAR)
         orders: list[dict[str, Any]] = info['result']['list']
         return None if orders == [] else orders
 
     @staticmethod
-    def get_open_positions(ticker: str) -> list[dict[str, str]] | None:
+    async def get_open_positions(ticker: str) -> list[dict[str, str]] | None:
         """Request for open positions."""
-        info = session_http.get_positions(symbol=f'{ticker}{USDT}', category=LINEAR)
+        info = (await get_session_http()).get_positions(symbol=f'{ticker}{USDT}', category=LINEAR)
         positions: list[dict[str, Any]] = info['result']['list']
         return None if positions[0]['side'] == 'None' else positions
 
     @staticmethod
-    def set_trailing_stop(symbol: str, trailing_stop: str, active_price: str) -> None:
+    async def set_trailing_stop(
+        symbol: str, trailing_stop: str, active_price: str, *args: tuple, **kwargs: dict
+    ) -> None:
         try:
-            session_http.set_trading_stop(
+            (await get_session_http()).set_trading_stop(
                 symbol=symbol,
                 category=LINEAR,
                 trailingStop=trailing_stop,
@@ -132,4 +140,6 @@ class Market:
                 positionIdx=0,
             )
         except Exception as error:
-            log_and_send_error(logger, error, f'`set_trading_stop` {symbol} - {active_price}')
+            await log_and_send_error(
+                logger, error, f'`set_trading_stop` {symbol} - {active_price}', kwargs.get('main_loop')
+            )

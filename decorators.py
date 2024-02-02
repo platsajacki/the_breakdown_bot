@@ -4,7 +4,6 @@ from logging import config
 
 from database.db import SQLSession
 from settings import LOG_CONFIG
-from tg_bot.send_message import log_and_send_error
 
 config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
@@ -22,7 +21,7 @@ def database_transaction(func):
             return result
         except Exception as error:
             sess_db.rollback()
-            log_and_send_error(logger, error, '`database_transaction`')
+            logger.error(str(error), exc_info=True)
         finally:
             sess_db.close()
     return wrapper

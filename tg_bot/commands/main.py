@@ -34,7 +34,7 @@ async def start_add_level(message: Message, state: FSMContext) -> None:
 
 async def enter_level(message: Message, state: FSMContext) -> None:
     """Enter the price of the level."""
-    if message.text and Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
+    if message.text and (await Market.get_symbol(ticker := message.text.upper())) == SYMBOL_OK:
         await state.update_data(ticker=ticker)
         await message.answer('Enter the level:')
         await state.set_state(DBState.lvl_db)
@@ -69,7 +69,7 @@ async def add_level(message: Message, state: FSMContext) -> None:
             'The value entered is incorrect! Try again:'
         )
         await state.set_state(DBQuery.trend)
-    if LevelDetector.check_level(**data):
+    if await LevelDetector.check_level(**data):
         RowManager.add_row(TickerDB, data)
         await message.answer(
             f'Level is added! {CHECK_MARK_BUTTON}',
@@ -98,14 +98,14 @@ async def start(message) -> None:
     )
     await message.answer(MAN_TECHNOLOGIST)
     for row in RowManager.get_all_rows(TickerDB):
-        LevelDetector.check_levels(**row)
+        await LevelDetector.check_levels(**row)
     await message.answer(
         f'Done! {CHECK_MARK_BUTTON}'
     )
     await message.answer(
         f'Price check started! {CHECK_MARK_BUTTON}'
     )
-    start_check_tickers()
+    await start_check_tickers()
 
 
 async def trade_long(message: Message) -> None:
