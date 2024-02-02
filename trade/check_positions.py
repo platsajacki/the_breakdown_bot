@@ -24,6 +24,7 @@ from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
 from trade.param_position import Long, Short
 from trade.requests import Market
+from trade.utils import handle_message_in_thread
 
 config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ async def get_ws_session_privat() -> WebSocket:
         await log_and_send_error(logger, error, '`WebSocket session_privat`')
 
 
-async def handle_message(msg: dict[str, Any], main_loop: asyncio.AbstractEventLoop) -> None:
+async def handle_message(msg: dict[str, Any], *args: tuple[Any], **kwargs: dict[str, Any]) -> None:
     """The handler of messages about completed transactions. Check the trailing stop, if there is none, set."""
     for trade in msg['data']:
         exec_time = int(trade['execTime'])
@@ -49,13 +50,11 @@ async def handle_message(msg: dict[str, Any], main_loop: asyncio.AbstractEventLo
             now_in_milliseconds - exec_time < MINUTE_IN_MILLISECONDS
             and trade['category'] == LINEAR
         ):
-            asyncio.run_coroutine_threadsafe(
-                send_message(f'Conducted trade {InfoMessage.TRADE_MESSAGE.format(**trade)}'), main_loop
-            )
+            await send_message(f'Conducted trade {InfoMessage.TRADE_MESSAGE.format(**trade)}', kwargs.get('main_loop'))
             symbol: str = trade['symbol']
             position_list: list[dict[str, Any]] | None = await Market.get_open_positions(ticker=symbol[:-4])
             if position_list is None:
-                asyncio.run_coroutine_threadsafe(send_message('The position is completely closed.'), main_loop)
+                await send_message('The position is completely closed.', kwargs.get('main_loop'))
                 continue
             position: dict[str, Any] = position_list[0]
             if (
@@ -77,18 +76,9 @@ async def handle_message(msg: dict[str, Any], main_loop: asyncio.AbstractEventLo
                     symbol, str(trailing_stop), str(active_price)
                 )
                 position['trailingStop'] = trailing_stop
-            asyncio.run_coroutine_threadsafe(
-                send_message(f'Total position {InfoMessage.POSITION_MESSAGE.format(**position)}'), main_loop
+            await send_message(
+                f'Total position {InfoMessage.POSITION_MESSAGE.format(**position)}', kwargs.get('main_loop')
             )
-
-
-def handle_message_in_thread(msg: dict[str, Any], main_loop: asyncio.AbstractEventLoop) -> None:
-    """A message handler in a separate thread."""
-    asyncio.set_event_loop(loop := asyncio.new_event_loop())
-    try:
-        loop.run_until_complete(handle_message(msg, main_loop))
-    finally:
-        loop.close()
 
 
 async def start_execution_stream() -> None:
@@ -98,7 +88,9 @@ async def start_execution_stream() -> None:
         try:
             loop = asyncio.get_event_loop()
             await loop.run_in_executor(
-                executor, ws_session_privat.execution_stream, partial(handle_message_in_thread, main_loop=loop)
+                executor,
+                ws_session_privat.execution_stream,
+                partial(handle_message_in_thread, coro=handle_message, main_loop=loop),
             )
         except Exception as error:
             await log_and_send_error(logger, error, '`execution_stream`')

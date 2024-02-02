@@ -76,7 +76,7 @@ async def get_unsuiteble_lvls(message: Message, state: FSMContext) -> None:
 
 async def get_limit_lvls(message: Message, state: FSMContext) -> None:
     """Select the number of requested levels."""
-    if message.text and Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
+    if message.text and (await Market.get_symbol(ticker := message.text.upper())) == SYMBOL_OK:
         await state.update_data(ticker=ticker)
         await message.answer('Enter the limit:')
         await state.set_state(DBQuery.limit)

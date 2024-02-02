@@ -69,7 +69,7 @@ async def add_level(message: Message, state: FSMContext) -> None:
             'The value entered is incorrect! Try again:'
         )
         await state.set_state(DBQuery.trend)
-    if LevelDetector.check_level(**data):
+    if await LevelDetector.check_level(**data):
         RowManager.add_row(TickerDB, data)
         await message.answer(
             f'Level is added! {CHECK_MARK_BUTTON}',

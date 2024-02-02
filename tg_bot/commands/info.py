@@ -57,7 +57,7 @@ async def get_positions(message: Message, state: FSMContext) -> None:
 
 async def get_ticker_position(message: Message, state: FSMContext) -> None:
     """Choose a ticker to request positions."""
-    if message.text and Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
+    if message.text and (await Market.get_symbol(ticker := message.text.upper())) == SYMBOL_OK:
         await message.answer(MAN_TECHNOLOGIST)
         open_positions: list[dict[str, str]] | None = await Market.get_open_positions(ticker)
         if open_positions is None:
