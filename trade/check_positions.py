@@ -1,5 +1,8 @@
+import asyncio
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
+from functools import partial
 from logging import config
 from time import time
 from typing import Any
@@ -37,7 +40,7 @@ async def get_ws_session_privat() -> WebSocket:
         await log_and_send_error(logger, error, '`WebSocket session_privat`')
 
 
-async def handle_message(msg: dict[str, Any]) -> None:
+async def handle_message(msg: dict[str, Any], main_loop: asyncio.AbstractEventLoop) -> None:
     """The handler of messages about completed transactions. Check the trailing stop, if there is none, set."""
     for trade in msg['data']:
         exec_time = int(trade['execTime'])
@@ -46,11 +49,13 @@ async def handle_message(msg: dict[str, Any]) -> None:
             now_in_milliseconds - exec_time < MINUTE_IN_MILLISECONDS
             and trade['category'] == LINEAR
         ):
-            await send_message(f'Conducted trade {InfoMessage.TRADE_MESSAGE.format(**trade)}')
+            asyncio.run_coroutine_threadsafe(
+                send_message(f'Conducted trade {InfoMessage.TRADE_MESSAGE.format(**trade)}'), main_loop
+            )
             symbol: str = trade['symbol']
             position_list: list[dict[str, Any]] | None = await Market.get_open_positions(ticker=symbol[:-4])
             if position_list is None:
-                await send_message('The position is completely closed.')
+                asyncio.run_coroutine_threadsafe(send_message('The position is completely closed.'), main_loop)
                 continue
             position: dict[str, Any] = position_list[0]
             if (
@@ -72,9 +77,28 @@ async def handle_message(msg: dict[str, Any]) -> None:
                     symbol, str(trailing_stop), str(active_price)
                 )
                 position['trailingStop'] = trailing_stop
-            await send_message(f'Total position {InfoMessage.POSITION_MESSAGE.format(**position)}')
+            asyncio.run_coroutine_threadsafe(
+                send_message(f'Total position {InfoMessage.POSITION_MESSAGE.format(**position)}'), main_loop
+            )
+
+
+def handle_message_in_thread(msg: dict[str, Any], main_loop: asyncio.AbstractEventLoop) -> None:
+    """A message handler in a separate thread."""
+    asyncio.set_event_loop(loop := asyncio.new_event_loop())
+    try:
+        loop.run_until_complete(handle_message(msg, main_loop))
+    finally:
+        loop.close()
 
 
 async def start_execution_stream() -> None:
     """Start ws_session_privat.execution_stream."""
-    (await get_ws_session_privat()).execution_stream(callback=handle_message)
+    ws_session_privat = await get_ws_session_privat()
+    with ThreadPoolExecutor() as executor:
+        try:
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(
+                executor, ws_session_privat.execution_stream, partial(handle_message_in_thread, main_loop=loop)
+            )
+        except Exception as error:
+            await log_and_send_error(logger, error, '`execution_stream`')

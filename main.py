@@ -32,9 +32,7 @@ async def main():
     """Start trading-bot."""
     try:
         register_commands(router, *get_handler_db(), *get_handler_main(), *get_handler_info())
-        start_execution_stream()
-        dp.include_router(router)
-        dp.run_polling(bot)
+        await asyncio.gather(dp.start_polling(bot), start_execution_stream())
     except Exception as error:
         await log_and_send_error(logger, error)
 

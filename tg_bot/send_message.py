@@ -13,7 +13,7 @@ async def send_message(text_message: str) -> None:
     try:
         await bot.send_message(MYID, text_message)
     except Exception as e:
-        logger.error(f'The message was not sent. Text: `{text_message}` {str(e)}.')
+        logger.error(f'The message was not sent. Text: `{text_message}` {str(e)}.', exc_info=True)
 
 
 async def log_and_send_error(logger: Logger, exception: Exception, error_message: str = 'bot') -> None:

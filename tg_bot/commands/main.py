@@ -34,7 +34,7 @@ async def start_add_level(message: Message, state: FSMContext) -> None:
 
 async def enter_level(message: Message, state: FSMContext) -> None:
     """Enter the price of the level."""
-    if message.text and Market.get_symbol(ticker := message.text.upper()) == SYMBOL_OK:
+    if message.text and (await Market.get_symbol(ticker := message.text.upper())) == SYMBOL_OK:
         await state.update_data(ticker=ticker)
         await message.answer('Enter the level:')
         await state.set_state(DBState.lvl_db)
