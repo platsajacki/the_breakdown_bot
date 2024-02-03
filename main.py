@@ -5,6 +5,7 @@ from logging import config
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
+from database.managers import set_standart_stop
 from settings import FIRE, LOG_CONFIG, MYID, NO_ENTRY
 from tg_bot.commands import get_handler_db, get_handler_info, get_handler_main
 from tg_bot.commands.buttons import kb
@@ -32,6 +33,7 @@ async def main():
     """Start trading-bot."""
     try:
         register_commands(router, *get_handler_db(), *get_handler_main(), *get_handler_info())
+        await set_standart_stop()
         await asyncio.gather(dp.start_polling(bot), start_execution_stream())
     except Exception as error:
         await log_and_send_error(logger, error)
