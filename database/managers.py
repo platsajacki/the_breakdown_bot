@@ -18,32 +18,32 @@ class RowManager:
     """A manager class for performing database operations on rows."""
     @staticmethod
     @database_transaction
-    def add_row(sess_db: Session, table, data: dict[str, Any]) -> None:
+    def add_row(sess_db: Session, table: Any, data: dict[str, Any]) -> None:
         """Create a new row in the table."""
         sess_db.add(table(**data))
 
     @staticmethod
     @database_transaction
-    def delete_row_by_id(sess_db: Session, table, id: int) -> None:
+    def delete_row_by_id(sess_db: Session, table: Any, id: int) -> None:
         """Delete a row in the table by ID."""
         sess_db.delete(sess_db.query(table).filter(table.id == id).one())
 
     @staticmethod
     @database_transaction
-    def get_all_rows(sess_db: Session, table) -> list[dict[str, Any]]:
+    def get_all_rows(sess_db: Session, table: Any) -> list[dict[str, Any]]:
         """Query all table rows."""
         return [q.__dict__ for q in sess_db.query(table).all()]
 
     @staticmethod
     @database_transaction
-    def get_row_by_id(sess_db: Session, table, id: int) -> Any:
+    def get_row_by_id(sess_db: Session, table: Any, id: int) -> Any:
         """Request a row by id."""
         return sess_db.query(table).get(id)
 
     @staticmethod
     @database_transaction
     def get_limit_row(
-        sess_db: Session, table, ticker: str, trend: str, limit: int
+        sess_db: Session, table: Any, ticker: str, trend: str, limit: int
     ) -> list[dict[str, Any]]:
         """Request a certain number of table rows."""
         query: list[Any[Base]] = (
@@ -55,7 +55,7 @@ class RowManager:
         return [q.__dict__ for q in query]
 
     @classmethod
-    def transferring_row(cls, table, id: int, ticker: str, level: Decimal, trend: str) -> None:
+    def transferring_row(cls, table: Any, id: int, ticker: str, level: Decimal, trend: str) -> None:
         """Transfer a row from one table to another."""
         cls.add_row(table, {'ticker': ticker, 'level': level, 'trend': trend})
         cls.delete_row_by_id(TickerDB, id)
