@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import AbstractEventLoop
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
@@ -41,7 +42,7 @@ async def get_ws_session_privat() -> WebSocket:
         await log_and_send_error(logger, error, '`WebSocket session_privat`')
 
 
-async def handle_message(msg: dict[str, Any], *args: tuple[Any], **kwargs: dict[str, Any]) -> None:
+async def handle_message(msg: dict[str, Any], *args: Any, **kwargs: AbstractEventLoop | Any) -> None:
     """The handler of messages about completed transactions. Check the trailing stop, if there is none, set."""
     for trade in msg['data']:
         exec_time = int(trade['execTime'])

@@ -43,7 +43,7 @@ class Market:
     @staticmethod
     async def open_pos(
         ticker: str, entry_point: Decimal, stop: Decimal, take_profit: Decimal,
-        trigger: Decimal, side: str, *args: tuple, **kwargs: dict,
+        trigger: Decimal, side: str, *args: Any, **kwargs: Any,
     ) -> None:
         """Round the position parameters and open it."""
         # Calculation of transaction volume
@@ -128,9 +128,7 @@ class Market:
         return None if positions[0]['side'] == 'None' else positions
 
     @staticmethod
-    async def set_trailing_stop(
-        symbol: str, trailing_stop: str, active_price: str, *args: tuple, **kwargs: dict
-    ) -> None:
+    async def set_trailing_stop(symbol: str, trailing_stop: str, active_price: str, *args: Any, **kwargs: Any) -> None:
         try:
             (await get_session_http()).set_trading_stop(
                 symbol=symbol,

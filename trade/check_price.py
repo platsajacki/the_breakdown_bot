@@ -47,7 +47,7 @@ async def get_ws_session_public() -> WebSocket:
         await log_and_send_error(logger, error, 'WebSocket `session_public`')
 
 
-async def check_long(ticker: str, mark_price: Decimal, round_price: int, *args: tuple, **kwargs: dict) -> None:
+async def check_long(ticker: str, mark_price: Decimal, round_price: int, *args: Any, **kwargs: Any) -> None:
     """Check for compliance with long positions. If the position fits the parameters, it opens an order."""
     if (query := TickerManager.get_current_level(ticker, LONG)) is not None:
         level: Decimal = query['level']
@@ -58,7 +58,7 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int, *args: 
             RowManager.transferring_row(table=SpentLevelsDB, id=query['id'], ticker=ticker, level=level, trend=LONG)
 
 
-async def check_short(ticker: str, mark_price: Decimal, round_price: int, *args: tuple, **kwargs: dict) -> None:
+async def check_short(ticker: str, mark_price: Decimal, round_price: int, *args: Any, **kwargs: Any) -> None:
     """Check for compliance with short positions. If the position fits the parameters, it opens an order."""
     if (query := TickerManager.get_current_level(ticker, SHORT)) is not None:
         level: Decimal = query['level']
@@ -69,7 +69,7 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int, *args:
             RowManager.transferring_row(table=SpentLevelsDB, id=query['id'], ticker=ticker, level=level, trend=SHORT)
 
 
-async def handle_message(msg: dict[str, Any], *args: tuple, **kwargs: dict) -> None:
+async def handle_message(msg: dict[str, Any], *args: Any, **kwargs: Any) -> None:
     """Stream message handler."""
     ticker: str = msg['data']['symbol'][:-4]
     mark_price_str: str = msg['data']['markPrice']
