@@ -10,6 +10,7 @@ keys.py
 *.so
 
 # Distribution / packaging
+logs/
 other/
 .Python
 build/
@@ -147,5 +148,3 @@ dmypy.json
 
 # Local History for Visual Studio Code
 .history/
-
-.mypy_cache

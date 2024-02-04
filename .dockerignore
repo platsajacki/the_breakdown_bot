@@ -1,0 +1,11 @@
+__pycache___
+.mypy_cache
+.vscode
+venv
+
+logfile.log
+.env
+exe.py
+Makefile
+README.md
+setup.cfg

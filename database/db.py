@@ -1,11 +1,17 @@
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
+from sqlalchemy_utils import database_exists, create_database
 
-from settings import DATABASE, HOST, LOGIN, PASSWORD
+from settings import DATABASE, HOST, POSTGRES_LOGIN, POSTGRES_PASSWORD
 
 # Configure and connect to the database.
-engine: Engine = create_engine(f'postgresql+psycopg2://{LOGIN}:{PASSWORD}@{HOST}/{DATABASE}')  # noqa: E231
+engine: Engine = create_engine(
+    f'postgresql+psycopg2://{POSTGRES_LOGIN}:{POSTGRES_PASSWORD}@{HOST}/{DATABASE}'  # noqa: E231
+)
+if not database_exists(engine.url):
+    create_database(engine.url)
+
 meta: MetaData = MetaData(schema='public')
 
 SQLSession: sessionmaker[Session] = sessionmaker(engine, expire_on_commit=False)

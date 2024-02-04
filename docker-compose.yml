@@ -1,0 +1,21 @@
+version: '3'
+
+volumes:
+  pg_data:
+  logs:
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    env_file: .env
+
+  bot:
+    build: .
+    env_file: .env
+    volumes:
+      - logs:/logs
+    depends_on:
+      - db
+    command: python3.12 main.py

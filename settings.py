@@ -1,5 +1,5 @@
+import os
 from decimal import Decimal
-from os import getenv
 
 from dotenv import load_dotenv
 from emoji import emojize
@@ -9,7 +9,7 @@ load_dotenv()
 
 def get_required_env_var(var_name: str) -> str:
     """Get the value of a required environment variable."""
-    if (value := getenv(var_name)) is None:
+    if (value := os.getenv(var_name)) is None:
         raise ValueError(f'Environment variable `{var_name}` is not set. Please add it to your `.env` file.')
     return value
 
@@ -32,12 +32,16 @@ MYID = int(get_required_env_var('MYID'))
 
 # Access to the database.
 DATABASE: str = get_required_env_var('DATABASE')
-LOGIN: str = get_required_env_var('LOGIN')
-PASSWORD: str = get_required_env_var('PASSWORD')
+POSTGRES_LOGIN: str = get_required_env_var('POSTGRES_LOGIN')
+POSTGRES_PASSWORD: str = get_required_env_var('POSTGRES_PASSWORD')
 HOST: str = get_required_env_var('HOST')
 
-
 # Logging_config.
+LOGS_DIR = 'logs'
+
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
+
 LOG_CONFIG = {
     'version': 1,
     'root': {
@@ -47,7 +51,7 @@ LOG_CONFIG = {
     'handlers': {
         'fileHandler': {
             'class': 'logging.FileHandler',
-            'filename': 'logfile.log',
+            'filename': f'/{LOGS_DIR}/logfile.log',
             'level': 'WARNING',
             'formatter': 'fileFormatter',
         },
