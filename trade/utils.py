@@ -6,6 +6,6 @@ def handle_message_in_thread(msg: dict[str, Any], coro: Coroutine, main_loop: as
     """A message handler in a separate thread."""
     asyncio.set_event_loop(loop := asyncio.new_event_loop())
     try:
-        loop.run_until_complete(coro(msg, main_loop))  # type: ignore[operator]
+        loop.run_until_complete(coro(msg, main_loop=main_loop))  # type: ignore[operator]
     finally:
         loop.close()

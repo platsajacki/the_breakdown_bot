@@ -1,11 +1,10 @@
 import asyncio
 import logging
-from logging import Logger, config
+from logging import Logger
 
-from settings import LOG_CONFIG, MYID
+from settings.config import MYID
 from tg_bot.create_bot import bot
 
-config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
 

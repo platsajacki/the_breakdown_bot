@@ -1,33 +1,22 @@
 import asyncio
-from asyncio import AbstractEventLoop
 import logging
+from asyncio import AbstractEventLoop
 from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from functools import partial
-from logging import config
 from time import time
 from typing import Any
 
 from pybit.unified_trading import WebSocket
 
-from settings import (
-    API_KEY,
-    API_SECRET,
-    BUY,
-    CUSTOM_PING_INTERVAL,
-    CUSTOM_PING_TIMEOUT,
-    LINEAR,
-    LOG_CONFIG,
-    MINUTE_IN_MILLISECONDS,
-    TESTNET,
-)
+from settings.config import API_KEY, API_SECRET, CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT, TESTNET
+from settings.constants import BUY, LINEAR, MINUTE_IN_MILLISECONDS
 from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
 from trade.param_position import Long, Short
 from trade.requests import Market
 from trade.utils import handle_message_in_thread
 
-config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
 

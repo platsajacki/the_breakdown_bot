@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from settings import COIN, MONEY_BAG, MONEY_WITH_WINGS, ROCKET
+from settings.constants import COIN, MONEY_BAG, MONEY_WITH_WINGS, ROCKET
 
 
 @dataclass

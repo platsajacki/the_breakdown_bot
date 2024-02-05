@@ -1,9 +1,9 @@
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
-from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy_utils import create_database, database_exists
 
-from settings import DATABASE, HOST, POSTGRES_LOGIN, POSTGRES_PASSWORD
+from settings.config import DATABASE, HOST, POSTGRES_LOGIN, POSTGRES_PASSWORD
 
 # Configure and connect to the database.
 engine: Engine = create_engine(

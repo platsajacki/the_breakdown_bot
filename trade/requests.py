@@ -1,6 +1,5 @@
 import logging
 from decimal import Decimal
-from logging import config
 from typing import Any
 
 from aiohttp import ClientSession
@@ -8,11 +7,11 @@ from pybit.unified_trading import HTTP
 
 from database.managers import RowManager
 from database.models import OpenedOrderDB, StopVolumeDB
-from settings import API_KEY, API_SECRET, BUY, CONTRACT, LINEAR, LOG_CONFIG, TESTNET, USDT
+from settings.config import API_KEY, API_SECRET, TESTNET
+from settings.constants import BUY, CONTRACT, LINEAR, USDT
 from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
 
-config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
 

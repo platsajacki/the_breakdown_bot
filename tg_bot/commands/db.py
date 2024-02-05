@@ -8,7 +8,8 @@ from aiogram.types import Message
 from database.managers import ConfigurationManager, RowManager
 from database.models import SpentLevelsDB, TickerDB, UnsuitableLevelsDB
 from database.temporary_data import DBQuery, DBState
-from settings import CHECK_MARK_BUTTON, MYID, SYMBOL_OK, TRENDS
+from settings.config import MYID
+from settings.constants import CHECK_MARK_BUTTON, SYMBOL_OK, TRENDS
 from tg_bot.commands.buttons import kb, kb_database, kb_long_short, kb_query
 from tg_bot.filters import AdminID
 from tg_bot.text_message import InfoMessage

@@ -5,7 +5,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from database.temporary_data import TickerState
-from settings import MAN_SHRUGGING, MAN_TECHNOLOGIST, MYID, SYMBOL_OK
+from settings.config import MYID
+from settings.constants import MAN_SHRUGGING, MAN_TECHNOLOGIST, SYMBOL_OK
 from tg_bot.commands.buttons import kb, kb_info
 from tg_bot.filters import AdminID
 from tg_bot.text_message import InfoMessage

@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from database.managers import RowManager, TickerManager
 from database.models import UnsuitableLevelsDB
-from settings import LONG, SHORT
+from settings.constants import LONG, SHORT
 from trade.requests import Market
 
 

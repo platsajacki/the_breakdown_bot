@@ -1,11 +1,8 @@
 import logging
 from functools import wraps
-from logging import config
 
 from database.db import SQLSession
-from settings import LOG_CONFIG
 
-config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
 

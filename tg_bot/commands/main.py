@@ -7,13 +7,13 @@ from aiogram.types import Message
 from database.managers import ConfigurationManager, RowManager
 from database.models import TickerDB
 from database.temporary_data import DBQuery, DBState
-from settings import (
+from settings.config import MYID
+from settings.constants import (
     CHART_DECREASING,
     CHART_INCREASING,
     CHECK_MARK_BUTTON,
     LONG,
     MAN_TECHNOLOGIST,
-    MYID,
     SHORT,
     SYMBOL_OK,
     TRENDS,

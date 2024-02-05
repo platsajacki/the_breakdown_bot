@@ -3,33 +3,19 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from functools import partial
-from logging import config
 from typing import Any
 
 from pybit.unified_trading import WebSocket
 
 from database.managers import RowManager, TickerManager
 from database.models import SpentLevelsDB, TrendDB
-from settings import (
-    BUY,
-    COEF_LEVEL_LONG,
-    COEF_LEVEL_SHORT,
-    CUSTOM_PING_INTERVAL,
-    CUSTOM_PING_TIMEOUT,
-    LINEAR,
-    LOG_CONFIG,
-    LONG,
-    SELL,
-    SHORT,
-    TESTNET,
-    USDT,
-)
+from settings.config import CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT, TESTNET
+from settings.constants import BUY, COEF_LEVEL_LONG, COEF_LEVEL_SHORT, LINEAR, LONG, SELL, SHORT, USDT
 from tg_bot.send_message import log_and_send_error
 from trade.param_position import Long, Short
 from trade.requests import Market
 from trade.utils import handle_message_in_thread
 
-config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
 # The list of connected tickers.

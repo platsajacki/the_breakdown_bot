@@ -12,6 +12,7 @@ services:
     env_file: .env
 
   bot:
+    image: ${DOCKER_LOGIN}/the_breakdown_bot-bot
     build: .
     env_file: .env
     volumes:
@@ -19,3 +20,4 @@ services:
     depends_on:
       - db
     command: python3.12 main.py
+    restart: unless-stopped

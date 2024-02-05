@@ -1,19 +1,19 @@
 import asyncio
 import logging
-from logging import config
 
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
+import settings._logging_setup  # noqa: F401
 from database.managers import set_standart_stop
-from settings import FIRE, LOG_CONFIG, MYID, NO_ENTRY
+from settings.config import MYID
+from settings.constants import FIRE, NO_ENTRY
 from tg_bot.commands import get_handler_db, get_handler_info, get_handler_main
 from tg_bot.commands.buttons import kb
 from tg_bot.create_bot import bot, dp, register_commands, router
 from tg_bot.send_message import log_and_send_error
 from trade.check_positions import start_execution_stream
 
-config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
 
 

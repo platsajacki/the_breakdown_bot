@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from database.db import engine
 from database.models import Base, StopVolumeDB, TickerDB, TrendDB
 from decorators import database_transaction
-from settings import LONG, STANDART_STOP
+from settings.constants import LONG, STANDART_STOP
 from tg_bot.send_message import send_message
 
 # Create tables in the database defined in the metadata.
