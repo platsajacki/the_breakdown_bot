@@ -14,6 +14,7 @@ def get_required_env_var(var_name: str) -> str:
 
 DEBUG: bool = get_required_env_var('DEBUG') == 'True'
 
+
 # API.
 API_KEY: str = get_required_env_var('API_KEY')
 API_SECRET: str = get_required_env_var('API_SECRET')
@@ -35,6 +36,7 @@ DATABASE: str = get_required_env_var('DATABASE')
 POSTGRES_LOGIN: str = get_required_env_var('POSTGRES_LOGIN')
 POSTGRES_PASSWORD: str = get_required_env_var('POSTGRES_PASSWORD')
 HOST: str = get_required_env_var('HOST')
+
 
 # Logging_config.
 LOGS_DIR = 'logs'
@@ -58,7 +60,7 @@ LOG_CONFIG = {
     },
     'formatters': {
         'fileFormatter': {
-            'format': '%(name)s: %(asctime)s [%(levelname)s] %(funcName)s : %(lineno)d \nLog: %(message)s\n\n',
+            'format': '\n\n%(name)s: %(asctime)s [%(levelname)s]\n%(funcName)s : %(lineno)d\nLog: %(message)s',
             'datefmt': '%d-%m-%Y %H:%M:%S',
         },
     },

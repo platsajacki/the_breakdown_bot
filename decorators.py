@@ -1,7 +1,9 @@
+import asyncio
 import logging
 from functools import wraps
 
 from database.db import SQLSession
+from tg_bot.send_message import log_and_send_error
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +20,7 @@ def database_transaction(func):
             return result
         except Exception as error:
             sess_db.rollback()
-            logger.error(str(error), exc_info=True)
+            asyncio.create_task(log_and_send_error(logger, error))
         finally:
             sess_db.close()
     return wrapper
