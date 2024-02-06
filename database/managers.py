@@ -88,7 +88,7 @@ class TickerManager:
     @database_transaction
     def get_current_level(sess_db: Session, ticker: str, trend: str) -> None | dict[str, int | Decimal]:
         """Request a level to check the compliance of the parameters of the opening of the transaction."""
-        level: Row[tuple] | None = (
+        level: Row[tuple[Decimal]] = (  # type: ignore[index]
             sess_db.query(
                 func.min(TickerDB.level)
                 if trend == LONG else
@@ -98,12 +98,12 @@ class TickerManager:
                 TickerDB.ticker == ticker,
                 TickerDB.trend == trend
             )
-        ).one_or_none()
+        ).one_or_none()[0]
         return level if level is None else (
             sess_db.query(TickerDB.id, TickerDB.level)
             .filter(
                 TickerDB.ticker == ticker,
-                TickerDB.level == level[0]
+                TickerDB.level == level
             )
         ).one()._asdict()
 
