@@ -43,10 +43,11 @@ async def add_stop_volume(message: Message, state: FSMContext) -> None:
 
 async def get_connected_tickers(message: Message) -> None:
     """Request for connected tickers."""
-    if connected_tickers == set():
-        await message.answer('There are no tickers connected.')
-    else:
-        await message.answer(f'Connected tickers: {', '.join(connected_tickers)}. Total: {len(connected_tickers)}.')
+    await message.answer(
+        'There are no tickers connected.'
+        if connected_tickers == set() else
+        f'Connected tickers: {', '.join(connected_tickers)}. Total: {len(connected_tickers)}.'
+    )
 
 
 async def get_query(message: Message) -> None:

@@ -40,10 +40,12 @@ async def get_ticker_order(message: Message, state: FSMContext) -> None:
         else:
             for order in open_orders:
                 entry_point = Decimal(order['price'])
-                if entry_point != 0:
-                    await message.answer(InfoMessage.ORDER_MESSAGE.format(**order), reply_markup=kb)
-                else:
-                    await message.answer(InfoMessage.ORDER_TP_SL_MESSAGE.format(**order), reply_markup=kb)
+                msg: str = (
+                    InfoMessage.ORDER_MESSAGE.format(**order)
+                    if entry_point != 0 else
+                    InfoMessage.ORDER_TP_SL_MESSAGE.format(**order)
+                )
+                await message.answer(msg, reply_markup=kb)
         await state.clear()
     else:
         await message.answer('Ticker not found, try again:')

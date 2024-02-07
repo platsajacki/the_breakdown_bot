@@ -85,10 +85,7 @@ async def add_level(message: Message, state: FSMContext) -> None:
 
 async def check_prices(message: Message) -> None:
     """Choose the direction of trade."""
-    await message.answer(
-        'Choose the trend direction:',
-        reply_markup=kb_check_prices
-    )
+    await message.answer('Choose the trend direction:', reply_markup=kb_check_prices)
 
 
 async def start(message) -> None:
