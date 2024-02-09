@@ -19,6 +19,7 @@ from settings.constants import (
     TRENDS,
 )
 from tg_bot.commands.buttons import kb, kb_check_prices, kb_long_short
+from tg_bot.create_bot import router
 from tg_bot.filters import AdminID
 from tg_bot.utils import check_and_get_value
 from trade.check_price import start_check_tickers
@@ -26,12 +27,14 @@ from trade.detector import LevelDetector
 from trade.requests import Market
 
 
+@router.message(Command('add_level'), AdminID(MYID))
 async def start_add_level(message: Message, state: FSMContext) -> None:
     """Start adding a new level."""
     await message.answer('Enter the ticker:')
     await state.set_state(DBState.ticker)
 
 
+@router.message(StateFilter(DBState.ticker))
 async def enter_level(message: Message, state: FSMContext) -> None:
     """Enter the price of the level."""
     if message.text and (await Market.get_symbol(ticker := message.text.upper())) == SYMBOL_OK:
@@ -43,6 +46,7 @@ async def enter_level(message: Message, state: FSMContext) -> None:
         await state.set_state(DBState.ticker)
 
 
+@router.message(StateFilter(DBState.lvl_db))
 async def enter_trend(message: Message, state: FSMContext) -> None:
     """Enter a trend for the level"""
     try:
@@ -59,6 +63,7 @@ async def enter_trend(message: Message, state: FSMContext) -> None:
         )
 
 
+@router.message(StateFilter(DBState.trend))
 async def add_level(message: Message, state: FSMContext) -> None:
     """Check and add a level that meets the requirements. Or refusal to add."""
     if message.text and (trend := message.text.lower()) in TRENDS:
@@ -83,6 +88,7 @@ async def add_level(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
+@router.message(Command('check_prices'), AdminID(MYID))
 async def check_prices(message: Message) -> None:
     """Choose the direction of trade."""
     await message.answer('Choose the trend direction:', reply_markup=kb_check_prices)
@@ -105,6 +111,7 @@ async def start(message) -> None:
     await start_check_tickers()
 
 
+@router.message(Command('trade_long'), AdminID(MYID))
 async def trade_long(message: Message) -> None:
     """Change the trend to a long one."""
     ConfigurationManager.change_trend(LONG)
@@ -115,6 +122,7 @@ async def trade_long(message: Message) -> None:
     await start(message)
 
 
+@router.message(Command('trade_short'), AdminID(MYID))
 async def trade_short(message: Message) -> None:
     """Change the trend to a short one."""
     ConfigurationManager.change_trend(SHORT)
@@ -123,16 +131,3 @@ async def trade_short(message: Message) -> None:
     )
     await message.answer(CHART_DECREASING, reply_markup=kb)
     await start(message)
-
-
-def get_handler_main() -> list[tuple]:
-    """Get a list of handlers for main commands registration."""
-    return [
-        (check_prices, Command('check_prices'), AdminID(MYID)),
-        (start_add_level, Command('add_level'), AdminID(MYID)),
-        (enter_level, StateFilter(DBState.ticker)),
-        (enter_trend, StateFilter(DBState.lvl_db)),
-        (add_level, StateFilter(DBState.trend)),
-        (trade_long, Command('trade_long'), AdminID(MYID)),
-        (trade_short, Command('trade_short'), AdminID(MYID)),
-    ]
