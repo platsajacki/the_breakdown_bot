@@ -42,6 +42,7 @@ The trading bot has been developed using the following key libraries:
 ## Project Setup and Configuration
 
 **Clone repository**
+
 Clone the `the_breakdown_bot` repository to your computer:
 
 ```bash
@@ -49,6 +50,7 @@ git clone git@github.com:platsajacki/the_breakdown_bot.git
 ```
 
 **Create a `.env` File**
+
 Create a `.env` file in the project's root directory and add the following lines, replacing the values with your own:
 
 ```python
@@ -75,6 +77,7 @@ DEBUG=False
 ```
 
 **Run the Project**
+
 From the project directory, run the project using Docker Compose:
 
 ```bash
