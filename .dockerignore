@@ -3,7 +3,7 @@ __pycache___
 .vscode
 venv
 
-logfile.log
+logs
 .env
 exe.py
 Makefile

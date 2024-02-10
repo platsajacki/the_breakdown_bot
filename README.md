@@ -12,11 +12,11 @@ Author: Menyukhov Vyacheslav | email: menyukhov@bk.ru
 
 ## Introduction
 
-This trading bot is designed to provide automated trading capabilities with strict money management and risk management strategies. The bot can be easily controlled through Telegram, allowing users to monitor and manage their trades conveniently from their mobile devices or computers. The bot is built using the following libraries: aiogram, SQLAlchemy, requests, and pybit.
+This trading bot is designed to provide automated trading capabilities with strict money management and risk management strategy. Your task is only to determine the trend, support and resistance levels. The bot can be easily controlled through Telegram, allowing users to monitor and manage their trades conveniently from their mobile devices or computers.
 
 ## Features
 
-1. **Automated Trading**: The bot is equipped with powerful algorithms that can execute trades automatically based on predefined strategies and market conditions.
+1. **Automated Trading**: The bot is equipped with powerful algorithms that can execute trades automatically based on predefined strategy and market conditions.
 
 2. **Telegram Integration**: Users can interact with the trading bot through Telegram commands, making it user-friendly and accessible.
 
@@ -33,54 +33,52 @@ This trading bot is designed to provide automated trading capabilities with stri
 The trading bot has been developed using the following key libraries:
 
 1. **aiogram**
-2. **SQLAlchemy**
-3. **requests**
-4. **pybit**
-5. **WebSocket**
+2. **asyncio**
+3. **SQLAlchemy**
+4. **aiohttp**
+5. **pybit**
+6. **WebSocket**
 
 ## Project Setup and Configuration
 
-**Create a Virtual Environment**
-Start by creating and activating a virtual environment to isolate the project's dependencies:
+**Clone repository**
+Clone the `the_breakdown_bot` repository to your computer:
 
 ```bash
-python -m venv venv
-source venv/bin/activate
+git clone git@github.com:platsajacki/the_breakdown_bot.git
 ```
 
 **Create a `.env` File**
 Create a `.env` file in the project's root directory and add the following lines, replacing the values with your own:
-    
+
 ```python
 # API keys for ByBit exchange
 API_KEY=your_key
 API_SECRET=your_secret
+TESTNET=False
 
-# Telegram bot token
+# TG Bot Token
 TOKEN=your_token
 
-# Admin ID
+# My ID TG
 MYID=your_id
 
-# PostgreSQL database access
+# DATABASE
 DATABASE=database_name
-LOGIN=your_login
-PASSWORD=your_password
-HOST=your_host
-```
+POSTGRES_LOGIN=your_login
+POSTGRES_PASSWORD=your_password
+HOST=db
 
-**Install Dependencies**
-Install the required dependencies listed in the requirements.txt file:
-
-```bash
-pip install -r requirements.txt
+# Docker
+DOCKER_LOGIN=login
+DEBUG=False
 ```
 
 **Run the Project**
-You are now ready to run the project. Execute the following command:
+From the project directory, run the project using Docker Compose:
 
 ```bash
-python main.py
+docker compose up -d
 ```
 
 The project is now successfully set up and configured with your environment variables.
