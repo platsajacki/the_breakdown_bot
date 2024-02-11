@@ -49,32 +49,9 @@ Clone the `the_breakdown_bot` repository to your computer:
 git clone git@github.com:platsajacki/the_breakdown_bot.git
 ```
 
-**Create a `.env` File**
+**Create `.env` File**
 
-Create a `.env` file in the project's root directory and add the following lines, replacing the values with your own:
-
-```python
-# API keys for ByBit exchange
-API_KEY=your_key
-API_SECRET=your_secret
-TESTNET=False
-
-# TG Bot Token
-TOKEN=your_token
-
-# My ID TG
-MYID=your_id
-
-# DATABASE
-DATABASE=database_name
-POSTGRES_LOGIN=your_login
-POSTGRES_PASSWORD=your_password
-HOST=db
-
-# Docker
-DOCKER_LOGIN=login
-DEBUG=False
-```
+Create `.env` file in the project's root directory and add data from `env.example` with your values.
 
 **Run the Project**
 
