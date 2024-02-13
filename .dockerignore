@@ -9,3 +9,5 @@ exe.py
 Makefile
 README.md
 setup.cfg
+tests
+conftest.py
