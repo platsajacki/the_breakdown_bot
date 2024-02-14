@@ -66,7 +66,3 @@ The project is now successfully set up and configured with your environment vari
 ## Conclusion
 
 This trading bot with Telegram control offers a reliable and efficient solution for automated trading with strict money management and risk management principles. Its user-friendly interface and customizable strategies make it a powerful tool for both novice and experienced traders. Get ready to automate your trading journey and achieve your financial goals with this cutting-edge trading bot.
-
----
-
-If you're considering hiring me, I would be thrilled to discuss more about this trading bot project and how I can contribute to its success. I am confident in my skills and dedication to delivering high-quality software solutions. Thank you for considering my application!
