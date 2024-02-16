@@ -1,5 +1,7 @@
 import logging
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from statistics import median
 from typing import Any
 
 from aiohttp import ClientSession
@@ -8,7 +10,7 @@ from pybit.unified_trading import HTTP
 from database.managers import RowManager
 from database.models import OpenedOrderDB, StopVolumeDB
 from settings.config import API_KEY, API_SECRET, TESTNET
-from settings.constants import BUY, CONTRACT, LINEAR, USDT
+from settings.constants import BUY, CONTRACT, LINEAR, MEDIAN_DAYS, USDT
 from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
 
@@ -87,8 +89,7 @@ class Market:
             'stop_loss': stop,
             'take_profit': take_profit
         }
-        # Write the opened order to the table
-        # and send a message about opening a position.
+        # Write the opened order to the table and send a message about opening a position.
         RowManager.add_row(OpenedOrderDB, open_order_params)
         await send_message(InfoMessage.OPEN_ORDER_MESSAGE.format(**open_order_params), kwargs.get('main_loop'))
 
@@ -140,3 +141,19 @@ class Market:
             await log_and_send_error(
                 logger, error, f'`set_trading_stop` {symbol} - {active_price}', kwargs.get('main_loop')
             )
+
+    @staticmethod
+    async def get_median_price(symbol: str, **kwargs: Any) -> Decimal:
+        """Calculate and return the median price movement over a specified number of days for a given symbol."""
+        end_time = datetime.now(timezone.utc) - timedelta(days=1)
+        start_time_int = int((end_time - timedelta(days=MEDIAN_DAYS)).timestamp()) * 1000
+        end_time_int = int(end_time.timestamp()) * 1000
+        result: dict = (await get_session_http()).get_kline(
+            category=LINEAR,
+            symbol=symbol,
+            interval='D',
+            start=start_time_int,
+            end=end_time_int,
+        )['result']
+        price_movement_in_days = [Decimal(day[2]) - Decimal(day[3]) for day in result['list']]
+        return median(price_movement_in_days)

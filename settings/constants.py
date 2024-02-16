@@ -13,6 +13,7 @@ TRENDS: list[str] = [LONG, SHORT]
 BUY = 'Buy'
 SELL = 'Sell'
 
+MEDIAN_DAYS = 7
 COEF_LEVEL_LONG = Decimal('0.9975')
 COEF_LEVEL_SHORT = Decimal('1.0025')
 STANDART_STOP = Decimal('2.5')

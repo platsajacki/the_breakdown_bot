@@ -1,6 +1,6 @@
-from trade.param_position import Long, Position, Short
-
 import pytest
+
+from trade.param_position import Long, Position, Short
 
 
 def test_calculate_stop(level_data: dict):
@@ -36,7 +36,7 @@ def test_short_get_param_position(level_data: dict):
 
 @pytest.mark.parametrize('position', (Long, Short))
 def test_long_and_short_get_trailing_stop_param(position: Long | Short, level_data: dict):
-    pos = position(**level_data)
+    pos = position(**level_data)  # type: ignore[operator]
     entry_point = pos.get_param_position()[1]
     trailing_stop_param = Long.get_trailing_stop_param(entry_point, level_data['round_price'])
     assert trailing_stop_param[0] == pos.get_trailing_stop(entry_point, level_data['round_price'])
