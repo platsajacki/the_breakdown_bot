@@ -143,14 +143,14 @@ class Market:
             )
 
     @staticmethod
-    async def get_median_price(symbol: str, **kwargs: Any) -> Decimal:
-        """Calculate and return the median price movement over a specified number of days for a given symbol."""
+    async def get_median_price(ticker: str, **kwargs: Any) -> Decimal:
+        """Calculate and return the median price movement over a specified number of days for a given ticker."""
         end_time = datetime.now(timezone.utc) - timedelta(days=1)
         start_time_int = int((end_time - timedelta(days=MEDIAN_DAYS)).timestamp()) * 1000
         end_time_int = int(end_time.timestamp()) * 1000
         result: dict = (await get_session_http()).get_kline(
             category=LINEAR,
-            symbol=symbol,
+            symbol=f'{ticker}{USDT}',
             interval='D',
             start=start_time_int,
             end=end_time_int,

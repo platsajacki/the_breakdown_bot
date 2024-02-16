@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Any
 
 from database.managers import RowManager, TickerManager
 from database.models import UnsuitableLevelsDB
@@ -18,14 +19,14 @@ class LevelDetector:
         )
 
     @staticmethod
-    async def check_levels(id: int, ticker: str, level: Decimal, trend: str, **kwargs) -> None:
+    async def check_levels(**kwargs: Any) -> None:
         """
         A method that checks the levels which
         are already written to the database for compliance.
         If they do not match, it deletes them.
         """
-        mark_price: Decimal = await Market.get_mark_price(ticker)
-        if trend == LONG and level < mark_price:
-            RowManager.transferring_row(UnsuitableLevelsDB, id, ticker, level, trend)
-        if trend == SHORT and level > mark_price:
-            RowManager.transferring_row(UnsuitableLevelsDB, id, ticker, level, trend)
+        mark_price: Decimal = await Market.get_mark_price(kwargs['ticker'])
+        if kwargs['trend'] == LONG and kwargs['level'] < mark_price:
+            RowManager.transferring_row(UnsuitableLevelsDB, **kwargs)
+        if kwargs['trend'] == SHORT and kwargs['level'] > mark_price:
+            RowManager.transferring_row(UnsuitableLevelsDB, **kwargs)

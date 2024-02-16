@@ -8,7 +8,7 @@ from typing import Any
 from pybit.unified_trading import WebSocket
 
 from database.managers import RowManager, TickerManager
-from database.models import SpentLevelsDB, TrendDB
+from database.models import SpentLevelsDB, TrendDB, UnsuitableLevelsDB
 from settings.config import CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT, TESTNET
 from settings.constants import BUY, COEF_LEVEL_LONG, COEF_LEVEL_SHORT, LINEAR, LONG, SELL, SHORT, USDT
 from tg_bot.send_message import log_and_send_error
@@ -18,8 +18,8 @@ from trade.utils import handle_message_in_thread
 
 logger = logging.getLogger(__name__)
 
-# The list of connected tickers.
 connected_tickers: set[str] = set()
+"""The list of connected tickers."""
 
 
 async def get_ws_session_public() -> WebSocket:
@@ -33,26 +33,71 @@ async def get_ws_session_public() -> WebSocket:
         await log_and_send_error(logger, error, 'WebSocket `session_public`')
 
 
+async def check_avg_price(query: dict[str, int | Decimal]) -> None:
+    if query['avg_price'] is None:
+        TickerManager.set_avg_price(id=query['id'], avg_price=Market.get_median_price(query['ticker']))
+
+
 async def check_long(ticker: str, mark_price: Decimal, round_price: int, *args: Any, **kwargs: Any) -> None:
     """Check for compliance with long positions. If the position fits the parameters, it opens an order."""
     if (query := TickerManager.get_current_level(ticker, LONG)) is not None:
         level: Decimal = query['level']
+        if level > mark_price:
+            RowManager.transferring_row(
+                table=UnsuitableLevelsDB,
+                id=query['id'],
+                ticker=ticker,
+                level=level,
+                trend=LONG,
+                avg_price=query['avg_price'],
+                update_avg_price=query['update_avg_price'],
+            )
+            return
+        await check_avg_price(query=query)
         calc_level: Decimal = level * COEF_LEVEL_LONG
         if calc_level < mark_price < level:
             long_calc = Long(ticker, level, round_price)
             await Market.open_pos(*long_calc.get_param_position(), BUY, *args, **kwargs)
-            RowManager.transferring_row(table=SpentLevelsDB, id=query['id'], ticker=ticker, level=level, trend=LONG)
+            RowManager.transferring_row(
+                table=SpentLevelsDB,
+                id=query['id'],
+                ticker=ticker,
+                level=level,
+                trend=LONG,
+                avg_price=query['avg_price'],
+                update_avg_price=query['update_avg_price'],
+            )
 
 
 async def check_short(ticker: str, mark_price: Decimal, round_price: int, *args: Any, **kwargs: Any) -> None:
     """Check for compliance with short positions. If the position fits the parameters, it opens an order."""
     if (query := TickerManager.get_current_level(ticker, SHORT)) is not None:
         level: Decimal = query['level']
+        if level < mark_price:
+            RowManager.transferring_row(
+                table=UnsuitableLevelsDB,
+                id=query['id'],
+                ticker=ticker,
+                level=level,
+                trend=SHORT,
+                avg_price=query['avg_price'],
+                update_avg_price=query['update_avg_price'],
+            )
+            return
+        await check_avg_price(query=query)
         calc_level: Decimal = level * COEF_LEVEL_SHORT
         if calc_level > mark_price > level:
             short_calc = Short(ticker, level, round_price)
             await Market.open_pos(*short_calc.get_param_position(), SELL, *args, **kwargs)
-            RowManager.transferring_row(table=SpentLevelsDB, id=query['id'], ticker=ticker, level=level, trend=SHORT)
+            RowManager.transferring_row(
+                table=SpentLevelsDB,
+                id=query['id'],
+                ticker=ticker,
+                level=level,
+                trend=SHORT,
+                avg_price=query['avg_price'],
+                update_avg_price=query['update_avg_price'],
+            )
 
 
 async def handle_message(msg: dict[str, Any], *args: Any, **kwargs: Any) -> None:
