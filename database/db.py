@@ -12,7 +12,7 @@ engine: Engine = create_engine(
 if not database_exists(engine.url):
     create_database(engine.url)
 
-meta: MetaData = MetaData(schema='public')
+meta = MetaData(schema='public')
 
 SQLSession: sessionmaker[Session] = sessionmaker(engine, expire_on_commit=False)
 

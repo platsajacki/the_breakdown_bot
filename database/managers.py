@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
@@ -5,8 +6,8 @@ from sqlalchemy import Row, func
 from sqlalchemy.orm import Session
 
 from database.db import engine
+from database.decorators import database_transaction
 from database.models import Base, StopVolumeDB, TickerDB, TrendDB
-from decorators import database_transaction
 from settings.constants import LONG, STANDART_STOP
 from tg_bot.send_message import send_message
 
@@ -55,9 +56,21 @@ class RowManager:
         return [q.__dict__ for q in query]
 
     @classmethod
-    def transferring_row(cls, table: Any, id: int, ticker: str, level: Decimal, trend: str) -> None:
+    def transferring_row(
+        cls, table: Any, id: int, ticker: str, level: Decimal, trend: str,
+        avg_price: Decimal | None, update_avg_price: datetime | None,
+    ) -> None:
         """Transfer a row from one table to another."""
-        cls.add_row(table, {'ticker': ticker, 'level': level, 'trend': trend})
+        cls.add_row(
+            table,
+            {
+                'ticker': ticker,
+                'level': level,
+                'trend': trend,
+                'avg_price': avg_price,
+                'update_avg_price': update_avg_price
+            }
+        )
         cls.delete_row_by_id(TickerDB, id)
 
 
@@ -124,6 +137,15 @@ class TickerManager:
                 TickerDB.ticker == ticker, TickerDB.trend == trend)
         ).all()
         return set(map(lambda query: query[0], query))
+
+    @staticmethod
+    @database_transaction
+    def set_avg_price(sess_db: Session, id: int, avg_price: Decimal) -> None:
+        """Update the average price and the update time for a specific ticker in the database."""
+        row = sess_db.query(TickerDB).get(id)
+        if row is not None:
+            row.avg_price = avg_price
+            row.update_avg_price = datetime.now()
 
 
 async def set_standart_stop():
