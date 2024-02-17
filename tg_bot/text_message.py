@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+from decimal import Decimal
 
-from settings.constants import COIN, MONEY_BAG, MONEY_WITH_WINGS, ROCKET
+from settings.constants import COIN, MONEY_BAG, MONEY_WITH_WINGS, POWER_RESERVE_USED_UP, ROCKET
 
 
 @dataclass
@@ -53,3 +54,11 @@ Price - <b>{execPrice}</b>'''
     QUERY_LIMIT: str = '''<b>{ticker} - {trend}</b>
 LVL - <b>{level}</b>
 Create - <b>{create}</b>'''
+
+    @staticmethod
+    def get_text_not_worked_out_level(ticker: str, level: Decimal, avg_price: Decimal) -> str:
+        avg_info = (
+            f'\nAverage movement: <b>{avg_price}</b>.'
+            f'\nPower reserve used up more: <b>{avg_price * POWER_RESERVE_USED_UP}</b>'
+        )
+        return f'The <b>`{ticker} - {level}`</b> level has not worked out.{avg_info if avg_price else ''}'
