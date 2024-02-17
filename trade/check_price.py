@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, timedelta
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
@@ -10,7 +11,17 @@ from pybit.unified_trading import WebSocket
 from database.managers import RowManager, TickerManager
 from database.models import SpentLevelsDB, TrendDB, UnsuitableLevelsDB
 from settings.config import CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT, TESTNET
-from settings.constants import BUY, COEF_LEVEL_LONG, COEF_LEVEL_SHORT, LINEAR, LONG, SELL, SHORT, USDT
+from settings.constants import (
+    BUY,
+    COEF_LEVEL_LONG,
+    COEF_LEVEL_SHORT,
+    LINEAR,
+    LONG,
+    POWER_REVERSE_USED_UP,
+    SELL,
+    SHORT,
+    USDT,
+)
 from tg_bot.send_message import log_and_send_error
 from trade.param_position import Long, Short
 from trade.requests import Market
@@ -33,29 +44,37 @@ async def get_ws_session_public() -> WebSocket:
         await log_and_send_error(logger, error, 'WebSocket `session_public`')
 
 
-async def check_avg_price(query: dict[str, int | Decimal]) -> None:
-    if query['avg_price'] is None:
-        TickerManager.set_avg_price(id=query['id'], avg_price=Market.get_median_price(query['ticker']))
+async def update_avg_price_and_time(
+    ticker: str, query: dict[str, int | Decimal | datetime], trend: str
+) -> dict[str, int | Decimal | datetime]:
+    TickerManager.set_avg_price(id=query['id'], avg_price=(await Market.get_median_price(ticker)))
+    return TickerManager.get_current_level(ticker, trend)
 
 
 async def check_long(ticker: str, mark_price: Decimal, round_price: int, *args: Any, **kwargs: Any) -> None:
     """Check for compliance with long positions. If the position fits the parameters, it opens an order."""
     if (query := TickerManager.get_current_level(ticker, LONG)) is not None:
         level: Decimal = query['level']
-        if level > mark_price:
+        avg_price: Decimal = query['avg_price']
+        update_avg_price: datetime = query['update_avg_price']
+        if level < mark_price:
             RowManager.transferring_row(
                 table=UnsuitableLevelsDB,
                 id=query['id'],
                 ticker=ticker,
                 level=level,
                 trend=LONG,
-                avg_price=query['avg_price'],
-                update_avg_price=query['update_avg_price'],
+                avg_price=avg_price,
+                update_avg_price=update_avg_price,
             )
             return
-        await check_avg_price(query=query)
+        if avg_price is None or datetime.now() - update_avg_price > timedelta(days=1):
+            query = await update_avg_price_and_time(ticker, query, LONG)
         calc_level: Decimal = level * COEF_LEVEL_LONG
-        if calc_level < mark_price < level:
+        if (
+            calc_level < mark_price < level
+            and (await Market.get_current_price_movement(ticker)) < avg_price * POWER_REVERSE_USED_UP
+        ):
             long_calc = Long(ticker, level, round_price)
             await Market.open_pos(*long_calc.get_param_position(), BUY, *args, **kwargs)
             RowManager.transferring_row(
@@ -64,8 +83,8 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int, *args: 
                 ticker=ticker,
                 level=level,
                 trend=LONG,
-                avg_price=query['avg_price'],
-                update_avg_price=query['update_avg_price'],
+                avg_price=avg_price,
+                update_avg_price=update_avg_price,
             )
 
 
@@ -73,20 +92,26 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int, *args:
     """Check for compliance with short positions. If the position fits the parameters, it opens an order."""
     if (query := TickerManager.get_current_level(ticker, SHORT)) is not None:
         level: Decimal = query['level']
-        if level < mark_price:
+        avg_price: Decimal = query['avg_price']
+        update_avg_price: datetime = query['update_avg_price']
+        if level > mark_price:
             RowManager.transferring_row(
                 table=UnsuitableLevelsDB,
                 id=query['id'],
                 ticker=ticker,
                 level=level,
                 trend=SHORT,
-                avg_price=query['avg_price'],
-                update_avg_price=query['update_avg_price'],
+                avg_price=avg_price,
+                update_avg_price=update_avg_price,
             )
             return
-        await check_avg_price(query=query)
+        if avg_price is None or datetime.now() - update_avg_price > timedelta(days=1):
+            query = await update_avg_price_and_time(ticker, query, SHORT)
         calc_level: Decimal = level * COEF_LEVEL_SHORT
-        if calc_level > mark_price > level:
+        if (
+            calc_level > mark_price > level
+            and (await Market.get_current_price_movement(ticker)) < avg_price * POWER_REVERSE_USED_UP
+        ):
             short_calc = Short(ticker, level, round_price)
             await Market.open_pos(*short_calc.get_param_position(), SELL, *args, **kwargs)
             RowManager.transferring_row(
@@ -95,8 +120,8 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int, *args:
                 ticker=ticker,
                 level=level,
                 trend=SHORT,
-                avg_price=query['avg_price'],
-                update_avg_price=query['update_avg_price'],
+                avg_price=avg_price,
+                update_avg_price=update_avg_price,
             )
 
 

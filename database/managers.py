@@ -99,7 +99,7 @@ class TickerManager:
     """A manager class for query ticker information."""
     @staticmethod
     @database_transaction
-    def get_current_level(sess_db: Session, ticker: str, trend: str) -> None | dict[str, int | Decimal]:
+    def get_current_level(sess_db: Session, ticker: str, trend: str) -> None | dict[str, int | Decimal | datetime]:
         """Request a level to check the compliance of the parameters of the opening of the transaction."""
         level: Row[tuple[Decimal | None]] = (  # type: ignore[index]
             sess_db.query(
@@ -113,7 +113,7 @@ class TickerManager:
             )
         ).one_or_none()[0]
         return level if level is None else (
-            sess_db.query(TickerDB.id, TickerDB.level)
+            sess_db.query(TickerDB.id, TickerDB.level, TickerDB.avg_price, TickerDB.update_avg_price)
             .filter(
                 TickerDB.ticker == ticker,
                 TickerDB.level == level

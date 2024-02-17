@@ -14,8 +14,9 @@ BUY = 'Buy'
 SELL = 'Sell'
 
 MEDIAN_DAYS = 7
-COEF_LEVEL_LONG = Decimal('0.9975')
-COEF_LEVEL_SHORT = Decimal('1.0025')
+POWER_REVERSE_USED_UP = Decimal('0.3')
+COEF_LEVEL_LONG = Decimal('0.998')
+COEF_LEVEL_SHORT = Decimal('1.002')
 STANDART_STOP = Decimal('2.5')
 USDT = 'USDT'
 SYMBOL_OK = 'OK'
