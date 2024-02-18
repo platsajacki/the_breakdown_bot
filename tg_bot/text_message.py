@@ -56,9 +56,12 @@ LVL - <b>{level}</b>
 Create - <b>{create}</b>'''
 
     @staticmethod
-    def get_text_not_worked_out_level(ticker: str, level: Decimal, avg_price: Decimal) -> str:
+    def get_text_not_worked_out_level(
+        ticker: str, level: Decimal, avg_price: Decimal, current_price_movement: Decimal
+    ) -> str:
         avg_info = (
-            f'\nAverage movement: <b>{avg_price}</b>.'
-            f'\nPower reserve used up more: <b>{avg_price * POWER_RESERVE_USED_UP}</b>'
-        )
-        return f'The <b>`{ticker} - {level}`</b> level has not worked out.{avg_info if avg_price else ''}'
+            f'\nThe current price movement ({current_price_movement}) exceeded the average price movement '
+            f'({avg_price}) multiplied by the power reserve coefficient ({POWER_RESERVE_USED_UP}).'
+            f'\n<b>{avg_price} * {POWER_RESERVE_USED_UP} &lt {current_price_movement}</b>'
+        ) if avg_price else ''
+        return f'The <b>`{ticker} - {level}`</b> level has not worked out.{avg_info}'

@@ -66,8 +66,10 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int, *args: 
                 avg_price=query['avg_price'],
                 update_avg_price=query['update_avg_price'],
             )
+            current_price_movement = await Market.get_current_price_movement(ticker)
             await send_message(
-                InfoMessage.get_text_not_worked_out_level(ticker, level, query['avg_price']), kwargs['main_loop']
+                InfoMessage.get_text_not_worked_out_level(ticker, level, query['avg_price'], current_price_movement),
+                kwargs['main_loop'],
             )
             return
         if query['avg_price'] is None or datetime.now() - query['update_avg_price'] > timedelta(days=1):
@@ -104,8 +106,10 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int, *args:
                 avg_price=query['avg_price'],
                 update_avg_price=query['update_avg_price'],
             )
+            current_price_movement = await Market.get_current_price_movement(ticker)
             await send_message(
-                InfoMessage.get_text_not_worked_out_level(ticker, level, query['avg_price']), kwargs['main_loop']
+                InfoMessage.get_text_not_worked_out_level(ticker, level, query['avg_price'], current_price_movement),
+                kwargs['main_loop'],
             )
             return
         if query['avg_price'] is None or datetime.now() - query['update_avg_price'] > timedelta(days=1):

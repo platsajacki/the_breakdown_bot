@@ -26,7 +26,16 @@ class LevelDetector:
         If they do not match, it deletes them.
         """
         mark_price: Decimal = await Market.get_mark_price(kwargs['ticker'])
-        if kwargs['trend'] == LONG and kwargs['level'] < mark_price:
-            RowManager.transferring_row(UnsuitableLevelsDB, **kwargs)
-        if kwargs['trend'] == SHORT and kwargs['level'] > mark_price:
-            RowManager.transferring_row(UnsuitableLevelsDB, **kwargs)
+        if (
+            kwargs['trend'] == LONG and kwargs['level'] < mark_price
+            or kwargs['trend'] == SHORT and kwargs['level'] > mark_price
+        ):
+            RowManager.transferring_row(
+                UnsuitableLevelsDB,
+                kwargs['id'],
+                kwargs['ticker'],
+                kwargs['level'],
+                kwargs['trend'],
+                kwargs['avg_price'],
+                kwargs['update_avg_price']
+            )
