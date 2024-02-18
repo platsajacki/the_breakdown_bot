@@ -6,7 +6,7 @@ from aiogram.types import Message
 
 from database.managers import ConfigurationManager, RowManager
 from database.models import TickerDB
-from database.temporary_data import DBQuery, DBState
+from database.temporary_data import DBState
 from settings.config import MYID
 from settings.constants import (
     CHART_DECREASING,
@@ -73,7 +73,7 @@ async def add_level(message: Message, state: FSMContext) -> None:
         await message.answer(
             'The value entered is incorrect! Try again:'
         )
-        await state.set_state(DBQuery.trend)
+        await state.set_state(DBState.trend)
     if await LevelDetector.check_level(**data):
         RowManager.add_row(TickerDB, data)
         await message.answer(
