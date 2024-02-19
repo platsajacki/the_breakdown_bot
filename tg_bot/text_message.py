@@ -62,6 +62,7 @@ Create - <b>{create}</b>'''
         avg_info = (
             f'\nThe current price movement ({current_price_movement}) exceeded the average price movement '
             f'({avg_price}) multiplied by the power reserve coefficient ({POWER_RESERVE_USED_UP}).'
-            f'\n<b>{avg_price} * {POWER_RESERVE_USED_UP} &lt {current_price_movement}</b>'
+            f'\n<b>{avg_price} * {POWER_RESERVE_USED_UP} = {(coef_price_movement := avg_price * POWER_RESERVE_USED_UP)}'
+            f'\n{coef_price_movement} &lt {current_price_movement}</b>'
         ) if avg_price else ''
         return f'The <b>`{ticker} - {level}`</b> level has not worked out.{avg_info}'
