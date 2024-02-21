@@ -1,13 +1,17 @@
 __pycache___
 .mypy_cache
 .vscode
+.env
+env.example
 venv
 
-logs
-.env
+conftest.py
+Dockefile
+docker-compose.yml
 exe.py
+logs
 Makefile
 README.md
 setup.cfg
 tests
-conftest.py
+

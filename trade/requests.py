@@ -9,8 +9,8 @@ from pybit.unified_trading import HTTP
 
 from database.managers import RowManager
 from database.models import OpenedOrderDB, StopVolumeDB
-from settings.config import API_KEY, API_SECRET, TESTNET
-from settings.constants import BUY, CONTRACT, LINEAR, MEDIAN_DAYS, USDT
+from settings.config import ACCOUNT_TYPE, API_KEY, API_SECRET, TESTNET
+from settings.constants import BUY, LINEAR, MEDIAN_DAYS, USDT
 from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
 
@@ -96,7 +96,7 @@ class Market:
     @staticmethod
     async def get_wallet_balance() -> dict[str, Decimal]:
         """Request a wallet balance in USDT."""
-        info: dict[str, Any] = (await get_session_http()).get_wallet_balance(accountType=CONTRACT, coin=USDT)
+        info: dict[str, Any] = (await get_session_http()).get_wallet_balance(accountType=ACCOUNT_TYPE, coin=USDT)
         coin: dict[str, Any] = info['result']['list'][0]['coin'][0]
         return {
             'equity': round(

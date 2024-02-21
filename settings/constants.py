@@ -4,7 +4,6 @@ from emoji import emojize
 
 # Trading constants.
 LINEAR = 'linear'
-CONTRACT = 'CONTRACT'
 
 LONG = 'long'
 SHORT = 'short'
