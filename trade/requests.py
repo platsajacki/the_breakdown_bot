@@ -61,8 +61,7 @@ class Market:
         asset_volume = str(
             round((RowManager.get_row_by_id(StopVolumeDB, 1).usdt_volume / abs(entry_point - stop)), round_volume)
         )
-        # Set up a trigger.
-        triggerDirection: int = 1 if side == BUY else 2
+        triggerDirection = 1 if side == BUY else 2
         # Open an order.
         try:
             session_http.place_order(
@@ -146,14 +145,12 @@ class Market:
     async def get_median_price(ticker: str, **kwargs: Any) -> Decimal:
         """Calculate and return the median price movement over a specified number of days for a given ticker."""
         end_time = datetime.now() - timedelta(days=1)
-        start_time_int = int((end_time - timedelta(days=MEDIAN_DAYS)).timestamp()) * 1000
-        end_time_int = int(end_time.timestamp()) * 1000
         result: dict = (await get_session_http()).get_kline(
             category=LINEAR,
             symbol=f'{ticker}{USDT}',
             interval='D',
-            start=start_time_int,
-            end=end_time_int,
+            start=int((end_time - timedelta(days=MEDIAN_DAYS)).timestamp()) * 1000,
+            end=int(end_time.timestamp()) * 1000,
         )['result']
         price_movement_in_days = [Decimal(day[2]) - Decimal(day[3]) for day in result['list']]
         return median(price_movement_in_days)
