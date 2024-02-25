@@ -128,6 +128,10 @@ class Market:
 
     @staticmethod
     async def set_trailing_stop(symbol: str, trailing_stop: str, active_price: str, *args: Any, **kwargs: Any) -> None:
+        """
+        A trailing stop is an order that follows the market price, designed to protect gains by closing a trade
+        if the price moves against the trader by a specified amount.
+        """
         try:
             (await get_session_http()).set_trading_stop(
                 symbol=symbol,
@@ -157,6 +161,7 @@ class Market:
 
     @staticmethod
     async def get_current_price_movement(ticker: str, **kwargs: Any) -> Decimal:
+        """Get the current price movement for a given ticker."""
         today = datetime.now().date()
         start_time_int = int(datetime.combine(today, time.min).timestamp()) * 1000
         end_time_int = int(datetime.combine(today, time.max).timestamp()) * 1000
