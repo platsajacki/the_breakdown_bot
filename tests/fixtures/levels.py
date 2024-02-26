@@ -8,7 +8,7 @@ def level_data(factory: FixtureFactory) -> dict:
     schema = factory.schema(
         schema=lambda: {
             'ticker': factory.field('cryptocurrency_iso_code'),
-            'level': factory.field('decimal_number', start=0.00000001, end=100000.0),
+            'level': factory.price,
             'round_price': factory.field('random.randint', a=1, b=8),
         },
         iterations=1,

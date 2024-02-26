@@ -12,3 +12,7 @@ class FixtureFactory:
         self.field = field
         self.fieldset = fieldset
         self.schema = Schema
+
+    @property
+    def price(self) -> Field:
+        return self.field('decimal_number', start=0.00000001, end=100000.0)
