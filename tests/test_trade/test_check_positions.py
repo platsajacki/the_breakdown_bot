@@ -1,7 +1,8 @@
 from unittest.mock import AsyncMock
-from pytest_mock import MockerFixture
-from settings.config import API_KEY, API_SECRET, TESTNET
 
+from pytest_mock import MockerFixture
+
+from settings.config import API_KEY, API_SECRET, TESTNET
 from trade.check_positions import get_ws_session_privat
 
 

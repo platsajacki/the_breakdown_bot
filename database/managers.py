@@ -58,7 +58,7 @@ class RowManager:
     @classmethod
     def transferring_row(
         cls, table: Any, id: int, ticker: str, level: Decimal, trend: str,
-        avg_price: Decimal | None, update_avg_price: datetime | None,
+        median_price: Decimal | None, update_median_price: datetime | None,
     ) -> None:
         """Transfer a row from one table to another."""
         cls.add_row(
@@ -67,8 +67,8 @@ class RowManager:
                 'ticker': ticker,
                 'level': level,
                 'trend': trend,
-                'avg_price': avg_price,
-                'update_avg_price': update_avg_price
+                'median_price': median_price,
+                'update_median_price': update_median_price
             }
         )
         cls.delete_row_by_id(TickerDB, id)
@@ -113,7 +113,7 @@ class TickerManager:
             )
         ).one_or_none()[0]
         return level if level is None else (
-            sess_db.query(TickerDB.id, TickerDB.level, TickerDB.avg_price, TickerDB.update_avg_price)
+            sess_db.query(TickerDB.id, TickerDB.level, TickerDB.median_price, TickerDB.update_median_price)
             .filter(
                 TickerDB.ticker == ticker,
                 TickerDB.level == level
@@ -140,12 +140,12 @@ class TickerManager:
 
     @staticmethod
     @database_transaction
-    def set_avg_price(sess_db: Session, id: int, avg_price: Decimal) -> None:
+    def set_median_price(sess_db: Session, id: int, median_price: Decimal) -> None:
         """Update the average price and the update time for a specific ticker in the database."""
         row = sess_db.query(TickerDB).get(id)
         if row is not None:
-            row.avg_price = avg_price
-            row.update_avg_price = datetime.now()
+            row.median_price = median_price
+            row.update_median_price = datetime.now()
 
 
 async def set_standart_stop():

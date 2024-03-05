@@ -36,6 +36,6 @@ class LevelDetector:
                 kwargs['ticker'],
                 kwargs['level'],
                 kwargs['trend'],
-                kwargs['avg_price'],
-                kwargs['update_avg_price']
+                kwargs['median_price'],
+                kwargs['update_median_price']
             )

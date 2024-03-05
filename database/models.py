@@ -18,8 +18,8 @@ class TickerColumn:
     ticker = Column(String(10))
     level = Column(numeric_currency)
     trend = Column(String(5))
-    avg_price = Column(numeric_currency, nullable=True)
-    update_avg_price = Column(DateTime, nullable=True)
+    median_price = Column(numeric_currency, nullable=True)
+    update_median_price = Column(DateTime, nullable=True)
 
 
 class TickerDB(Base, BaseColumn, TickerColumn):

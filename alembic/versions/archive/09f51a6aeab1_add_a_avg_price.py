@@ -1,7 +1,7 @@
 """Add a avg_price.
 
 Revision ID: 09f51a6aeab1
-Revises: platsajacki
+Revises:
 Create Date: 2024-02-16 14:35:09.641019
 
 """

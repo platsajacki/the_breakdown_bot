@@ -1,5 +1,4 @@
-from time import time
-from datetime import timedelta
+from datetime import datetime
 
 import pytest
 
@@ -12,7 +11,7 @@ def trade_data(factory: FixtureFactory) -> dict:
     schema = factory.schema(
         schema=lambda: {
             'category': LINEAR,
-            'execTime': int(time() - timedelta(seconds=30)),
+            'execTime': int(datetime.now().timestamp() - 30),
             'symbol': factory.field('cryptocurrency_iso_code') + USDT,
             'closedSize': str(factory.field('random.randint', a=1, b=1000)),
             'side': factory.field('choice', items=['Buy', 'Sell']),
