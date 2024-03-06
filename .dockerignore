@@ -6,12 +6,8 @@ env.example
 venv
 
 conftest.py
-Dockefile
-docker-compose.yml
-exe.py
 logs
 Makefile
 README.md
 setup.cfg
 tests
-
