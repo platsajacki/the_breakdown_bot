@@ -1,5 +1,10 @@
+from decimal import Decimal
+from random import randint
+
 from mimesis import Field, Fieldset, Generic, Schema
 from mimesis.locales import Locale
+
+from settings.constants import USDT
 
 generic = Generic(locale=Locale.EN)
 field = Field(locale=Locale.EN)
@@ -14,5 +19,9 @@ class FixtureFactory:
         self.schema = Schema
 
     @property
-    def price(self) -> Field:
-        return self.field('decimal_number', start=0.00000001, end=100000.0)
+    def symbol(self) -> str:
+        return self.field('cryptocurrency_iso_code') + USDT
+
+    @property
+    def price(self) -> Decimal:
+        return round(self.field('decimal_number', start=0.00000001, end=100000.0), randint(0, 8))

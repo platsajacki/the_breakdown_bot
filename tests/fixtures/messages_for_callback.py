@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from settings.constants import LINEAR, USDT
+from settings.constants import LINEAR
 from tests.factory import FixtureFactory
 
 
@@ -11,24 +11,34 @@ def trade_data(factory: FixtureFactory) -> dict:
     schema = factory.schema(
         schema=lambda: {
             'category': LINEAR,
-            'execTime': int(datetime.now().timestamp() - 30),
-            'symbol': factory.field('cryptocurrency_iso_code') + USDT,
-            'closedSize': str(factory.field('random.randint', a=1, b=1000)),
+            'execTime': int(datetime.now().timestamp() * 1000),
+            'symbol': factory.symbol,
+            'closedSize': 0,
             'side': factory.field('choice', items=['Buy', 'Sell']),
-            'avgPrice': factory.price,
+            'avgPrice': str(factory.price),
+            'execQty': None,
+            'execPrice': None,
         },
         iterations=1,
     )
-    return schema.create()[0]
+    return {'data': schema.create()}
 
 
 @pytest.fixture
-def trade_position_data(factory: FixtureFactory) -> dict:
+def trade_position_data(factory: FixtureFactory) -> list[dict]:
     schema = factory.schema(
         schema=lambda: {
-            'avgPrice': factory.price,
-            'trailingStop': factory.price,
+            'avgPrice': str(factory.price),
+            'trailingStop': 0,
+            'symbol': None,
+            'size': None,
+            'side': None,
+            'leverage': None,
+            'markPrice': None,
+            'unrealisedPnl': None,
+            'stopLoss': None,
+            'takeProfit': None,
         },
         iterations=1,
     )
-    return schema.create()[0]
+    return schema.create()
