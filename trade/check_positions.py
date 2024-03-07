@@ -46,7 +46,6 @@ async def handle_message(msg: dict[str, Any], *args: Any, **kwargs: AbstractEven
             symbol: str = trade['symbol']
             position_list: list[dict[str, Any]] | None = await Market.get_open_positions(ticker=symbol[:-4])
             if position_list is None:
-                await send_message('The position is completely closed.', kwargs.get('main_loop'))
                 continue
             position: dict[str, Any] = position_list[0]
             if (
