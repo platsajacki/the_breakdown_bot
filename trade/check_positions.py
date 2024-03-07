@@ -68,9 +68,12 @@ async def handle_message(msg: dict[str, Any], *args: Any, **kwargs: AbstractEven
                     symbol, str(trailing_stop), str(active_price)
                 )
                 position['trailingStop'] = trailing_stop
-            await send_message(
-                f'Total position {InfoMessage.POSITION_MESSAGE.format(**position)}', kwargs.get('main_loop')
+            txt = (
+                'The position is completely closed.'
+                if Decimal(position['size']) == 0 else
+                f'Total position {InfoMessage.POSITION_MESSAGE.format(**position)}'
             )
+            await send_message(txt, kwargs.get('main_loop'))
 
 
 async def start_execution_stream() -> None:
