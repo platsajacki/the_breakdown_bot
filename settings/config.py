@@ -18,7 +18,7 @@ DEBUG: bool = get_required_env_var('DEBUG') == 'True'
 # API.
 API_KEY: str = get_required_env_var('API_KEY')
 API_SECRET: str = get_required_env_var('API_SECRET')
-TESTNET: bool = get_required_env_var('TESTNET') == 'True'
+NOT_TESTNET: bool = get_required_env_var('NOT_TESTNET') != 'True'
 ACCOUNT_TYPE = get_required_env_var('ACCOUNT_TYPE')
 CUSTOM_PING_INTERVAL: int = 15
 CUSTOM_PING_TIMEOUT: int = 10

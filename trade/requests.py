@@ -9,7 +9,7 @@ from pybit.unified_trading import HTTP
 
 from database.managers import RowManager
 from database.models import OpenedOrderDB, StopVolumeDB
-from settings.config import ACCOUNT_TYPE, API_KEY, API_SECRET, TESTNET
+from settings.config import ACCOUNT_TYPE, API_KEY, API_SECRET, NOT_TESTNET
 from settings.constants import BUY, LINEAR, MEDIAN_DAYS, USDT
 from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 async def get_session_http() -> HTTP:
     """Setup a connection with the exchange."""
     try:
-        return HTTP(testnet=TESTNET, api_key=API_KEY, api_secret=API_SECRET)
+        return HTTP(testnet=NOT_TESTNET, api_key=API_KEY, api_secret=API_SECRET)
     except Exception as error:
         await log_and_send_error(logger, error, '`session_http`')
 

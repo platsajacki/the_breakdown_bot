@@ -10,7 +10,7 @@ from pybit.unified_trading import WebSocket
 
 from database.managers import RowManager, TickerManager
 from database.models import SpentLevelsDB, TrendDB, UnsuitableLevelsDB
-from settings.config import CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT, TESTNET
+from settings.config import CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT, NOT_TESTNET
 from settings.constants import (
     BUY,
     COEF_LEVEL_LONG,
@@ -37,7 +37,7 @@ connected_tickers: set[str] = set()
 async def get_ws_session_public() -> WebSocket:
     """Setup a connection WebSocket."""
     try:
-        ws_session_public = WebSocket(testnet=TESTNET, channel_type=LINEAR)
+        ws_session_public = WebSocket(testnet=NOT_TESTNET, channel_type=LINEAR)
         ws_session_public.ping_interval = CUSTOM_PING_INTERVAL
         ws_session_public.ping_timeout = CUSTOM_PING_TIMEOUT
         return ws_session_public

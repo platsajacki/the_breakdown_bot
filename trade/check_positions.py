@@ -9,7 +9,7 @@ from typing import Any
 
 from pybit.unified_trading import WebSocket
 
-from settings.config import API_KEY, API_SECRET, CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT, TESTNET
+from settings.config import API_KEY, API_SECRET, CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT, NOT_TESTNET
 from settings.constants import BUY, LINEAR, MINUTE_IN_MILLISECONDS
 from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
@@ -23,7 +23,9 @@ logger = logging.getLogger(__name__)
 async def get_ws_session_privat() -> WebSocket:
     """Setup a connection WebSocket."""
     try:
-        ws_session_privat = WebSocket(testnet=TESTNET, api_key=API_KEY, api_secret=API_SECRET, channel_type='private')
+        ws_session_privat = WebSocket(
+            testnet=NOT_TESTNET, api_key=API_KEY, api_secret=API_SECRET, channel_type='private'
+        )
         ws_session_privat.ping_interval = CUSTOM_PING_INTERVAL
         ws_session_privat.ping_timeout = CUSTOM_PING_TIMEOUT
         return ws_session_privat
