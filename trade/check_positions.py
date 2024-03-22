@@ -37,7 +37,7 @@ async def handle_message(msg: dict[str, Any], *args: Any, **kwargs: AbstractEven
     """The handler of messages about completed transactions. Check the trailing stop, if there is none, set."""
     for trade in msg['data']:
         exec_time = int(trade['execTime'])
-        now_in_milliseconds: int = round(time() * 1000)
+        now_in_milliseconds = int(time() * 1000)
         if (
             now_in_milliseconds - exec_time < MINUTE_IN_MILLISECONDS
             and trade['category'] == LINEAR

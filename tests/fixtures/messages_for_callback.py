@@ -1,4 +1,4 @@
-from datetime import datetime
+from time import time
 
 import pytest
 
@@ -11,7 +11,7 @@ def trade_data(factory: FixtureFactory) -> dict:
     schema = factory.schema(
         schema=lambda: {
             'category': LINEAR,
-            'execTime': int(datetime.now().timestamp() * 1000),
+            'execTime': int(time() * 1000),
             'symbol': factory.symbol,
             'closedSize': 0,
             'side': factory.field('choice', items=['Buy', 'Sell']),
@@ -31,7 +31,7 @@ def trade_position_data(factory: FixtureFactory) -> list[dict]:
             'avgPrice': str(factory.price),
             'trailingStop': 0,
             'symbol': None,
-            'size': None,
+            'size': 1,
             'side': None,
             'leverage': None,
             'markPrice': None,

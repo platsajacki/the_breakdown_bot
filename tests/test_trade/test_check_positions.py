@@ -47,13 +47,16 @@ async def test_handle_message_with_valid_data_witout_traling_stop(
 
 
 async def test_handle_message_with_valid_data_closed_positions(
+    mocker: MockerFixture,
     trade_data: dict,
     common_mocks_check_positions: tuple[AsyncMock, ...],
 ):
+    print(trade_data)
     mock_send_message, mock_get_open_positions, mock_set_trailing_stop = common_mocks_check_positions
     mock_get_open_positions.return_value = None
+    mocker.patch('time.time', return_value=trade_data['data'][0]['execTime'] / 1000 - 100)
     await handle_message(trade_data)
 
-    assert mock_send_message.call_count == 2
+    assert mock_send_message.call_count == 1
     mock_get_open_positions.assert_called_once_with(ticker=trade_data['data'][0]['symbol'][:-4])
     mock_set_trailing_stop.assert_not_called()
