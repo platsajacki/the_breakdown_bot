@@ -13,3 +13,8 @@ def common_mocks_check_positions(mocker: MockerFixture, trade_position_data: lis
         ),
         mocker.patch('trade.check_positions.Market.set_trailing_stop', new_callable=AsyncMock)
     )
+
+
+@pytest.fixture
+def mock_market_get_mark_price(mocker: MockerFixture):
+    return mocker.patch('trade.requests.Market.get_mark_price')

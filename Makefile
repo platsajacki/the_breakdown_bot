@@ -3,4 +3,4 @@ lint:
 	mypy .
 
 test:
-	pytest --cov=.
+	pytest -x -s --cov=.

@@ -51,7 +51,6 @@ async def test_handle_message_with_valid_data_closed_positions(
     trade_data: dict,
     common_mocks_check_positions: tuple[AsyncMock, ...],
 ):
-    print(trade_data)
     mock_send_message, mock_get_open_positions, mock_set_trailing_stop = common_mocks_check_positions
     mock_get_open_positions.return_value = None
     mocker.patch('time.time', return_value=trade_data['data'][0]['execTime'] / 1000 - 100)
