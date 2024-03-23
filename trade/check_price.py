@@ -164,11 +164,6 @@ async def connect_ticker(ticker: str) -> None:
 
 async def start_check_tickers() -> None:
     """Determine the direction of trade. Start the stream."""
-    if RowManager.get_row_by_id(TrendDB, 1).trend == LONG:
-        for ticker in TickerManager.get_tickers_by_trend(LONG):
-            if ticker[0] not in connected_tickers:
-                await connect_ticker(ticker[0])
-    else:
-        for ticker in TickerManager.get_tickers_by_trend(SHORT):
-            if ticker[0] not in connected_tickers:
-                await connect_ticker(ticker[0])
+    for ticker in TickerManager.get_tickers_by_trend(RowManager.get_row_by_id(TrendDB, 1).trend):
+        if ticker[0] not in connected_tickers:
+            await connect_ticker(ticker[0])
