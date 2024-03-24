@@ -8,8 +8,8 @@ from trade.check_positions import get_ws_session_privat, handle_message
 
 
 async def test_get_ws_session_privat(mocker: MockerFixture):
-    mock_websocket = mocker.patch('trade.check_positions.WebSocket')
-    mock_log_and_send_error = mocker.patch('trade.check_positions.log_and_send_error')
+    mock_websocket = mocker.patch('trade.sessions.WebSocket')
+    mock_log_and_send_error = mocker.patch('trade.sessions.log_and_send_error')
     await get_ws_session_privat()
 
     mock_log_and_send_error.assert_not_called()

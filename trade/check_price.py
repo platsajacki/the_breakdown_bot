@@ -6,16 +6,12 @@ from decimal import Decimal
 from functools import partial
 from typing import Any
 
-from pybit.unified_trading import WebSocket
-
 from database.managers import RowManager, TickerManager
 from database.models import SpentLevelsDB, TrendDB, UnsuitableLevelsDB
-from settings.config import CUSTOM_PING_INTERVAL, CUSTOM_PING_TIMEOUT, NOT_TESTNET
 from settings.constants import (
     BUY,
     COEF_LEVEL_LONG,
     COEF_LEVEL_SHORT,
-    LINEAR,
     LONG,
     POWER_RESERVE_USED_UP,
     SELL,
@@ -26,23 +22,13 @@ from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
 from trade.param_position import Long, Short
 from trade.requests import Market
+from trade.sessions import get_ws_session_public
 from trade.utils import handle_message_in_thread
 
 logger = logging.getLogger(__name__)
 
 connected_tickers: set[str] = set()
 """The list of connected tickers."""
-
-
-async def get_ws_session_public() -> WebSocket:
-    """Setup a connection WebSocket."""
-    try:
-        ws_session_public = WebSocket(testnet=NOT_TESTNET, channel_type=LINEAR)
-        ws_session_public.ping_interval = CUSTOM_PING_INTERVAL
-        ws_session_public.ping_timeout = CUSTOM_PING_TIMEOUT
-        return ws_session_public
-    except Exception as error:
-        await log_and_send_error(logger, error, 'WebSocket `session_public`')
 
 
 async def update_median_price_and_time(
