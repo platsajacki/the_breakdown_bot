@@ -13,7 +13,7 @@ BUY = 'Buy'
 SELL = 'Sell'
 
 MEDIAN_DAYS = 10
-POWER_RESERVE_USED_UP = Decimal('0.5142')
+POWER_RESERVE_USED_UP = Decimal('0.333')
 COEF_LEVEL_LONG = Decimal('0.998')
 COEF_LEVEL_SHORT = Decimal('1.002')
 STANDART_STOP = Decimal('2.5')

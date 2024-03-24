@@ -1,6 +1,6 @@
-import pytest
 from decimal import Decimal
 
+import pytest
 from pytest_mock import MockerFixture, MockType
 
 from settings.constants import LONG, SHORT
