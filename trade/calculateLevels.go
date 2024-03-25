@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	count_match = 2
+	count_match = 1
 )
 
 // findLevelMatch looks for matches in prices.
-// If the price level matches more than 2, we consider it a level.
+// If the price level matches more than count_match, we consider it a level.
 func findLevelMatch(prices []string) map[string]int {
 	levels := make(map[string]int)
 	for _, currentPrice := range prices {
