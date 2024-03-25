@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from subprocess import PIPE, Popen
 
 from settings.constants import LINEAR
+from settings.sessions import get_session_http
 from tg_bot.send_message import log_and_send_error
-from trade.sessions import get_session_http
 
 logger = logging.getLogger(__name__)
 

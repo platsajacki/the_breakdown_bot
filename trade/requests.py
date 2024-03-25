@@ -11,9 +11,9 @@ from database.managers import RowManager
 from database.models import OpenedOrderDB, StopVolumeDB
 from settings.config import ACCOUNT_TYPE
 from settings.constants import BUY, LINEAR, MEDIAN_DAYS, USDT
+from settings.sessions import get_session_http
 from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
-from trade.sessions import get_session_http
 
 logger = logging.getLogger(__name__)
 

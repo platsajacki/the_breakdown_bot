@@ -9,11 +9,11 @@ from typing import Any
 from database.managers import RowManager, TickerManager
 from database.models import SpentLevelsDB, TrendDB, UnsuitableLevelsDB
 from settings.constants import BUY, COEF_LEVEL_LONG, COEF_LEVEL_SHORT, LONG, POWER_RESERVE_USED_UP, SELL, SHORT, USDT
+from settings.sessions import get_ws_session_public
 from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
 from trade.param_position import Long, Short
 from trade.requests import Market
-from trade.sessions import get_ws_session_public
 from trade.utils import handle_message_in_thread
 
 logger = logging.getLogger(__name__)

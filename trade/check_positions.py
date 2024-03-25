@@ -8,11 +8,11 @@ from time import time
 from typing import Any
 
 from settings.constants import BUY, LINEAR, MINUTE_IN_MILLISECONDS
+from settings.sessions import get_ws_session_privat
 from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
 from trade.param_position import Long, Short
 from trade.requests import Market
-from trade.sessions import get_ws_session_privat
 from trade.utils import handle_message_in_thread
 
 logger = logging.getLogger(__name__)
