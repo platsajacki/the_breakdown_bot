@@ -25,12 +25,13 @@ from tg_bot.commands.main import (
     check_prices,
     enter_level,
     enter_trend,
-    start_add_level,
+    start_add_levels,
     trade_long,
     trade_short,
 )
 
 __all__ = [
+    'add_one_level',
     'add_level',
     'add_stop_volume',
     'change_stop',
@@ -53,7 +54,8 @@ __all__ = [
     'get_queryset_lvl',
     'get_spend_lvls',
     'get_unsuiteble_lvls',
-    'start_add_level',
+    'start_add_one_level',
+    'start_add_levels',
     'trade_long',
     'trade_short',
 ]

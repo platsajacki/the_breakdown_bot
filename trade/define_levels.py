@@ -8,7 +8,6 @@ from settings.constants import LINEAR
 from tg_bot.send_message import log_and_send_error
 from trade.sessions import get_session_http
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -49,7 +48,7 @@ async def get_all_levels() -> None | dict[str, dict[str, int]]:
     """Retrieves all levels for all symbols."""
     all_klines = await get_all_klines(await get_all_linear_symbols())
     process = Popen(
-        ['./calculateLevels'],
+        ['trade/calculateLevels'],
         stdin=PIPE,
         stdout=PIPE,
         stderr=PIPE,

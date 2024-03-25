@@ -2,8 +2,12 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
 # Keyboard
 check_prices = KeyboardButton(text='/check_prices')
-add_level = KeyboardButton(text='/add_level')
+add_levels = KeyboardButton(text='/add_levels')
 info_database = KeyboardButton(text='/info_database')
+
+# Keyboard levels
+add_one_level = KeyboardButton(text='/add_one_level')
+add_all_levels = KeyboardButton(text='/add_all_levels')
 
 # Keyboard info
 info_market = KeyboardButton(text='/info_market')
@@ -30,7 +34,10 @@ unsuiteble = KeyboardButton(text='/unsuiteble')
 
 # Add buttons
 kb = ReplyKeyboardMarkup(
-    keyboard=[[add_level], [check_prices], [info_market], [info_database]], resize_keyboard=True
+    keyboard=[[add_levels], [check_prices], [info_market], [info_database]], resize_keyboard=True
+)
+kb_levels = ReplyKeyboardMarkup(
+    keyboard=[[add_one_level], [add_all_levels], [back]], resize_keyboard=True
 )
 kb_info = ReplyKeyboardMarkup(
     keyboard=[[balance], [orders], [positions], [back]], resize_keyboard=True

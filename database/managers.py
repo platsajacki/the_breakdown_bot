@@ -25,6 +25,12 @@ class RowManager:
 
     @staticmethod
     @database_transaction
+    def add_all_rows(sess_db: Session, list_rows: list[Any]) -> None:
+        """Create new rows in the table."""
+        sess_db.add_all(list_rows)
+
+    @staticmethod
+    @database_transaction
     def delete_row_by_id(sess_db: Session, table: Any, id: int) -> None:
         """Delete a row in the table by ID."""
         sess_db.delete(sess_db.query(table).filter(table.id == id).one())

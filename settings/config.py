@@ -1,4 +1,5 @@
 import os
+from logging import Filter, LogRecord
 
 from dotenv import load_dotenv
 
@@ -45,11 +46,21 @@ LOGS_DIR = 'logs'
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
 
+
+class ExcludeFilter(Filter):
+    def filter(self, record: LogRecord):
+        """Exclude messages with the text `ping/pong timed out`"""
+        return "ping/pong timed out" not in record.getMessage()
+
+
 LOG_CONFIG = {
     'version': 1,
     'root': {
         'handlers': ['fileHandler'],
         'level': 'WARNING',
+    },
+    'filters': {
+        'ping_pong_filter': {'()': 'settings.config.ExcludeFilter'}
     },
     'handlers': {
         'fileHandler': {
@@ -57,6 +68,7 @@ LOG_CONFIG = {
             'filename': f'/{LOGS_DIR}/logfile.log',
             'level': 'WARNING',
             'formatter': 'fileFormatter',
+            'filters': ['ping_pong_filter'],
         },
     },
     'formatters': {

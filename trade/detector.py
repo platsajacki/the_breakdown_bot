@@ -25,7 +25,11 @@ class LevelDetector:
         are already written to the database for compliance.
         If they do not match, it deletes them.
         """
-        mark_price: Decimal = await Market.get_mark_price(kwargs['ticker'])
+        mark_price: Decimal = (
+            price
+            if (price := kwargs.get('mark_price')) else
+            await Market.get_mark_price(kwargs['ticker'])
+        )
         if (
             kwargs['trend'] == LONG and kwargs['level'] < mark_price
             or kwargs['trend'] == SHORT and kwargs['level'] > mark_price

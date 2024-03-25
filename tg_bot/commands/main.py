@@ -1,10 +1,12 @@
+import asyncio
+from decimal import Decimal
 from typing import Any
 
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from database.managers import ConfigurationManager, RowManager
+from database.managers import ConfigurationManager, RowManager, TickerManager
 from database.models import TickerDB
 from database.temporary_data import DBState
 from settings.config import MYID
@@ -18,17 +20,47 @@ from settings.constants import (
     SYMBOL_OK,
     TRENDS,
 )
-from tg_bot.commands.buttons import kb, kb_check_prices, kb_long_short
+from tg_bot.commands.buttons import kb, kb_check_prices, kb_levels, kb_long_short
 from tg_bot.create_bot import router
 from tg_bot.filters import AdminID
 from tg_bot.utils import check_and_get_value
 from trade.check_price import start_check_tickers
+from trade.define_levels import get_all_levels
 from trade.detector import LevelDetector
 from trade.requests import Market
 
 
-@router.message(Command('add_level'), AdminID(MYID))
-async def start_add_level(message: Message, state: FSMContext) -> None:
+@router.message(Command('add_levels'), AdminID(MYID))
+async def start_add_levels(message: Message) -> None:
+    await message.answer('One or all?', reply_markup=kb_levels)
+
+
+@router.message(Command('add_all_levels'), AdminID(MYID))
+async def add_all_levels(message: Message) -> None:
+    await message.answer('There is a search for levels...')
+    await message.answer(MAN_TECHNOLOGIST)
+    levels = await get_all_levels()
+    if levels:
+        levels_objects = []
+        for symbol, data in levels.items():
+            ticker = symbol[:-4]
+            mark_price = await Market.get_mark_price(ticker)
+            levels_counter = 0
+            for level in data:
+                level = Decimal(level)
+                trend = LONG if level > mark_price else SHORT
+                if level not in TickerManager.get_level_by_trend(ticker, trend):
+                    levels_objects.append(TickerDB(ticker=ticker, level=level, trend=trend))
+                    levels_counter += 1
+            await message.answer(f'{levels_counter} levels have been found for the {ticker}.')
+        RowManager.add_all_rows(levels_objects)
+        await message.answer(f'There are {len(levels_objects)} levels recorded in the database.')
+        return
+    await message.answer('An error occurred during the calculation of the levels.')
+
+
+@router.message(Command('add_one_level'), AdminID(MYID))
+async def start_add_one_level(message: Message, state: FSMContext) -> None:
     """Start adding a new level."""
     await message.answer('Enter the ticker:')
     await state.set_state(DBState.ticker)
@@ -100,8 +132,14 @@ async def start(message) -> None:
         'Analyzing the levels...'
     )
     await message.answer(MAN_TECHNOLOGIST)
+    tasks = []
+    ticker = ''
     for row in RowManager.get_all_rows(TickerDB):
-        await LevelDetector.check_levels(**row)
+        if row['ticker'] != ticker:
+            ticker = row['ticker']
+            mark_price = await Market.get_mark_price(ticker)
+        tasks.append(LevelDetector.check_levels(**row, mark_price=mark_price))
+    await asyncio.gather(*tasks)
     await message.answer(
         f'Done! {CHECK_MARK_BUTTON}'
     )
