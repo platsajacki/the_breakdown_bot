@@ -6,6 +6,10 @@ import (
 	"os"
 )
 
+const (
+	count_match = 2
+)
+
 // findLevelMatch looks for matches in prices.
 // If the price level matches more than 2, we consider it a level.
 func findLevelMatch(prices []string) map[string]int {
@@ -17,7 +21,7 @@ func findLevelMatch(prices []string) map[string]int {
 				count++
 			}
 		}
-		if count > 2 {
+		if count > count_match {
 			levels[currentPrice] = count
 		}
 	}
@@ -47,7 +51,7 @@ func findLevelIntersection(lowPrices []string, highPrices []string, levels map[s
 				count++
 			}
 		}
-		if count > 2 {
+		if count > count_match {
 			value, exists := levels[currentPrice]
 			if exists {
 				levels[currentPrice] = count + value
