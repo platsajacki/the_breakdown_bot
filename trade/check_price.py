@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 connected_tickers: set[str] = set()
 """The list of connected tickers."""
 
+TREND = {'trend': LONG}
+
 
 async def update_median_price_and_time(
     ticker: str, query: dict[str, int | Decimal | datetime], trend: str
@@ -115,7 +117,7 @@ async def handle_message(msg: dict[str, Any], *args: Any, **kwargs: Any) -> None
     mark_price_str: str = msg['data']['markPrice']
     round_price: int = len(mark_price_str.split('.')[1])
     mark_price = Decimal(mark_price_str)
-    if RowManager.get_row_by_id(TrendDB, 1).trend == LONG:
+    if TREND['trend'] == LONG:
         await check_long(ticker, mark_price, round_price, *args, **kwargs)
         return
     await check_short(ticker, mark_price, round_price, *args, **kwargs)
@@ -141,6 +143,7 @@ async def connect_ticker(ticker: str) -> None:
 
 async def start_check_tickers() -> None:
     """Determine the direction of trade. Start the stream."""
-    for ticker in TickerManager.get_tickers_by_trend(RowManager.get_row_by_id(TrendDB, 1).trend):
+    TREND['trend'] = RowManager.get_row_by_id(TrendDB, 1).trend
+    for ticker in TickerManager.get_tickers_by_trend(TREND['trend']):
         if ticker[0] not in connected_tickers:
             await connect_ticker(ticker[0])

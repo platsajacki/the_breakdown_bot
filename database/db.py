@@ -8,8 +8,6 @@ from settings.config import DATABASE, HOST, POSTGRES_LOGIN, POSTGRES_PASSWORD
 # Configure and connect to the database.
 engine: Engine = create_engine(
     f'postgresql+psycopg2://{POSTGRES_LOGIN}:{POSTGRES_PASSWORD}@{HOST}/{DATABASE}',  # noqa: E231
-    pool_size=20,
-    max_overflow=20,
 )
 if not database_exists(engine.url):
     create_database(engine.url)
