@@ -17,7 +17,7 @@ async def get_all_linear_symbols() -> list[str]:
     symbols = []
     for symbol_data in result:
         symbol = symbol_data['symbol']
-        if '1000'not in symbol and '-' not in symbol:
+        if '1000'not in symbol and '-' not in symbol and 'USDC' not in symbol:
             symbols.append(symbol)
     return symbols
 
