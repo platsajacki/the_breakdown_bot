@@ -47,10 +47,10 @@ async def add_all_levels(message: Message) -> None:
             mark_price = await Market.get_mark_price(ticker)
             levels_counter = 0
             for level in data:
-                level = Decimal(level)
-                trend = LONG if level > mark_price else SHORT
-                if level not in TickerManager.get_level_by_trend(ticker, trend):
-                    levels_objects.append(TickerDB(ticker=ticker, level=level, trend=trend))
+                level_decimal = Decimal(level)
+                trend = LONG if level_decimal > mark_price else SHORT
+                if level_decimal not in TickerManager.get_level_by_trend(ticker, trend):
+                    levels_objects.append(TickerDB(ticker=ticker, level=level_decimal, trend=trend))
                     levels_counter += 1
             await message.answer(f'{levels_counter} levels have been found for the {ticker}.')
         RowManager.add_all_rows(levels_objects)
