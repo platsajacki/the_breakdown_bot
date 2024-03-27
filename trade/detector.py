@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import Any
 
 from database.managers import RowManager, TickerManager
-from database.models import UnsuitableLevelsDB
+from database.models import UnsuitableLevels
 from settings.constants import LONG, SHORT
 from trade.requests import Market
 
@@ -15,7 +15,7 @@ class LevelDetector:
         mark_price: Decimal = await Market.get_mark_price(ticker)
         return (
             (level > mark_price if trend == LONG else level < mark_price)
-            and level not in TickerManager.get_level_by_trend(ticker, trend)
+            and level not in await TickerManager.get_level_by_trend(ticker, trend)
         )
 
     @staticmethod
@@ -34,8 +34,8 @@ class LevelDetector:
             kwargs['trend'] == LONG and kwargs['level'] < mark_price
             or kwargs['trend'] == SHORT and kwargs['level'] > mark_price
         ):
-            RowManager.transferring_row(
-                UnsuitableLevelsDB,
+            await RowManager.transferring_row(
+                UnsuitableLevels,
                 kwargs['id'],
                 kwargs['ticker'],
                 kwargs['level'],

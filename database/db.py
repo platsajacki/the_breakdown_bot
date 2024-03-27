@@ -1,22 +1,18 @@
-from sqlalchemy import MetaData, create_engine
-from sqlalchemy.engine.base import Engine
-from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
-from sqlalchemy_utils import create_database, database_exists
-
-from settings.config import DATABASE, HOST, POSTGRES_LOGIN, POSTGRES_PASSWORD
+from sqlalchemy import MetaData
+from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase
+from settings.config import ASYNC_DB_URL
 
 # Configure and connect to the database.
-engine: Engine = create_engine(
-    f'postgresql+psycopg2://{POSTGRES_LOGIN}:{POSTGRES_PASSWORD}@{HOST}/{DATABASE}',  # noqa: E231
-    pool_size=25, max_overflow=50, pool_timeout=60,
-)
-if not database_exists(engine.url):
-    create_database(engine.url)
+engine: AsyncEngine = create_async_engine(ASYNC_DB_URL)
 
-meta = MetaData(schema='public')
-
-SQLSession: sessionmaker[Session] = sessionmaker(engine, expire_on_commit=False)
+SQLSession: async_sessionmaker[AsyncSession] = async_sessionmaker(engine, expire_on_commit=False)
 
 
-class Base(DeclarativeBase):
-    metadata = meta
+class Base(AsyncAttrs, DeclarativeBase):
+    metadata = MetaData(schema='public')
+
+
+async def create_db() -> None:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)

@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from database.managers import ConfigurationManager, RowManager
-from database.models import SpentLevelsDB, TickerDB, UnsuitableLevelsDB
+from database.models import SpentLevels, Ticker, UnsuitableLevels
 from database.temporary_data import DBQuery, DBState
 from settings.config import MYID
 from settings.constants import CHECK_MARK_BUTTON, SYMBOL_OK, TRENDS
@@ -37,7 +37,7 @@ async def add_stop_volume(message: Message, state: FSMContext) -> None:
     """Record of the updated stop."""
     try:
         volume: Decimal = check_and_get_value(message)
-        ConfigurationManager.change_stop(volume)
+        await ConfigurationManager.change_stop(volume)
         await message.answer(f'The stop volume has been changed! {CHECK_MARK_BUTTON}', reply_markup=kb)
     except ValueError:
         await message.answer('The value entered is incorrect! Try again:')
@@ -65,7 +65,7 @@ async def get_query(message: Message) -> None:
 async def get_active_lvls(message: Message, state: FSMContext) -> None:
     """Request for active levels."""
     await message.answer('Enter the ticker:')
-    await state.update_data(table=TickerDB)
+    await state.update_data(table=Ticker)
     await state.set_state(DBQuery.ticker)
 
 
@@ -73,7 +73,7 @@ async def get_active_lvls(message: Message, state: FSMContext) -> None:
 async def get_spend_lvls(message: Message, state: FSMContext) -> None:
     """Request for used levels."""
     await message.answer('Enter the ticker:')
-    await state.update_data(table=SpentLevelsDB)
+    await state.update_data(table=SpentLevels)
     await state.set_state(DBQuery.ticker)
 
 
@@ -81,7 +81,7 @@ async def get_spend_lvls(message: Message, state: FSMContext) -> None:
 async def get_unsuiteble_lvls(message: Message, state: FSMContext) -> None:
     """Request for unsuitable levels."""
     await message.answer('Enter the ticker:')
-    await state.update_data(table=UnsuitableLevelsDB)
+    await state.update_data(table=UnsuitableLevels)
     await state.set_state(DBQuery.ticker)
 
 
@@ -115,10 +115,11 @@ async def get_queryset_lvl(message: Message, state: FSMContext) -> None:
     if message.text and (trend := message.text.lower()) in TRENDS:
         await state.update_data(trend=trend)
         data: dict[str, Any] = await state.get_data()
-        for query in RowManager.get_limit_row(**data):
-            query['create'] = query['create'].strftime('%H:%M %d.%m.%Y')
+        for row in await RowManager.get_limit_row(**data):
+            row = row.__dict__
+            row['create'] = row['create'].strftime('%H:%M %d.%m.%Y')
             await message.answer(
-                InfoMessage.QUERY_LIMIT.format(**query)
+                InfoMessage.QUERY_LIMIT.format(**row)
             )
         await message.answer(f'Done!{CHECK_MARK_BUTTON}', reply_markup=kb)
     else:

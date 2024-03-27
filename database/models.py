@@ -22,31 +22,31 @@ class TickerColumn:
     update_median_price = Column(DateTime, nullable=True)
 
 
-class TickerDB(Base, BaseColumn, TickerColumn):
+class Ticker(Base, BaseColumn, TickerColumn):
     __tablename__ = 'tickers'
 
 
-class TrendDB(Base, BaseColumn):
+class Trend(Base, BaseColumn):
     __tablename__ = 'trend'
 
     trend = Column(String(5))
 
 
-class StopVolumeDB(Base, BaseColumn):
+class StopVolume(Base, BaseColumn):
     __tablename__ = 'stop_volume'
 
     usdt_volume = Column(numeric_currency)
 
 
-class UnsuitableLevelsDB(Base, BaseColumn, TickerColumn):
+class UnsuitableLevels(Base, BaseColumn, TickerColumn):
     __tablename__ = 'unsuitable_levels'
 
 
-class SpentLevelsDB(Base, BaseColumn, TickerColumn):
+class SpentLevels(Base, BaseColumn, TickerColumn):
     __tablename__ = 'spent_levels'
 
 
-class OpenedOrderDB(Base, BaseColumn):
+class OpenedOrder(Base, BaseColumn):
     __tablename__ = 'opened_orders'
 
     symbol = Column(String(14))

@@ -8,7 +8,7 @@ from aiohttp import ClientSession
 from pybit.unified_trading import HTTP
 
 from database.managers import RowManager
-from database.models import OpenedOrderDB, StopVolumeDB
+from database.models import OpenedOrder, StopVolume
 from settings.config import ACCOUNT_TYPE
 from settings.constants import BUY, LINEAR, MEDIAN_DAYS, USDT
 from settings.sessions import get_session_http
@@ -52,7 +52,7 @@ class Market:
         round_volume: int = len(min_order_qty.split('.')[1]) if '.' in min_order_qty else 0
         # Calculation of rounding.
         asset_volume = str(
-            round((RowManager.get_row_by_id(StopVolumeDB, 1).usdt_volume / abs(entry_point - stop)), round_volume)
+            round((await RowManager.get_row_by_id(StopVolume, 1).usdt_volume / abs(entry_point - stop)), round_volume)
         )
         triggerDirection = 1 if side == BUY else 2
         # Open an order.
@@ -82,7 +82,7 @@ class Market:
             'take_profit': take_profit
         }
         # Write the opened order to the table and send a message about opening a position.
-        RowManager.add_row(OpenedOrderDB, open_order_params)
+        await RowManager.add_row(OpenedOrder, open_order_params)
         await send_message(InfoMessage.OPEN_ORDER_MESSAGE.format(**open_order_params), kwargs.get('main_loop'))
 
     @staticmethod

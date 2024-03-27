@@ -6,6 +6,7 @@ from aiogram.types import Message
 
 import settings._logging_setup  # noqa: F401
 import tg_bot.commands  # noqa: F401
+from database.db import create_db
 from database.managers import set_standart_stop
 from settings.config import MYID
 from settings.constants import FIRE, NO_ENTRY
@@ -32,6 +33,7 @@ async def start(message: Message):
 async def main():
     """Start trading-bot."""
     try:
+        await create_db()
         await set_standart_stop()
         await asyncio.gather(dp.start_polling(bot), start_execution_stream())
     except Exception as error:

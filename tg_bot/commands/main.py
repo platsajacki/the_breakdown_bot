@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from database.managers import ConfigurationManager, RowManager, TickerManager
-from database.models import TickerDB
+from database.models import Ticker
 from database.temporary_data import DBState
 from settings.config import MYID
 from settings.constants import (
@@ -49,11 +49,11 @@ async def add_all_levels(message: Message) -> None:
             for level in data:
                 level_decimal = Decimal(level)
                 trend = LONG if level_decimal > mark_price else SHORT
-                if level_decimal not in TickerManager.get_level_by_trend(ticker, trend):
-                    levels_objects.append(TickerDB(ticker=ticker, level=level_decimal, trend=trend))
+                if level_decimal not in await TickerManager.get_level_by_trend(ticker, trend):
+                    levels_objects.append(Ticker(ticker=ticker, level=level_decimal, trend=trend))
                     levels_counter += 1
             await message.answer(f'{levels_counter} levels have been found for the {ticker}.')
-        RowManager.add_all_rows(levels_objects)
+        await RowManager.add_all_rows(levels_objects)
         await message.answer(f'There are {len(levels_objects)} levels recorded in the database.')
         return
     await message.answer('An error occurred during the calculation of the levels.')
@@ -107,7 +107,7 @@ async def add_level(message: Message, state: FSMContext) -> None:
         )
         await state.set_state(DBState.trend)
     if await LevelDetector.check_level(**data):
-        RowManager.add_row(TickerDB, data)
+        await RowManager.add_row(Ticker, data)
         await message.answer(
             f'Level is added! {CHECK_MARK_BUTTON}',
             reply_markup=kb
@@ -134,7 +134,7 @@ async def start(message) -> None:
     await message.answer(MAN_TECHNOLOGIST)
     tasks = []
     ticker = ''
-    for row in RowManager.get_all_rows(TickerDB):
+    for row in await RowManager.get_all_rows(Ticker):
         if row['ticker'] != ticker:
             ticker = row['ticker']
             mark_price = await Market.get_mark_price(ticker)
@@ -152,7 +152,7 @@ async def start(message) -> None:
 @router.message(Command('trade_long'), AdminID(MYID))
 async def trade_long(message: Message) -> None:
     """Change the trend to a long one."""
-    ConfigurationManager.change_trend(LONG)
+    await ConfigurationManager.change_trend(LONG)
     await message.answer(
         f'Long trading activated! {CHECK_MARK_BUTTON}'
     )
@@ -163,7 +163,7 @@ async def trade_long(message: Message) -> None:
 @router.message(Command('trade_short'), AdminID(MYID))
 async def trade_short(message: Message) -> None:
     """Change the trend to a short one."""
-    ConfigurationManager.change_trend(SHORT)
+    await ConfigurationManager.change_trend(SHORT)
     await message.answer(
         f'Short trading activated! {CHECK_MARK_BUTTON}'
     )

@@ -11,16 +11,16 @@ logger = logging.getLogger(__name__)
 def database_transaction(func):
     """The decorator for wrap a function into a database transaction."""
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs):
         sess_db = SQLSession()
         try:
-            sess_db.begin()
-            result = func(sess_db, *args, **kwargs)
-            sess_db.commit()
+            await sess_db.begin()
+            result = await func(sess_db, *args, **kwargs)
+            await sess_db.commit()
             return result
         except Exception as error:
-            sess_db.rollback()
+            await sess_db.rollback()
             asyncio.create_task(log_and_send_error(logger, error))
         finally:
-            sess_db.close()
+            await sess_db.close()
     return wrapper
