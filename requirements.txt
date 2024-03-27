@@ -41,6 +41,7 @@ pytest==8.1.1
 pytest-asyncio==0.23.6
 pytest-cov==4.1.0
 pytest-mock==3.14.0
+python-dateutil==2.9.0.post0
 python-dotenv==1.0.0
 pytz==2023.3
 pytz-deprecation-shim==0.1.0.post0

@@ -34,12 +34,11 @@ MYID = int(get_required_env_var('MYID'))
 
 
 # Access to the database.
-DATABASE: str = get_required_env_var('DATABASE')
+POSTGRES_DB: str = get_required_env_var('POSTGRES_DB')
 POSTGRES_LOGIN: str = get_required_env_var('POSTGRES_LOGIN')
 POSTGRES_PASSWORD: str = get_required_env_var('POSTGRES_PASSWORD')
 HOST: str = get_required_env_var('HOST')
-ASYNC_DB_URL = f'postgresql+asyncpg://{POSTGRES_LOGIN}:{POSTGRES_PASSWORD}@{HOST}/{DATABASE}'  # noqa: E231
-SYNC_DB_URL = f'postgresql+psycopg2://{POSTGRES_LOGIN}:{POSTGRES_PASSWORD}@{HOST}/{DATABASE}'  # noqa: E231
+ASYNC_DB_URL = f'postgresql+asyncpg://{POSTGRES_LOGIN}:{POSTGRES_PASSWORD}@{HOST}/{POSTGRES_DB}'  # noqa: E231
 
 # Logging_config.
 LOGS_DIR = 'logs'
