@@ -143,8 +143,8 @@ class TickerManager:
 
     @staticmethod
     @database_transaction
-    async def get_level_by_trend(sess_db: AsyncSession, ticker: str, trend: str) -> set[Decimal]:
-        """Request ticker levels for the selected trend."""
+    async def get_levels_by_ticker_and_trend(sess_db: AsyncSession, ticker: str, trend: str) -> set[Decimal]:
+        """Request ticker levels for the selected ticker and trend."""
         return set(
             (
                 await sess_db.execute(
@@ -152,6 +152,20 @@ class TickerManager:
                     .where(
                         Ticker.ticker == ticker, Ticker.trend == trend
                     )
+                )
+            )
+            .scalars().all()
+        )
+
+    @staticmethod
+    @database_transaction
+    async def get_levels_by_ticker(sess_db: AsyncSession, ticker: str) -> set[Decimal]:
+        """Request ticker levels for the selected ticker."""
+        return set(
+            (
+                await sess_db.execute(
+                    select(Ticker.level)
+                    .where(Ticker.ticker == ticker)
                 )
             )
             .scalars().all()

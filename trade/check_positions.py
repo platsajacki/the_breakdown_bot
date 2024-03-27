@@ -1,7 +1,5 @@
 import asyncio
 import logging
-from asyncio import AbstractEventLoop
-from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from functools import partial
 from time import time
@@ -13,12 +11,12 @@ from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
 from trade.param_position import Long, Short
 from trade.requests import Market
-from trade.utils import handle_message_in_thread
+from trade.utils import handle_message_coro
 
 logger = logging.getLogger(__name__)
 
 
-async def handle_message(msg: dict[str, Any], *args: Any, **kwargs: AbstractEventLoop | Any) -> None:
+async def handle_message(msg: dict[str, Any]) -> None:
     """The handler of messages about completed transactions. Check the trailing stop, if there is none, set."""
     for trade in msg['data']:
         exec_time = int(trade['execTime'])
@@ -27,7 +25,7 @@ async def handle_message(msg: dict[str, Any], *args: Any, **kwargs: AbstractEven
             now_in_milliseconds - exec_time < MINUTE_IN_MILLISECONDS
             and trade['category'] == LINEAR
         ):
-            await send_message(f'Conducted trade {InfoMessage.TRADE_MESSAGE.format(**trade)}', kwargs.get('main_loop'))
+            await send_message(f'Conducted trade {InfoMessage.TRADE_MESSAGE.format(**trade)}')
             symbol: str = trade['symbol']
             position_list: list[dict[str, Any]] | None = await Market.get_open_positions(ticker=symbol[:-4])
             if position_list is None:
@@ -57,19 +55,14 @@ async def handle_message(msg: dict[str, Any], *args: Any, **kwargs: AbstractEven
                 if Decimal(position['size']) == 0 else
                 f'Total position {InfoMessage.POSITION_MESSAGE.format(**position)}'
             )
-            await send_message(txt, kwargs.get('main_loop'))
+            await send_message(txt)
 
 
 async def start_execution_stream() -> None:
     """Start ws_session_privat.execution_stream."""
-    ws_session_privat = await get_ws_session_privat()
-    with ThreadPoolExecutor() as executor:
-        try:
-            loop = asyncio.get_event_loop()
-            await loop.run_in_executor(
-                executor,
-                ws_session_privat.execution_stream,
-                partial(handle_message_in_thread, coro=handle_message, main_loop=loop),
-            )
-        except Exception as error:
-            await log_and_send_error(logger, error, '`execution_stream`')
+    try:
+        (await get_ws_session_privat()).execution_stream(
+            partial(handle_message_coro, coro=handle_message, running_loop=asyncio.get_running_loop())
+        )
+    except Exception as error:
+        await log_and_send_error(logger, error, '`execution_stream`')

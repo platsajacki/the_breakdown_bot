@@ -35,7 +35,7 @@ async def main():
     try:
         await create_db()
         await set_standart_stop()
-        await asyncio.gather(dp.start_polling(bot), start_execution_stream())
+        await asyncio.gather(dp.start_polling(bot), start_execution_stream(), return_exceptions=True)
     except Exception as error:
         await log_and_send_error(logger, error)
 

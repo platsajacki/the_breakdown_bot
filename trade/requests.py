@@ -36,8 +36,7 @@ class Market:
 
     @staticmethod
     async def open_pos(
-        ticker: str, entry_point: Decimal, stop: Decimal, take_profit: Decimal,
-        trigger: Decimal, side: str, *args: Any, **kwargs: Any,
+        ticker: str, entry_point: Decimal, stop: Decimal, take_profit: Decimal, trigger: Decimal, side: str
     ) -> None:
         """Round the position parameters and open it."""
         # Calculation of transaction volume
@@ -72,7 +71,7 @@ class Market:
                 orderFilter='Order'
             )
         except Exception as error:
-            await log_and_send_error(logger, error, f'`place_order` {symbol} - {entry_point}', kwargs.get('main_loop'))
+            await log_and_send_error(logger, error, f'`place_order` {symbol} - {entry_point}')
         open_order_params: dict[str, str | Decimal] = {
             'symbol': symbol,
             'asset_volume': asset_volume,
@@ -83,7 +82,7 @@ class Market:
         }
         # Write the opened order to the table and send a message about opening a position.
         await RowManager.add_row(OpenedOrder, open_order_params)
-        await send_message(InfoMessage.OPEN_ORDER_MESSAGE.format(**open_order_params), kwargs.get('main_loop'))
+        await send_message(InfoMessage.OPEN_ORDER_MESSAGE.format(**open_order_params))
 
     @staticmethod
     async def get_wallet_balance() -> dict[str, Decimal]:
@@ -120,7 +119,7 @@ class Market:
         return None if positions[0]['side'] == 'None' else positions
 
     @staticmethod
-    async def set_trailing_stop(symbol: str, trailing_stop: str, active_price: str, *args: Any, **kwargs: Any) -> None:
+    async def set_trailing_stop(symbol: str, trailing_stop: str, active_price: str) -> None:
         """
         A trailing stop is an order that follows the market price, designed to protect gains by closing a trade
         if the price moves against the trader by a specified amount.
@@ -134,9 +133,7 @@ class Market:
                 positionIdx=0,
             )
         except Exception as error:
-            await log_and_send_error(
-                logger, error, f'`set_trading_stop` {symbol} - {active_price}', kwargs.get('main_loop')
-            )
+            await log_and_send_error(logger, error, f'`set_trading_stop` {symbol} - {active_price}')
 
     @staticmethod
     async def get_median_price(ticker: str, **kwargs: Any) -> Decimal:

@@ -44,12 +44,13 @@ async def add_all_levels(message: Message) -> None:
         levels_objects = []
         for symbol, data in levels.items():
             ticker = symbol[:-4]
+            db_levels = await TickerManager.get_levels_by_ticker(ticker)
             mark_price = await Market.get_mark_price(ticker)
             levels_counter = 0
             for level in data:
                 level_decimal = Decimal(level)
                 trend = LONG if level_decimal > mark_price else SHORT
-                if level_decimal not in await TickerManager.get_level_by_trend(ticker, trend):
+                if level_decimal not in db_levels:
                     levels_objects.append(Ticker(ticker=ticker, level=level_decimal, trend=trend))
                     levels_counter += 1
             await message.answer(f'{levels_counter} levels have been found for the {ticker}.')

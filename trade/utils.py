@@ -1,11 +1,6 @@
-import asyncio
-from typing import Any, Coroutine
+from asyncio import AbstractEventLoop
+from typing import Any, Callable
 
 
-def handle_message_in_thread(msg: dict[str, Any], coro: Coroutine, main_loop: asyncio.AbstractEventLoop) -> None:
-    """A message handler in a separate thread."""
-    asyncio.set_event_loop(loop := asyncio.new_event_loop())
-    try:
-        loop.run_until_complete(coro(msg, main_loop=main_loop))  # type: ignore[operator]
-    finally:
-        loop.close()
+def handle_message_coro(msg: dict[str, Any], coro: Callable, running_loop: AbstractEventLoop) -> None:
+    running_loop.create_task(coro(msg))

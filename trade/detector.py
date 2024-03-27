@@ -15,7 +15,7 @@ class LevelDetector:
         mark_price: Decimal = await Market.get_mark_price(ticker)
         return (
             (level > mark_price if trend == LONG else level < mark_price)
-            and level not in await TickerManager.get_level_by_trend(ticker, trend)
+            and level not in await TickerManager.get_levels_by_ticker_and_trend(ticker, trend)
         )
 
     @staticmethod
