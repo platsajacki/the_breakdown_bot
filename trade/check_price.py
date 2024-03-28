@@ -176,6 +176,6 @@ async def start_check_tickers() -> None:
     TREND['trend'] = (await RowManager.get_row_by_id(Trend, 1)).trend
     for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
         if ticker not in CONNECTED_TICKERS:
-            CONNECTED_TICKERS[ticker] = {'lock': None, 'row': None, 'price_movement': {}}
+            CONNECTED_TICKERS[ticker] = {'price_movement': {}}
             CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
             await connect_ticker(ticker)

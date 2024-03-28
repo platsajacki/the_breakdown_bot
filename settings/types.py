@@ -10,7 +10,7 @@ class PriceMovementTicker(TypedDict):
     time: int | None
 
 
-class ConnectedTicker(TypedDict):
+class ConnectedTicker(TypedDict, total=False):
     lock: Lock | None
     row: Row | None
     price_movement: PriceMovementTicker | dict

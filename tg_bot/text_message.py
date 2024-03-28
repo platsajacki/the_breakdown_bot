@@ -62,6 +62,6 @@ Create - <b>{create}</b>'''
         avg_info = (
             f'\n<b>{median_price * POWER_RESERVE_USED_UP} &lt {current_price_movement}</b>'
             if median_price and current_price_movement else
-            'The price crossed the level earlier.'
+            '\nThe price crossed the level earlier.'
         )
         return f'The <b>`{ticker} - {level}`</b> level has not worked out.{avg_info}'
