@@ -173,8 +173,7 @@ async def connect_ticker(ticker: str) -> None:
 async def start_check_tickers() -> None:
     """Determine the direction of trade. Start the stream."""
     TREND['trend'] = (await RowManager.get_row_by_id(Trend, 1)).trend
-    # for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
-    for ticker in ['BTC']:
+    for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
         if ticker not in CONNECTED_TICKERS:
             CONNECTED_TICKERS[ticker] = {
                 'price_movement': {'price': await Market.get_current_price_movement(ticker), 'time': int(time() * 1000)}
