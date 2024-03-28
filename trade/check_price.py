@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 async def update_median_price_and_time(
     ticker: str, id: int, trend: str
 ) -> Row[tuple[int, Decimal, Decimal, datetime]] | None:
+    """Update the median price and time for a given ticker and trend."""
     await TickerManager.set_median_price(id=id, median_price=(await Market.get_median_price(ticker)))
     return await TickerManager.get_current_level(ticker, trend)
 

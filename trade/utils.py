@@ -1,4 +1,4 @@
-from asyncio import AbstractEventLoop, Lock
+from asyncio import AbstractEventLoop, Lock, sleep
 from typing import Any, Callable
 
 from database.temporary_data import CONNECTED_TICKERS
@@ -12,6 +12,7 @@ def handle_message_coro(
             await coro(msg)
             return
         async with CONNECTED_TICKERS[ticker].setdefault('lock', Lock()):
+            await sleep(0.333)
             await coro(msg)
 
     running_loop.create_task(lock_coro())
