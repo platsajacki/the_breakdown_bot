@@ -57,13 +57,11 @@ Create - <b>{create}</b>'''
 
     @staticmethod
     def get_text_not_worked_out_level(
-        ticker: str, level: Decimal, median_price: Decimal, current_price_movement: Decimal
+        ticker: str, level: Decimal, current_price_movement: Decimal | None, median_price: Decimal | None
     ) -> str:
         avg_info = (
-            f'\nThe current price movement ({current_price_movement}) exceeded the average price movement '
-            f'({median_price}) multiplied by the power reserve coefficient ({POWER_RESERVE_USED_UP}).'
-            f'\n<b>{median_price} * {POWER_RESERVE_USED_UP} '
-            f'= {(coef_price_movement := median_price * POWER_RESERVE_USED_UP)}'
-            f'\n{coef_price_movement} &lt {current_price_movement}</b>'
-        ) if median_price else ''
+            f'\n<b>{median_price * POWER_RESERVE_USED_UP} &lt {current_price_movement}</b>'
+            if median_price and current_price_movement else
+            'The price crossed the level earlier.'
+        )
         return f'The <b>`{ticker} - {level}`</b> level has not worked out.{avg_info}'

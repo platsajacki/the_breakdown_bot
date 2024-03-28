@@ -1,13 +1,11 @@
-from asyncio import Lock
-
 from aiogram.filters.state import State, StatesGroup
-from sqlalchemy import Row
 
 from settings.constants import LONG
+from settings.types import ConnectedTicker
 
 TREND: dict[str, str] = {'trend': LONG}
 
-CONNECTED_TICKERS: dict[str, dict[str, Lock | Row | None]] = {}
+CONNECTED_TICKERS: dict[str, ConnectedTicker] = {}
 
 
 class TickerState(StatesGroup):
