@@ -7,7 +7,7 @@ from aiogram.types import Message
 
 from database.managers import ConfigurationManager, RowManager, TickerManager
 from database.models import Ticker
-from database.temporary_data import CONNECTED_TICKERS, DBState
+from database.temporary_data import DBState
 from settings.config import MYID
 from settings.constants import (
     CHART_DECREASING,
@@ -108,7 +108,6 @@ async def add_level(message: Message, state: FSMContext) -> None:
         await state.set_state(DBState.trend)
     if await LevelDetector.check_level(**data):
         await RowManager.add_row(Ticker, data)
-        CONNECTED_TICKERS[data['ticker']]['row'] = await TickerManager.get_current_level(data['ticker'], data['trend'])
         await message.answer(
             f'Level is added! {CHECK_MARK_BUTTON}',
             reply_markup=kb

@@ -36,4 +36,4 @@ COIN: str = emojize(':coin:')
 
 
 # Time
-MINUTE_IN_MILLISECONDS = 6000
+MINUTE_IN_MILLISECONDS = 60000

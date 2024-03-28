@@ -42,12 +42,11 @@ async def update_median_price_and_time(
 
 async def update_current_price_movement(ticker: str) -> None:
     """Updates the data for the current price movement of the specified ticker."""
-    price_movement_data = CONNECTED_TICKERS[ticker]['price_movement']
-    price_movement_time = price_movement_data.get('time')
+    price_movement_time = CONNECTED_TICKERS[ticker]['price_movement'].get('time')
     now_in_milliseconds = int(time() * 1000)
     if isinstance(price_movement_time, int) and now_in_milliseconds - price_movement_time > MINUTE_IN_MILLISECONDS:
-        price_movement_data['time'] = now_in_milliseconds
-        price_movement_data['price'] = await Market.get_current_price_movement(ticker)
+        CONNECTED_TICKERS[ticker]['price_movement']['time'] = now_in_milliseconds
+        CONNECTED_TICKERS[ticker]['price_movement']['price'] = await Market.get_current_price_movement(ticker)
 
 
 async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None:
@@ -174,8 +173,11 @@ async def connect_ticker(ticker: str) -> None:
 async def start_check_tickers() -> None:
     """Determine the direction of trade. Start the stream."""
     TREND['trend'] = (await RowManager.get_row_by_id(Trend, 1)).trend
-    for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
+    # for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
+    for ticker in ['BTC']:
         if ticker not in CONNECTED_TICKERS:
-            CONNECTED_TICKERS[ticker] = {'price_movement': {}}
+            CONNECTED_TICKERS[ticker] = {
+                'price_movement': {'price': await Market.get_current_price_movement(ticker), 'time': int(time() * 1000)}
+            }
             CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
             await connect_ticker(ticker)
