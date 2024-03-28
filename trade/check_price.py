@@ -69,7 +69,7 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None
         CONNECTED_TICKERS[ticker]['row'] = None
         await send_message(
             InfoMessage.get_text_not_worked_out_level(
-                ticker, row.level, CONNECTED_TICKERS[ticker]['price_movement']['price'], row.median_price
+                ticker, row.level, CONNECTED_TICKERS[ticker]['price_movement'].get('price'), row.median_price
             )
         )
         return
@@ -115,7 +115,7 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int) -> Non
         )
         await send_message(
             InfoMessage.get_text_not_worked_out_level(
-                ticker, row.level, CONNECTED_TICKERS[ticker]['price_movement']['price'], row.median_price
+                ticker, row.level, CONNECTED_TICKERS[ticker]['price_movement'].get('price'), row.median_price
             )
         )
         return
