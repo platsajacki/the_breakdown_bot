@@ -12,15 +12,12 @@ def database_transaction(func):
     """The decorator for wrap a function into a database transaction."""
     @wraps(func)
     async def wrapper(*args, **kwargs):
-        sess_db = SQLSession()
         try:
-            await sess_db.begin()
-            result = await func(sess_db, *args, **kwargs)
-            await sess_db.commit()
-            return result
+            async with SQLSession() as sess_db:
+                result = await func(sess_db, *args, **kwargs)
+                await sess_db.commit()
+                return result
         except Exception as error:
             await sess_db.rollback()
             asyncio.create_task(log_and_send_error(logger, error))
-        finally:
-            await sess_db.close()
     return wrapper

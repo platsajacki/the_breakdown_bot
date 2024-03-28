@@ -7,7 +7,7 @@ from aiogram.types import Message
 
 from database.managers import ConfigurationManager, RowManager
 from database.models import SpentLevels, Ticker, UnsuitableLevels
-from database.temporary_data import DBQuery, DBState
+from database.temporary_data import CONNECTED_TICKERS, DBQuery, DBState
 from settings.config import MYID
 from settings.constants import CHECK_MARK_BUTTON, SYMBOL_OK, TRENDS
 from tg_bot.commands.buttons import kb, kb_database, kb_long_short, kb_query
@@ -15,7 +15,6 @@ from tg_bot.create_bot import router
 from tg_bot.filters import AdminID
 from tg_bot.text_message import InfoMessage
 from tg_bot.utils import check_and_get_value
-from trade.check_price import connected_tickers
 from trade.requests import Market
 
 
@@ -49,9 +48,9 @@ async def add_stop_volume(message: Message, state: FSMContext) -> None:
 async def get_connected_tickers(message: Message) -> None:
     """Request for connected tickers."""
     await message.answer(
+        f'Connected tickers: \n<i>{'\n'.join(sorted(CONNECTED_TICKERS.keys()))}</i>\nTotal: {len(CONNECTED_TICKERS)}.'
+        if CONNECTED_TICKERS else
         'There are no tickers connected.'
-        if connected_tickers == set() else
-        f'Connected tickers: \n<i>{'\n'.join(sorted(list(connected_tickers)))}</i>\nTotal: {len(connected_tickers)}.'
     )
 
 

@@ -51,7 +51,10 @@ class Market:
         round_volume: int = len(min_order_qty.split('.')[1]) if '.' in min_order_qty else 0
         # Calculation of rounding.
         asset_volume = str(
-            round((await RowManager.get_row_by_id(StopVolume, 1).usdt_volume / abs(entry_point - stop)), round_volume)
+            round(
+                ((await RowManager.get_row_by_id(StopVolume, 1)).usdt_volume / abs(entry_point - stop)),
+                round_volume,
+            )
         )
         triggerDirection = 1 if side == BUY else 2
         # Open an order.

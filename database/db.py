@@ -1,6 +1,7 @@
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
+
 from settings.config import ASYNC_DB_URL
 
 # Configure and connect to the database.

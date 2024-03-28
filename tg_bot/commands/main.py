@@ -1,4 +1,3 @@
-import asyncio
 from decimal import Decimal
 from typing import Any
 
@@ -57,7 +56,7 @@ async def add_all_levels(message: Message) -> None:
         await RowManager.add_all_rows(levels_objects)
         await message.answer(f'There are {len(levels_objects)} levels recorded in the database.')
         return
-    await message.answer('An error occurred during the calculation of the levels.')
+    await message.answer('An error occurred during the calculation of the levels.', reply_markup=kb)
 
 
 @router.message(Command('add_one_level'), AdminID(MYID))
@@ -129,24 +128,8 @@ async def check_prices(message: Message) -> None:
 
 async def start(message) -> None:
     """Start the selection of checking levels by trend."""
-    await message.answer(
-        'Analyzing the levels...'
-    )
-    await message.answer(MAN_TECHNOLOGIST)
-    tasks = []
-    ticker = ''
-    for row in await RowManager.get_all_rows(Ticker):
-        if row['ticker'] != ticker:
-            ticker = row['ticker']
-            mark_price = await Market.get_mark_price(ticker)
-        tasks.append(LevelDetector.check_levels(**row, mark_price=mark_price))
-    await asyncio.gather(*tasks)
-    await message.answer(
-        f'Done! {CHECK_MARK_BUTTON}'
-    )
-    await message.answer(
-        f'Price check started! {CHECK_MARK_BUTTON}'
-    )
+    await message.answer(f'{MAN_TECHNOLOGIST}')
+    await message.answer(f'Price check started! {CHECK_MARK_BUTTON}')
     await start_check_tickers()
 
 
