@@ -31,87 +31,91 @@ async def update_median_price_and_time(
 
 async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None:
     """Check for compliance with long positions. If the position fits the parameters, it opens an order."""
-    query = CONNECTED_TICKERS[ticker].get('row')
-    if query is not None:
-        if query.level < mark_price:
+    row = CONNECTED_TICKERS[ticker].get('row')
+    if isinstance(row, Row):
+        if row.level < mark_price:
             await RowManager.transferring_row(
                 table=UnsuitableLevels,
-                id=query.id,
+                id=row.id,
                 ticker=ticker,
-                level=query.level,
+                level=row.level,
                 trend=LONG,
-                median_price=query.median_price,
-                update_median_price=query.update_median_price,
+                median_price=row.median_price,
+                update_median_price=row.update_median_price,
             )
             CONNECTED_TICKERS[ticker]['row'] = None
             current_price_movement = await Market.get_current_price_movement(ticker)
             await send_message(
                 InfoMessage.get_text_not_worked_out_level(
-                    ticker, query.level, query.median_price, current_price_movement
+                    ticker, row.level, row.median_price, current_price_movement
                 )
             )
             return
-        if query.median_price is None or datetime.now() - query.update_median_price > timedelta(days=1):
-            query = await update_median_price_and_time(ticker, query.id, LONG)
-            CONNECTED_TICKERS[ticker]['row'] = query
-        calc_level: Decimal = query.level * COEF_LEVEL_LONG
+        if row.median_price is None or datetime.now() - row.update_median_price > timedelta(days=1):
+            row = await update_median_price_and_time(ticker, row.id, LONG)
+            CONNECTED_TICKERS[ticker]['row'] = row
+            if row is None:
+                return
+        calc_level: Decimal = row.level * COEF_LEVEL_LONG
         if (
-            calc_level < mark_price < query.level
-            and (await Market.get_current_price_movement(ticker)) < query.median_price * POWER_RESERVE_USED_UP
+            calc_level < mark_price < row.level
+            and (await Market.get_current_price_movement(ticker)) < row.median_price * POWER_RESERVE_USED_UP
         ):
-            long_calc = Long(ticker, query.level, round_price)
+            long_calc = Long(ticker, row.level, round_price)
             await Market.open_pos(*long_calc.get_param_position(), BUY)
             await RowManager.transferring_row(
                 table=SpentLevels,
-                id=query.id,
+                id=row.id,
                 ticker=ticker,
-                level=query.level,
+                level=row.level,
                 trend=LONG,
-                median_price=query.median_price,
-                update_median_price=query.update_median_price,
+                median_price=row.median_price,
+                update_median_price=row.update_median_price,
             )
             CONNECTED_TICKERS[ticker]['row'] = None
 
 
 async def check_short(ticker: str, mark_price: Decimal, round_price: int) -> None:
     """Check for compliance with short positions. If the position fits the parameters, it opens an order."""
-    query = CONNECTED_TICKERS[ticker].get('row')
-    if query is not None:
-        if query.level > mark_price:
+    row = CONNECTED_TICKERS[ticker].get('row')
+    if isinstance(row, Row):
+        if row.level > mark_price:
             await RowManager.transferring_row(
                 table=UnsuitableLevels,
-                id=query.id,
+                id=row.id,
                 ticker=ticker,
-                level=query.level,
+                level=row.level,
                 trend=SHORT,
-                median_price=query.median_price,
-                update_median_price=query.update_median_price,
+                median_price=row.median_price,
+                update_median_price=row.update_median_price,
             )
             current_price_movement = await Market.get_current_price_movement(ticker)
             await send_message(
                 InfoMessage.get_text_not_worked_out_level(
-                    ticker, query.level, query.median_price, current_price_movement
+                    ticker, row.level, row.median_price, current_price_movement
                 )
             )
             return
-        if query.median_price is None or datetime.now() - query.update_median_price > timedelta(days=1):
-            query = await update_median_price_and_time(ticker, query.id, SHORT)
-            CONNECTED_TICKERS[ticker]['row'] = query
-        calc_level: Decimal = query.level * COEF_LEVEL_SHORT
+        if row.median_price is None or datetime.now() - row.update_median_price > timedelta(days=1):
+            row = await update_median_price_and_time(ticker, row.id, SHORT)
+            CONNECTED_TICKERS[ticker]['row'] = row
+            if row is None:
+                return
+        calc_level: Decimal = row.level * COEF_LEVEL_SHORT
         if (
-            calc_level > mark_price > query.level
-            and (await Market.get_current_price_movement(ticker)) < query.median_price * POWER_RESERVE_USED_UP
+            calc_level > mark_price > row.level
+            and (await Market.get_current_price_movement(ticker)) < row.median_price * POWER_RESERVE_USED_UP
         ):
-            short_calc = Short(ticker, query.level, round_price)
+            short_calc = Short(ticker, row.level, round_price)
             await Market.open_pos(*short_calc.get_param_position(), SELL)
             await RowManager.transferring_row(
                 table=SpentLevels,
-                id=query.id,
+                id=row.id,
                 ticker=ticker,
-                level=query.level,
+                level=row.level,
                 trend=SHORT,
-                median_price=query.median_price,
-                update_median_price=query.update_median_price,
+                median_price=row.median_price,
+                update_median_price=row.update_median_price,
             )
             CONNECTED_TICKERS[ticker]['row'] = None
 
@@ -147,7 +151,8 @@ async def connect_ticker(ticker: str) -> None:
 async def start_check_tickers() -> None:
     """Determine the direction of trade. Start the stream."""
     TREND['trend'] = (await RowManager.get_row_by_id(Trend, 1)).trend
-    for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
+    # for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
+    for ticker in ['BTC']:
         if ticker not in CONNECTED_TICKERS:
             CONNECTED_TICKERS[ticker] = {}
             CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
