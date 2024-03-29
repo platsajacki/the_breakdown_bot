@@ -183,8 +183,8 @@ async def start_check_tickers() -> None:
                 'price_movement': {
                     'price': await Market.get_current_price_movement(ticker),
                     'time': int(time() * 1000),
-                }
+                },
+                'row': await TickerManager.get_current_level(ticker, LONG),
             }
-            CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
             await connect_ticker(ticker)
     await send_message(f'All stickers are connected! {CHECK_MARK_BUTTON}')
