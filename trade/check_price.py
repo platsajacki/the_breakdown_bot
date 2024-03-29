@@ -44,10 +44,7 @@ async def update_current_price_movement(ticker: str) -> None:
     """Updates the data for the current price movement of the specified ticker."""
     price_movement_time = CONNECTED_TICKERS[ticker]['price_movement'].get('time')
     now_in_milliseconds = int(time() * 1000)
-    if (
-        not isinstance(price_movement_time, int)
-        or now_in_milliseconds - price_movement_time > MINUTE_IN_MILLISECONDS * 2
-    ):
+    if isinstance(price_movement_time, int) and now_in_milliseconds - price_movement_time > MINUTE_IN_MILLISECONDS:
         CONNECTED_TICKERS[ticker]['price_movement']['time'] = now_in_milliseconds
         CONNECTED_TICKERS[ticker]['price_movement']['price'] = await Market.get_current_price_movement(ticker)
 
@@ -180,7 +177,14 @@ async def start_check_tickers() -> None:
     tasks = []
     for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
         if ticker not in CONNECTED_TICKERS:
-            CONNECTED_TICKERS[ticker] = {'price_movement': {'price': None, 'time': None}}
+            await asyncio.sleep(0.25)
+            CONNECTED_TICKERS[ticker] = {
+                'price_movement': {
+                    'price': await Market.get_current_price_movement(ticker),
+                    'time': int(time() * 1000),
+                }
+            }
             CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
             tasks.append(connect_ticker(ticker))
-    asyncio.gather(*tasks)
+    await asyncio.gather(*tasks)
+    await send_message('All stickers are connected!')

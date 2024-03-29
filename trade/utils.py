@@ -16,5 +16,4 @@ def handle_message_coro(
             async with lock:
                 await coro(msg)
                 await sleep(5)
-
     running_loop.create_task(lock_coro())
