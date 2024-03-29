@@ -1,7 +1,9 @@
-from asyncio import AbstractEventLoop, Lock, sleep
+from asyncio import AbstractEventLoop, Lock, Semaphore, sleep
 from typing import Any, Callable
 
 from database.temporary_data import CONNECTED_TICKERS
+
+semaphore = Semaphore(10)
 
 
 def handle_message_coro(
@@ -14,6 +16,8 @@ def handle_message_coro(
         lock = CONNECTED_TICKERS[ticker].setdefault('lock', Lock())
         if isinstance(lock, Lock):
             async with lock:
+                await semaphore.acquire()
                 await coro(msg)
-                await sleep(5)
+                await sleep(3)
+                semaphore.release()
     running_loop.create_task(lock_coro())
