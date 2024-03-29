@@ -37,8 +37,9 @@ async def update_median_price_and_time(
     ticker: str, id: int, trend: str
 ) -> Row[tuple[int, Decimal, Decimal, datetime]] | None:
     """Update the median price and time for a given ticker and trend."""
-    await TickerManager.set_median_price(id=id, median_price=(await Market.get_median_price(ticker)))
-    return await TickerManager.get_current_level(ticker, trend)
+    async with asyncio.Lock():
+        await TickerManager.set_median_price(id=id, median_price=(await Market.get_median_price(ticker)))
+        return await TickerManager.get_current_level(ticker, trend)
 
 
 async def update_current_price_movement(ticker: str) -> None:
@@ -175,7 +176,6 @@ async def connect_ticker(ticker: str) -> None:
 async def start_check_tickers() -> None:
     """Determine the direction of trade. Start the stream."""
     TREND['trend'] = (await RowManager.get_row_by_id(Trend, 1)).trend
-    tasks = []
     for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
         if ticker not in CONNECTED_TICKERS:
             await asyncio.sleep(0.25)
@@ -186,6 +186,5 @@ async def start_check_tickers() -> None:
                 }
             }
             CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
-            tasks.append(connect_ticker(ticker))
-    await asyncio.gather(*tasks)
+            await connect_ticker(ticker)
     await send_message(f'All stickers are connected! {CHECK_MARK_BUTTON}')
