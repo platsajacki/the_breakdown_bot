@@ -128,8 +128,8 @@ async def check_prices(message: Message) -> None:
 
 async def start(message) -> None:
     """Start the selection of checking levels by trend."""
-    await message.answer(f'{MAN_TECHNOLOGIST}')
     await message.answer(f'Price check started! {CHECK_MARK_BUTTON}')
+    await message.answer(f'{MAN_TECHNOLOGIST}')
     await start_check_tickers()
 
 

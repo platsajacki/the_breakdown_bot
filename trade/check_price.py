@@ -13,6 +13,7 @@ from database.models import SpentLevels, Trend, UnsuitableLevels
 from database.temporary_data import CONNECTED_TICKERS, TREND
 from settings.constants import (
     BUY,
+    CHECK_MARK_BUTTON,
     COEF_LEVEL_LONG,
     COEF_LEVEL_SHORT,
     LONG,
@@ -187,4 +188,4 @@ async def start_check_tickers() -> None:
             CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
             tasks.append(connect_ticker(ticker))
     await asyncio.gather(*tasks)
-    await send_message('All stickers are connected!')
+    await send_message(f'All stickers are connected! {CHECK_MARK_BUTTON}')
