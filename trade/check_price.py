@@ -44,7 +44,10 @@ async def update_current_price_movement(ticker: str) -> None:
     """Updates the data for the current price movement of the specified ticker."""
     price_movement_time = CONNECTED_TICKERS[ticker]['price_movement'].get('time')
     now_in_milliseconds = int(time() * 1000)
-    if isinstance(price_movement_time, int) and now_in_milliseconds - price_movement_time > MINUTE_IN_MILLISECONDS:
+    if (
+        not isinstance(price_movement_time, int)
+        or now_in_milliseconds - price_movement_time > MINUTE_IN_MILLISECONDS * 2
+    ):
         CONNECTED_TICKERS[ticker]['price_movement']['time'] = now_in_milliseconds
         CONNECTED_TICKERS[ticker]['price_movement']['price'] = await Market.get_current_price_movement(ticker)
 
@@ -157,6 +160,7 @@ async def handle_message(msg: dict[str, Any]) -> None:
 async def connect_ticker(ticker: str) -> None:
     """Connect the ticker to the stream."""
     try:
+        await asyncio.sleep(0.25)
         (await get_ws_session_public()).ticker_stream(
             symbol=f'{ticker}{USDT}',
             callback=partial(
@@ -173,10 +177,10 @@ async def connect_ticker(ticker: str) -> None:
 async def start_check_tickers() -> None:
     """Determine the direction of trade. Start the stream."""
     TREND['trend'] = (await RowManager.get_row_by_id(Trend, 1)).trend
+    tasks = []
     for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
         if ticker not in CONNECTED_TICKERS:
-            CONNECTED_TICKERS[ticker] = {
-                'price_movement': {'price': await Market.get_current_price_movement(ticker), 'time': int(time() * 1000)}
-            }
+            CONNECTED_TICKERS[ticker] = {'price_movement': {'price': None, 'time': None}}
             CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
-            await connect_ticker(ticker)
+            tasks.append(connect_ticker(ticker))
+    asyncio.gather(*tasks)

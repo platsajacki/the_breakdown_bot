@@ -14,7 +14,7 @@ def handle_message_coro(
         lock = CONNECTED_TICKERS[ticker].setdefault('lock', Lock())
         if isinstance(lock, Lock):
             async with lock:
-                await sleep(0.25)
                 await coro(msg)
+                await sleep(5)
 
     running_loop.create_task(lock_coro())

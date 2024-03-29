@@ -38,8 +38,7 @@ async def start_add_levels(message: Message) -> None:
 async def add_all_levels(message: Message) -> None:
     await message.answer('There is a search for levels...')
     await message.answer(MAN_TECHNOLOGIST)
-    levels = await get_all_levels()
-    if levels:
+    if levels := await get_all_levels():
         levels_objects = []
         for symbol, data in levels.items():
             ticker = symbol[:-4]
@@ -52,7 +51,8 @@ async def add_all_levels(message: Message) -> None:
                 if level_decimal not in db_levels:
                     levels_objects.append(Ticker(ticker=ticker, level=level_decimal, trend=trend))
                     levels_counter += 1
-            await message.answer(f'{levels_counter} levels have been found for the {ticker}.')
+            if levels_counter:
+                await message.answer(f'{levels_counter} levels have been found for the {ticker}.')
         await RowManager.add_all_rows(levels_objects)
         await message.answer(f'There are {len(levels_objects)} levels recorded in the database.')
         return
