@@ -13,4 +13,5 @@ class PriceMovementTicker(TypedDict):
 class ConnectedTicker(TypedDict, total=False):
     lock: Lock | None
     row: Row | None
+    active_task: bool
     price_movement: PriceMovementTicker | dict

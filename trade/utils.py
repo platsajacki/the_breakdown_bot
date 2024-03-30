@@ -7,23 +7,21 @@ from database.temporary_data import CONNECTED_TICKERS
 semaphore = Semaphore(10)
 
 
-async def find_tasks_for_ticker(ticker: str):
-    """Find running tasks for a ticker."""
-    return [task for task in asyncio.all_tasks() if task.get_name() == ticker]
-
-
 async def lock_coro(msg: dict[str, Any], coro: Callable, ticker: str) -> None:
     """
     Handle messages from the exchange.
     Starts only if there is an asyncio.Lock for the ticker and if there are no tasks for the ticker.
     Lock is required to avoid resource contention for a single ticker.
     """
-    lock = CONNECTED_TICKERS[ticker].setdefault('lock', Lock())
-    if isinstance(lock, Lock) and not await find_tasks_for_ticker(ticker):
+    lock = CONNECTED_TICKERS[ticker].get('lock')
+    if isinstance(lock, Lock) and not CONNECTED_TICKERS[ticker].get('active_task'):
+        print(CONNECTED_TICKERS[ticker]['active_task'])
         async with lock:
             await semaphore.acquire()
-            await asyncio.create_task(coro(msg), name=ticker)
+            CONNECTED_TICKERS[ticker]['active_task'] = True
+            await asyncio.create_task(coro(msg))
             await sleep(3)
+            CONNECTED_TICKERS[ticker]['active_task'] = False
             semaphore.release()
 
 

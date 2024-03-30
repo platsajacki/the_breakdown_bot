@@ -178,6 +178,7 @@ async def get_new_connected_ticker(ticker: str) -> ConnectedTicker:
     """Retrieve information about a new connected ticker."""
     return {
         'lock': asyncio.Lock(),
+        'active_task': False,
         'price_movement': {
             'price': await Market.get_current_price_movement(ticker),
             'time': int(time() * 1000),
