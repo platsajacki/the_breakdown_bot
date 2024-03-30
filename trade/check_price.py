@@ -150,11 +150,10 @@ async def handle_message(msg: dict[str, Any]) -> None:
     ticker: str = msg['data']['symbol'][:-4]
     mark_price_str: str = msg['data']['markPrice']
     round_price: int = len(mark_price_str.split('.')[1]) if '.' in mark_price_str else 0
-    mark_price = Decimal(mark_price_str)
     if TREND['trend'] == LONG:
-        await check_long(ticker, mark_price, round_price)
+        await check_long(ticker, Decimal(mark_price_str), round_price)
         return
-    await check_short(ticker, mark_price, round_price)
+    await check_short(ticker, Decimal(mark_price_str), round_price)
 
 
 async def connect_ticker(ticker: str) -> None:

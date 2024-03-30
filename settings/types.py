@@ -6,12 +6,12 @@ from sqlalchemy import Row
 
 
 class PriceMovementTicker(TypedDict):
-    price: Decimal | None
-    time: int | None
+    price: Decimal
+    time: int
 
 
-class ConnectedTicker(TypedDict, total=False):
-    lock: Lock | None
+class ConnectedTicker(TypedDict):
+    lock: Lock
     row: Row | None
     active_task: bool
-    price_movement: PriceMovementTicker | dict
+    price_movement: PriceMovementTicker
