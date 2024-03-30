@@ -9,12 +9,7 @@ semaphore = Semaphore(10)
 
 async def find_tasks_for_ticker(ticker: str):
     """Find running tasks for a ticker."""
-    return list(
-        filter(
-            lambda task: task.get_name() == ticker,
-            asyncio.all_tasks(),
-        )
-    )
+    return [task for task in asyncio.all_tasks() if task.get_name() == ticker]
 
 
 async def lock_coro(msg: dict[str, Any], coro: Callable, ticker: str) -> None:
