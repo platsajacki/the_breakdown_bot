@@ -4,7 +4,7 @@ from typing import Any, Callable
 
 from database.temporary_data import CONNECTED_TICKERS
 
-semaphore = Semaphore(20)
+semaphore = Semaphore(10)
 
 
 async def find_tasks_for_ticker(ticker: str):
