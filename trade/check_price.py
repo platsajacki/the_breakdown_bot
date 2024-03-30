@@ -24,6 +24,7 @@ from settings.constants import (
     USDT,
 )
 from settings.sessions import get_ws_session_public
+from settings.types import ConnectedTicker
 from tg_bot.send_message import log_and_send_error, send_message
 from tg_bot.text_message import InfoMessage
 from trade.param_position import Long, Short
@@ -173,18 +174,24 @@ async def connect_ticker(ticker: str) -> None:
         await log_and_send_error(logger, error, f'`ticker_stream` {ticker}')
 
 
+async def get_new_connected_ticker(ticker: str) -> ConnectedTicker:
+    """Retrieve information about a new connected ticker."""
+    return {
+        'lock': asyncio.Lock(),
+        'price_movement': {
+            'price': await Market.get_current_price_movement(ticker),
+            'time': int(time() * 1000),
+        },
+        'row': await TickerManager.get_current_level(ticker, LONG),
+    }
+
+
 async def start_check_tickers() -> None:
     """Determine the direction of trade. Start the stream."""
     TREND['trend'] = (await RowManager.get_row_by_id(Trend, 1)).trend
     for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
         if ticker not in CONNECTED_TICKERS:
             await asyncio.sleep(0.25)
-            CONNECTED_TICKERS[ticker] = {
-                'price_movement': {
-                    'price': await Market.get_current_price_movement(ticker),
-                    'time': int(time() * 1000),
-                },
-                'row': await TickerManager.get_current_level(ticker, LONG),
-            }
+            CONNECTED_TICKERS[ticker] = await get_new_connected_ticker(ticker)
             await connect_ticker(ticker)
     await send_message(f'All stickers are connected! {CHECK_MARK_BUTTON}')
