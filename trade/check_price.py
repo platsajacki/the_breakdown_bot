@@ -57,6 +57,7 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None
     row = CONNECTED_TICKERS[ticker].get('row')
     if not isinstance(row, Row):
         CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
+        await asyncio.sleep(60)
         return
     await update_current_price_movement(ticker)
     if row.level < mark_price:
@@ -104,6 +105,7 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int) -> Non
     row = CONNECTED_TICKERS[ticker].get('row')
     if not isinstance(row, Row):
         CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, SHORT)
+        await asyncio.sleep(60)
         return
     await update_current_price_movement(ticker)
     if row.level > mark_price:
