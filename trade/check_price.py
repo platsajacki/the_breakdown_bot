@@ -56,6 +56,7 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None
     """Check for compliance with long positions. If the position fits the parameters, it opens an order."""
     row = CONNECTED_TICKERS[ticker].get('row')
     if not isinstance(row, Row):
+        CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
         return
     await update_current_price_movement(ticker)
     if row.level < mark_price:
@@ -103,6 +104,7 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int) -> Non
     """Check for compliance with short positions. If the position fits the parameters, it opens an order."""
     row = CONNECTED_TICKERS[ticker].get('row')
     if not isinstance(row, Row):
+        CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, SHORT)
         return
     await update_current_price_movement(ticker)
     if row.level > mark_price:
