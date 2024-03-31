@@ -69,7 +69,7 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None
             median_price=row.median_price,
             update_median_price=row.update_median_price,
         )
-        CONNECTED_TICKERS[ticker]['row'] = None
+        CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
         await send_message(
             InfoMessage.get_text_not_worked_out_level(
                 ticker, row.level, CONNECTED_TICKERS[ticker]['price_movement'].get('price'), row.median_price
@@ -79,8 +79,7 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None
     if row.median_price is None or datetime.now() - row.update_median_price > timedelta(days=1):
         row = await update_median_price_and_time(ticker, row.id, LONG)
         CONNECTED_TICKERS[ticker]['row'] = row
-        if row is None:
-            return
+        return
     calc_level: Decimal = row.level * COEF_LEVEL_LONG
     if (
         calc_level < mark_price < row.level
@@ -97,7 +96,7 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None
             median_price=row.median_price,
             update_median_price=row.update_median_price,
         )
-        CONNECTED_TICKERS[ticker]['row'] = None
+        CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
 
 
 async def check_short(ticker: str, mark_price: Decimal, round_price: int) -> None:
@@ -117,6 +116,7 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int) -> Non
             median_price=row.median_price,
             update_median_price=row.update_median_price,
         )
+        CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, SHORT)
         await send_message(
             InfoMessage.get_text_not_worked_out_level(
                 ticker, row.level, CONNECTED_TICKERS[ticker]['price_movement'].get('price'), row.median_price
@@ -126,8 +126,7 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int) -> Non
     if row.median_price is None or datetime.now() - row.update_median_price > timedelta(days=1):
         row = await update_median_price_and_time(ticker, row.id, SHORT)
         CONNECTED_TICKERS[ticker]['row'] = row
-        if row is None:
-            return
+        return
     calc_level: Decimal = row.level * COEF_LEVEL_SHORT
     if (
         calc_level > mark_price > row.level
@@ -144,7 +143,7 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int) -> Non
             median_price=row.median_price,
             update_median_price=row.update_median_price,
         )
-        CONNECTED_TICKERS[ticker]['row'] = None
+        CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, SHORT)
 
 
 async def handle_message(msg: dict[str, Any]) -> None:
