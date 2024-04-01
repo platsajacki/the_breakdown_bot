@@ -49,10 +49,10 @@ async def update_median_price_and_time(
 async def update_current_price_movement(ticker: str) -> None:
     """Updates the data for the current price movement of the specified ticker."""
     price_movement_time = CONNECTED_TICKERS[ticker]['price_movement'].get('time')
-    now_in_milliseconds = int(time() * 1000)
-    if isinstance(price_movement_time, int) and now_in_milliseconds - price_movement_time > MINUTE_IN_MILLISECONDS:
-        CONNECTED_TICKERS[ticker]['price_movement']['time'] = now_in_milliseconds
+    if isinstance(price_movement_time, int) and int(time() * 1000) - price_movement_time > MINUTE_IN_MILLISECONDS:
+        await asyncio.sleep(0.1)
         CONNECTED_TICKERS[ticker]['price_movement']['price'] = await Market.get_current_price_movement(ticker)
+        CONNECTED_TICKERS[ticker]['price_movement']['time'] = int(time() * 1000)
 
 
 async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None:
