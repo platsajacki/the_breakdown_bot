@@ -40,17 +40,14 @@ async def update_median_price_and_time(
     ticker: str, id: int, trend: str
 ) -> Row[tuple[int, Decimal, Decimal, datetime]] | None:
     """Update the median price and time for a given ticker and trend."""
-    async with asyncio.Lock():
-        await asyncio.sleep(0.1)
-        await TickerManager.set_median_price(id=id, median_price=(await Market.get_median_price(ticker)))
-        return await TickerManager.get_current_level(ticker, trend)
+    await TickerManager.set_median_price(id=id, median_price=(await Market.get_median_price(ticker)))
+    return await TickerManager.get_current_level(ticker, trend)
 
 
 async def update_current_price_movement(ticker: str) -> None:
     """Updates the data for the current price movement of the specified ticker."""
     price_movement_time = CONNECTED_TICKERS[ticker]['price_movement'].get('time')
     if isinstance(price_movement_time, int) and int(time() * 1000) - price_movement_time > MINUTE_IN_MILLISECONDS:
-        await asyncio.sleep(0.1)
         CONNECTED_TICKERS[ticker]['price_movement']['price'] = await Market.get_current_price_movement(ticker)
         CONNECTED_TICKERS[ticker]['price_movement']['time'] = int(time() * 1000)
 
@@ -81,8 +78,7 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None
         )
         return
     if row.median_price is None or datetime.now() - row.update_median_price > timedelta(days=1):
-        row = await update_median_price_and_time(ticker, row.id, LONG)
-        CONNECTED_TICKERS[ticker]['row'] = row
+        CONNECTED_TICKERS[ticker]['row'] = await update_median_price_and_time(ticker, row.id, LONG)
         return
     calc_level: Decimal = row.level * COEF_LEVEL_LONG
     if (
@@ -129,8 +125,7 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int) -> Non
         )
         return
     if row.median_price is None or datetime.now() - row.update_median_price > timedelta(days=1):
-        row = await update_median_price_and_time(ticker, row.id, SHORT)
-        CONNECTED_TICKERS[ticker]['row'] = row
+        CONNECTED_TICKERS[ticker]['row'] = await update_median_price_and_time(ticker, row.id, SHORT)
         return
     calc_level: Decimal = row.level * COEF_LEVEL_SHORT
     if (
@@ -165,7 +160,6 @@ async def handle_message(msg: dict[str, Any]) -> None:
 async def connect_ticker(ticker: str) -> None:
     """Connect the ticker to the stream."""
     try:
-        await asyncio.sleep(0.1)
         (await get_ws_session_public()).ticker_stream(
             symbol=f'{ticker}{USDT}',
             callback=partial(
@@ -182,7 +176,6 @@ async def connect_ticker(ticker: str) -> None:
 async def get_new_connected_ticker(ticker: str) -> ConnectedTicker:
     """Retrieve information about a new connected ticker."""
     async with asyncio.Lock():
-        await asyncio.sleep(0.1)
         return {
             'lock': asyncio.Lock(),
             'active_task': False,
