@@ -8,23 +8,22 @@ from aiogram.types import Message
 from database.managers import ConfigurationManager, RowManager
 from database.models import SpentLevels, Ticker, UnsuitableLevels
 from database.temporary_data import CONNECTED_TICKERS, DBQuery, DBState
-from settings.config import MYID
 from settings.constants import CHECK_MARK_BUTTON, SYMBOL_OK, TRENDS
 from tg_bot.commands.buttons import kb, kb_database, kb_long_short, kb_query
 from tg_bot.create_bot import router
-from tg_bot.filters import AdminID
+from tg_bot.filters import admin_filter
 from tg_bot.text_message import InfoMessage
 from tg_bot.utils import check_and_get_value
 from trade.requests import Market
 
 
-@router.message(Command('info_database'), AdminID(MYID))
+@router.message(Command('info_database'), admin_filter)
 async def get_database(message: Message) -> None:
     """Select a database request."""
     await message.answer('Choose next step.', reply_markup=kb_database)
 
 
-@router.message(Command('change_stop'), AdminID(MYID))
+@router.message(Command('change_stop'), admin_filter)
 async def change_stop(message: Message, state: FSMContext) -> None:
     """Stop-loss price change."""
     await message.answer('Enter the stop volume:')
@@ -44,7 +43,7 @@ async def add_stop_volume(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Command('connected_tickers'), AdminID(MYID))
+@router.message(Command('connected_tickers'), admin_filter)
 async def get_connected_tickers(message: Message) -> None:
     """Request for connected tickers."""
     await message.answer(
@@ -54,13 +53,13 @@ async def get_connected_tickers(message: Message) -> None:
     )
 
 
-@router.message(Command('query'), AdminID(MYID))
+@router.message(Command('query'), admin_filter)
 async def get_query(message: Message) -> None:
     """Select a query from the database."""
     await message.answer('What request should be sent?', reply_markup=kb_query)
 
 
-@router.message(Command('active'), AdminID(MYID))
+@router.message(Command('active'), admin_filter)
 async def get_active_lvls(message: Message, state: FSMContext) -> None:
     """Request for active levels."""
     await message.answer('Enter the ticker:')
@@ -68,7 +67,7 @@ async def get_active_lvls(message: Message, state: FSMContext) -> None:
     await state.set_state(DBQuery.ticker)
 
 
-@router.message(Command('spend'), AdminID(MYID))
+@router.message(Command('spend'), admin_filter)
 async def get_spend_lvls(message: Message, state: FSMContext) -> None:
     """Request for used levels."""
     await message.answer('Enter the ticker:')
@@ -76,7 +75,7 @@ async def get_spend_lvls(message: Message, state: FSMContext) -> None:
     await state.set_state(DBQuery.ticker)
 
 
-@router.message(Command('unsuiteble'), AdminID(MYID))
+@router.message(Command('unsuiteble'), admin_filter)
 async def get_unsuiteble_lvls(message: Message, state: FSMContext) -> None:
     """Request for unsuitable levels."""
     await message.answer('Enter the ticker:')

@@ -5,28 +5,27 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from database.temporary_data import TickerState
-from settings.config import MYID
 from settings.constants import MAN_SHRUGGING, MAN_TECHNOLOGIST, SYMBOL_OK
 from tg_bot.commands.buttons import kb, kb_info
 from tg_bot.create_bot import router
-from tg_bot.filters import AdminID
+from tg_bot.filters import admin_filter
 from tg_bot.text_message import InfoMessage
 from trade.requests import Market
 
 
-@router.message(Command('info_market'), AdminID(MYID))
+@router.message(Command('info_market'), admin_filter)
 async def get_info(message: Message) -> None:
     """Choose an information request."""
     await message.answer('What information is needed?', reply_markup=kb_info)
 
 
-@router.message(Command('balance'), AdminID(MYID))
+@router.message(Command('balance'), admin_filter)
 async def get_balance(message: Message) -> None:
     """Send a message with the wallet balance."""
     await message.answer(InfoMessage.WALLET_MASSAGE.format(**await Market.get_wallet_balance()))
 
 
-@router.message(Command('orders'), AdminID(MYID))
+@router.message(Command('orders'), admin_filter)
 async def get_orders(message: Message, state: FSMContext) -> None:
     """Request for open orders."""
     await message.answer('Enter the ticker:')
@@ -57,7 +56,7 @@ async def get_ticker_order(message: Message, state: FSMContext) -> None:
         await state.set_state(TickerState.ticker_order)
 
 
-@router.message(Command('positions'), AdminID(MYID))
+@router.message(Command('positions'), admin_filter)
 async def get_positions(message: Message, state: FSMContext) -> None:
     """Request for open positions."""
     await message.answer('Enter the ticker:')
@@ -82,7 +81,7 @@ async def get_ticker_position(message: Message, state: FSMContext) -> None:
         await state.set_state(TickerState.ticker_position)
 
 
-@router.message(Command('back'), AdminID(MYID))
+@router.message(Command('back'), admin_filter)
 async def get_back(message: Message) -> None:
     """Go back."""
     await message.answer('Main menu.', reply_markup=kb)

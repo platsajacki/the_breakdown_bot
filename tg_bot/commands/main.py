@@ -8,7 +8,6 @@ from aiogram.types import Message
 from database.managers import ConfigurationManager, RowManager, TickerManager
 from database.models import Ticker
 from database.temporary_data import DBState
-from settings.config import MYID
 from settings.constants import (
     CHART_DECREASING,
     CHART_INCREASING,
@@ -21,7 +20,7 @@ from settings.constants import (
 )
 from tg_bot.commands.buttons import kb, kb_check_prices, kb_levels, kb_long_short
 from tg_bot.create_bot import router
-from tg_bot.filters import AdminID
+from tg_bot.filters import admin_filter
 from tg_bot.utils import check_and_get_value
 from trade.check_price import start_check_tickers
 from trade.define_levels import get_all_levels
@@ -29,12 +28,12 @@ from trade.detector import LevelDetector
 from trade.requests import Market
 
 
-@router.message(Command('add_levels'), AdminID(MYID))
+@router.message(Command('add_levels'), admin_filter)
 async def start_add_levels(message: Message) -> None:
     await message.answer('One or all?', reply_markup=kb_levels)
 
 
-@router.message(Command('add_all_levels'), AdminID(MYID))
+@router.message(Command('add_all_levels'), admin_filter)
 async def add_all_levels(message: Message) -> None:
     await message.answer('There is a search for levels...')
     await message.answer(MAN_TECHNOLOGIST)
@@ -59,7 +58,7 @@ async def add_all_levels(message: Message) -> None:
     await message.answer('An error occurred during the calculation of the levels.', reply_markup=kb)
 
 
-@router.message(Command('add_one_level'), AdminID(MYID))
+@router.message(Command('add_one_level'), admin_filter)
 async def start_add_one_level(message: Message, state: FSMContext) -> None:
     """Start adding a new level."""
     await message.answer('Enter the ticker:')
@@ -120,7 +119,7 @@ async def add_level(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Command('check_prices'), AdminID(MYID))
+@router.message(Command('check_prices'), admin_filter)
 async def check_prices(message: Message) -> None:
     """Choose the direction of trade."""
     await message.answer('Choose the trend direction:', reply_markup=kb_check_prices)
@@ -133,7 +132,7 @@ async def start(message) -> None:
     await start_check_tickers()
 
 
-@router.message(Command('trade_long'), AdminID(MYID))
+@router.message(Command('trade_long'), admin_filter)
 async def trade_long(message: Message) -> None:
     """Change the trend to a long one."""
     await ConfigurationManager.change_trend(LONG)
@@ -144,7 +143,7 @@ async def trade_long(message: Message) -> None:
     await start(message)
 
 
-@router.message(Command('trade_short'), AdminID(MYID))
+@router.message(Command('trade_short'), admin_filter)
 async def trade_short(message: Message) -> None:
     """Change the trend to a short one."""
     await ConfigurationManager.change_trend(SHORT)
