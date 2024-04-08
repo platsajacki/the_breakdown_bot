@@ -14,7 +14,7 @@ async def lock_coro(msg: dict[str, Any], coro: Callable, ticker: str) -> None:
     async with CONNECTED_TICKERS[ticker].get('lock'):
         CONNECTED_TICKERS[ticker]['active_task'][coro.__name__] = True
         await asyncio.create_task(coro(msg, ticker))
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.25)
         CONNECTED_TICKERS[ticker]['active_task'][coro.__name__] = False
 
 
