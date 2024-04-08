@@ -39,7 +39,7 @@ async def update_median_price_and_time(
 ) -> Row[tuple[int, Decimal, Decimal, datetime]] | None:
     """Update the median price and time for a given ticker and trend."""
     async with asyncio.Lock():
-        asyncio.sleep(1)
+        await asyncio.sleep(1)
         await TickerManager.set_median_price(id=id, median_price=(await Market.get_median_price(ticker)))
         return await TickerManager.get_current_level(ticker, trend)
 
@@ -166,7 +166,7 @@ async def connect_ticker(ticker: str) -> None:
                 ticker=ticker,
             ),
         )
-        asyncio.sleep(0.1)
+        await asyncio.sleep(0.1)
         (await get_ws_session_public()).kline_stream(
             symbol=symbol,
             interval='D',
@@ -177,7 +177,7 @@ async def connect_ticker(ticker: str) -> None:
                 ticker=ticker,
             ),
         )
-        asyncio.sleep(0.1)
+        await asyncio.sleep(0.1)
     except Exception as error:
         await log_and_send_error(logger, error, f'`ticker_stream` {ticker}')
 
