@@ -1,4 +1,3 @@
-import asyncio
 import logging
 
 from pybit.unified_trading import HTTP, WebSocket
@@ -26,7 +25,6 @@ async def get_ws_session_privat() -> WebSocket:
 async def get_ws_session_public() -> WebSocket:
     """Setup a connection WebSocket."""
     try:
-        await asyncio.sleep(0.5)
         ws_session_public = WebSocket(testnet=NOT_TESTNET, channel_type=LINEAR)
         ws_session_public.ping_interval = CUSTOM_PING_INTERVAL
         ws_session_public.ping_timeout = CUSTOM_PING_TIMEOUT
@@ -38,7 +36,6 @@ async def get_ws_session_public() -> WebSocket:
 async def get_session_http() -> HTTP:
     """Setup a connection with the exchange."""
     try:
-        await asyncio.sleep(0.20)
         return HTTP(testnet=NOT_TESTNET, api_key=API_KEY, api_secret=API_SECRET)
     except Exception as error:
         await log_and_send_error(logger, error, '`session_http`')

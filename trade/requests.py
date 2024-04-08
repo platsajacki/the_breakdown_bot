@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 from statistics import median
 from typing import Any
@@ -151,18 +151,3 @@ class Market:
         )['result']
         price_movement_in_days = [Decimal(day[2]) - Decimal(day[3]) for day in result['list']]
         return median(price_movement_in_days)
-
-    @staticmethod
-    async def get_current_price_movement(ticker: str, **kwargs: Any) -> Decimal:
-        """Get the current price movement for a given ticker."""
-        today = datetime.now().date()
-        start_time_int = int(datetime.combine(today, time.min).timestamp()) * 1000
-        end_time_int = int(datetime.combine(today, time.max).timestamp()) * 1000
-        result: dict = (await get_session_http()).get_kline(
-            category=LINEAR,
-            symbol=f'{ticker}{USDT}',
-            interval='D',
-            start=start_time_int,
-            end=end_time_int,
-        )['result']['list'][0]
-        return Decimal(result[2]) - Decimal(result[3])

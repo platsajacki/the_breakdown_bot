@@ -5,13 +5,13 @@ from typing import TypedDict
 from sqlalchemy import Row
 
 
-class PriceMovementTicker(TypedDict):
-    price: Decimal
-    time: int
+class ActiveTask(TypedDict):
+    handle_message_ticker: bool
+    handle_message_kline: bool
 
 
 class ConnectedTicker(TypedDict):
     lock: Lock
     row: Row | None
-    active_task: bool
-    price_movement: PriceMovementTicker
+    active_task: ActiveTask
+    price_movement: Decimal | None
