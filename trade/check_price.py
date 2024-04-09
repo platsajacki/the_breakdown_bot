@@ -57,7 +57,7 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None
         not isinstance(row, Row)
         or datetime.now() - CONNECTED_TICKERS[ticker]['update_row'] > timedelta(seconds=WAITING_IN_SEC_FOR_NEW_LEVEL)
     ):
-        CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, SHORT)
+        CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
         CONNECTED_TICKERS[ticker]['update_row'] = datetime.now()
         return
     if row.level < mark_price:
