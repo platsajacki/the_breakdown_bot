@@ -13,8 +13,8 @@ class Position:
     COEF_LUFT: ClassVar[Decimal] = Decimal('0.20')
     COEF_TRIGGER_LONG: ClassVar[Decimal] = Decimal('0.9995')
     COEF_TRIGGER_SHORT: ClassVar[Decimal] = Decimal('1.0005')
-    COEF_PROFIT: ClassVar[Decimal] = Decimal('4')
-    COEF_TRAILING_STOP: ClassVar[Decimal] = Decimal('0.00625')
+    COEF_PROFIT: ClassVar[Decimal] = Decimal('5')
+    COEF_TRAILING_STOP: ClassVar[Decimal] = Decimal('0.00725')
     COEF_ACTIVE_PRICE: ClassVar[Decimal] = Decimal('0.0005')
 
     def calculate_stop(self) -> Decimal:

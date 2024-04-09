@@ -31,7 +31,8 @@ from trade.utils import handle_message_coro
 
 logger = logging.getLogger(__name__)
 
-WAITING_FOR_NEW_LEVEL = 120
+WAITING_IN_SEC_FOR_NEW_LEVEL = 60
+last_update_median = {'datetime': datetime.now()}
 
 
 async def update_median_price_and_time(
@@ -39,9 +40,12 @@ async def update_median_price_and_time(
 ) -> Row[tuple[int, Decimal, Decimal, datetime]] | None:
     """Update the median price and time for a given ticker and trend."""
     async with asyncio.Lock():
-        await asyncio.sleep(1)
-        await TickerManager.set_median_price(id=id, median_price=(await Market.get_median_price(ticker)))
-        return await TickerManager.get_current_level(ticker, trend)
+        if datetime.now() - last_update_median['datetime'] > timedelta(seconds=1):
+            await TickerManager.set_median_price(id=id, median_price=(await Market.get_median_price(ticker)))
+            row = await TickerManager.get_current_level(ticker, trend)
+            last_update_median['datetime'] = datetime.now()
+            return row
+        return None
 
 
 async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None:
@@ -49,9 +53,12 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None
     row = CONNECTED_TICKERS[ticker].get('row')
     if not CONNECTED_TICKERS[ticker]['price_movement']:
         return
-    if not isinstance(row, Row):
-        CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
-        await asyncio.sleep(WAITING_FOR_NEW_LEVEL)
+    if (
+        not isinstance(row, Row)
+        or datetime.now() - CONNECTED_TICKERS[ticker]['update_row'] > timedelta(seconds=WAITING_IN_SEC_FOR_NEW_LEVEL)
+    ):
+        CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, SHORT)
+        CONNECTED_TICKERS[ticker]['update_row'] = datetime.now()
         return
     if row.level < mark_price:
         await RowManager.transferring_row(
@@ -96,9 +103,12 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int) -> Non
     row = CONNECTED_TICKERS[ticker].get('row')
     if not CONNECTED_TICKERS[ticker]['price_movement']:
         return
-    if not isinstance(row, Row):
+    if (
+        not isinstance(row, Row)
+        or datetime.now() - CONNECTED_TICKERS[ticker]['update_row'] > timedelta(seconds=WAITING_IN_SEC_FOR_NEW_LEVEL)
+    ):
         CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, SHORT)
-        await asyncio.sleep(WAITING_FOR_NEW_LEVEL)
+        CONNECTED_TICKERS[ticker]['update_row'] = datetime.now()
         return
     if row.level > mark_price:
         await RowManager.transferring_row(
@@ -192,13 +202,15 @@ async def get_new_connected_ticker(ticker: str) -> ConnectedTicker:
         },
         'price_movement': None,
         'row': await TickerManager.get_current_level(ticker, LONG),
+        'update_row': datetime.now(),
     }
 
 
 async def start_check_tickers() -> None:
     """Determine the direction of trade. Start the stream."""
     TREND['trend'] = (await RowManager.get_row_by_id(Trend, 1)).trend
-    for ticker in await TickerManager.get_tickers_by_trend(TREND['trend']):
+    tickers = await TickerManager.get_tickers_by_trend(TREND['trend'])
+    for ticker in tickers:
         if ticker not in CONNECTED_TICKERS:
             CONNECTED_TICKERS[ticker] = await get_new_connected_ticker(ticker)
             await connect_ticker(ticker)

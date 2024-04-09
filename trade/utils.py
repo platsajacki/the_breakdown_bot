@@ -11,11 +11,11 @@ async def lock_coro(msg: dict[str, Any], coro: Callable, ticker: str) -> None:
     Starts only if there is an asyncio.Lock for the ticker and if there are no tasks for the ticker.
     Lock is required to avoid resource contention for a single ticker.
     """
-    async with CONNECTED_TICKERS[ticker].get('lock'):
-        CONNECTED_TICKERS[ticker]['active_task'][coro.__name__] = True
+    async with CONNECTED_TICKERS[ticker]['lock']:
+        CONNECTED_TICKERS[ticker]['active_task'][coro.__name__] = True  # type: ignore[literal-required]
         await asyncio.create_task(coro(msg, ticker))
-        await asyncio.sleep(0.25)
-        CONNECTED_TICKERS[ticker]['active_task'][coro.__name__] = False
+        await asyncio.sleep(0.2)
+        CONNECTED_TICKERS[ticker]['active_task'][coro.__name__] = False  # type: ignore[literal-required]
 
 
 def handle_message_coro(

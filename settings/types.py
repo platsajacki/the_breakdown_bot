@@ -1,4 +1,5 @@
 from asyncio import Lock
+from datetime import datetime
 from decimal import Decimal
 from typing import TypedDict
 
@@ -13,5 +14,6 @@ class ActiveTask(TypedDict):
 class ConnectedTicker(TypedDict):
     lock: Lock
     row: Row | None
+    update_row: datetime
     active_task: ActiveTask
     price_movement: Decimal | None
