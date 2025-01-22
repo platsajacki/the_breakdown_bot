@@ -1,13 +1,19 @@
 from decimal import Decimal
+from pathlib import Path
 
 from emoji import emojize
+
+from settings.config import get_required_env_var
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Trading constants.
 LINEAR = 'linear'
 
 LONG = 'long'
 SHORT = 'short'
-TRENDS: list[str] = [LONG, SHORT]
+TRENDS = [LONG, SHORT]
+MIN_TURNOVER = Decimal(get_required_env_var('MIN_TURNOVER'))
 
 BUY = 'Buy'
 SELL = 'Sell'

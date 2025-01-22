@@ -5,7 +5,6 @@ from statistics import median
 from typing import Any
 
 from aiohttp import ClientSession
-from pybit.unified_trading import HTTP
 
 from database.managers import RowManager
 from database.models import OpenedOrder, StopVolume
@@ -41,11 +40,10 @@ class Market:
     ) -> None:
         """Round the position parameters and open it."""
         # Calculation of transaction volume
-        session_http: HTTP = await get_session_http()
-        min_order_qty: str = session_http.get_instruments_info(category=LINEAR, symbol=(symbol := f'{ticker}{USDT}'))[
-            'result'
-        ]['list'][0]['lotSizeFilter']['minOrderQty']
-        round_volume: int = len(min_order_qty.split('.')[1]) if '.' in min_order_qty else 0
+        session_http = await get_session_http()
+        data = session_http.get_instruments_info(category=LINEAR, symbol=(symbol := f'{ticker}{USDT}'))
+        min_order_qty = data['result']['list'][0]['lotSizeFilter']['minOrderQty']
+        round_volume = len(min_order_qty.split('.')[1]) if '.' in min_order_qty else 0
         # Calculation of rounding.
         asset_volume = str(
             round(

@@ -13,20 +13,19 @@ def get_required_env_var(var_name: str) -> str:
     return value
 
 
-DEBUG: bool = get_required_env_var('DEBUG') == 'True'
-
+DEBUG = get_required_env_var('DEBUG') == 'True'
 
 # API.
-API_KEY: str = get_required_env_var('API_KEY')
-API_SECRET: str = get_required_env_var('API_SECRET')
-NOT_TESTNET: bool = get_required_env_var('NOT_TESTNET') != 'True'
+API_KEY = get_required_env_var('API_KEY')
+API_SECRET = get_required_env_var('API_SECRET')
+NOT_TESTNET = get_required_env_var('NOT_TESTNET') != 'True'
 ACCOUNT_TYPE = get_required_env_var('ACCOUNT_TYPE')
 CUSTOM_PING_INTERVAL: int = 15
 CUSTOM_PING_TIMEOUT: int = 10
 
 
 # Telegram token.
-TOKEN: str = get_required_env_var('TOKEN')
+TOKEN = get_required_env_var('TOKEN')
 
 
 # Admin ID.
@@ -34,10 +33,10 @@ MYID = int(get_required_env_var('MYID'))
 
 
 # Access to the database.
-POSTGRES_DB: str = get_required_env_var('POSTGRES_DB')
-POSTGRES_LOGIN: str = get_required_env_var('POSTGRES_LOGIN')
-POSTGRES_PASSWORD: str = get_required_env_var('POSTGRES_PASSWORD')
-HOST: str = get_required_env_var('HOST')
+POSTGRES_DB = get_required_env_var('POSTGRES_DB')
+POSTGRES_LOGIN = get_required_env_var('POSTGRES_LOGIN')
+POSTGRES_PASSWORD = get_required_env_var('POSTGRES_PASSWORD')
+HOST = get_required_env_var('HOST')
 ASYNC_DB_URL = f'postgresql+asyncpg://{POSTGRES_LOGIN}:{POSTGRES_PASSWORD}@{HOST}/{POSTGRES_DB}'  # noqa: E231
 
 # Logging_config.

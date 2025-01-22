@@ -12,7 +12,6 @@ services:
     env_file: .env
 
   bot:
-    image: ${DOCKER_LOGIN}/the_breakdown_bot-bot
     build: .
     env_file: .env
     volumes:

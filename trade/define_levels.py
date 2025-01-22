@@ -2,9 +2,10 @@ import asyncio
 import json
 import logging
 from datetime import datetime, timedelta
+from decimal import Decimal
 from subprocess import PIPE, Popen
 
-from settings.constants import LINEAR
+from settings.constants import BASE_DIR, LINEAR, MIN_TURNOVER
 from settings.sessions import get_session_http
 from tg_bot.send_message import log_and_send_error
 
@@ -17,7 +18,7 @@ async def get_all_linear_symbols() -> list[str]:
     symbols = []
     for symbol_data in result:
         symbol = symbol_data['symbol']
-        if '1000' not in symbol and '-' not in symbol and 'USDC' not in symbol:
+        if '1000' not in symbol and '-' not in symbol and 'USDC' not in symbol and 'PERP' not in symbol:
             symbols.append(symbol)
     return symbols
 
@@ -38,7 +39,8 @@ async def get_all_klines(symbols: list[str], interval: str = 'D') -> dict:
             end=end_time,
             limit=1000,
         )['result']['list']
-        symbols_klines[symbol] = result
+        if result and Decimal(result[0][6]) > MIN_TURNOVER:
+            symbols_klines[symbol] = result
 
     await asyncio.gather(*[get_kline(symbol, interval) for symbol in symbols])
     return symbols_klines
@@ -48,7 +50,7 @@ async def get_all_levels() -> None | dict[str, dict[str, int]]:
     """Retrieves all levels for all symbols."""
     all_klines = await get_all_klines(await get_all_linear_symbols())
     process = Popen(
-        ['trade/calculateLevels'],
+        [f'{BASE_DIR}/trade/calculateLevels'],
         stdin=PIPE,
         stdout=PIPE,
         stderr=PIPE,
