@@ -9,6 +9,7 @@ from settings.config import MYID
 @dataclass
 class AdminID(BaseFilter):
     """Set the admin ID."""
+
     MYID: int
 
     async def __call__(self, message: Message) -> bool:

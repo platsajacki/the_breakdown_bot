@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 def database_transaction(func):
     """The decorator for wrap a function into a database transaction."""
+
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
@@ -20,4 +21,5 @@ def database_transaction(func):
         except Exception as error:
             await sess_db.rollback()
             asyncio.create_task(log_and_send_error(logger, error))
+
     return wrapper

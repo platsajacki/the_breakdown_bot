@@ -13,6 +13,7 @@ from tg_bot.send_message import send_message
 
 class RowManager:
     """A manager class for performing database operations on rows."""
+
     @staticmethod
     @database_transaction
     async def add_row(sess_db: AsyncSession, table: Any, data: dict[str, Any]) -> None:
@@ -46,23 +47,31 @@ class RowManager:
 
     @staticmethod
     @database_transaction
-    async def get_limit_row(
-        sess_db: AsyncSession, table: Any, ticker: str, trend: str, limit: int
-    ) -> Sequence[Any]:
+    async def get_limit_row(sess_db: AsyncSession, table: Any, ticker: str, trend: str, limit: int) -> Sequence[Any]:
         """Request a certain number of table rows."""
         return (
-            await sess_db.execute(
-                select(table)
-                .where(table.ticker == ticker, table.trend == trend)
-                .order_by(table.level if trend == LONG else table.level.desc())
-                .limit(limit=limit)
+            (
+                await sess_db.execute(
+                    select(table)
+                    .where(table.ticker == ticker, table.trend == trend)
+                    .order_by(table.level if trend == LONG else table.level.desc())
+                    .limit(limit=limit)
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
 
     @classmethod
     async def transferring_row(
-        cls, table: Any, id: int, ticker: str, level: Decimal, trend: str,
-        median_price: Decimal | None, update_median_price: datetime | None,
+        cls,
+        table: Any,
+        id: int,
+        ticker: str,
+        level: Decimal,
+        trend: str,
+        median_price: Decimal | None,
+        update_median_price: datetime | None,
     ) -> None:
         """Transfer a row from one table to another."""
         await cls.add_row(
@@ -72,14 +81,15 @@ class RowManager:
                 'level': level,
                 'trend': trend,
                 'median_price': median_price,
-                'update_median_price': update_median_price
-            }
+                'update_median_price': update_median_price,
+            },
         )
         await cls.delete_row_by_id(Ticker, id)
 
 
 class ConfigurationManager:
     """A manager class for changing system configuration parameters."""
+
     @staticmethod
     @database_transaction
     async def change_trend(sess_db: AsyncSession, trend: str) -> None:
@@ -101,6 +111,7 @@ class ConfigurationManager:
 
 class TickerManager:
     """A manager class for query ticker information."""
+
     @staticmethod
     @database_transaction
     async def get_current_level(
@@ -108,23 +119,14 @@ class TickerManager:
     ) -> Row[tuple[int, Decimal, Decimal, datetime]] | None:
         """Request a level to check the compliance of the parameters of the opening of the transaction."""
         level = (
-                select(
-                    func.min(Ticker.level)
-                    if trend == LONG else
-                    func.max(Ticker.level)
-                )
-                .where(
-                    Ticker.ticker == ticker,
-                    Ticker.trend == trend
-                )
-                .scalar_subquery()
-            )
+            select(func.min(Ticker.level) if trend == LONG else func.max(Ticker.level))
+            .where(Ticker.ticker == ticker, Ticker.trend == trend)
+            .scalar_subquery()
+        )
         return (
             await sess_db.execute(
-                select(Ticker.id, Ticker.level, Ticker.median_price, Ticker.update_median_price)
-                .where(
-                    Ticker.ticker == ticker,
-                    Ticker.level == level
+                select(Ticker.id, Ticker.level, Ticker.median_price, Ticker.update_median_price).where(
+                    Ticker.ticker == ticker, Ticker.level == level
                 )
             )
         ).fetchone()
@@ -133,43 +135,23 @@ class TickerManager:
     @database_transaction
     async def get_tickers_by_trend(sess_db: AsyncSession, trend: str) -> Sequence[str]:
         """Request all tickers by the trend."""
-        return (
-            await sess_db.execute(
-                select(Ticker.ticker)
-                .distinct()
-                .where(Ticker.trend == trend)
-            )
-        ).scalars().all()
+        return (await sess_db.execute(select(Ticker.ticker).distinct().where(Ticker.trend == trend))).scalars().all()
 
     @staticmethod
     @database_transaction
     async def get_levels_by_ticker_and_trend(sess_db: AsyncSession, ticker: str, trend: str) -> set[Decimal]:
         """Request ticker levels for the selected ticker and trend."""
         return set(
-            (
-                await sess_db.execute(
-                    select(Ticker.level)
-                    .where(
-                        Ticker.ticker == ticker, Ticker.trend == trend
-                    )
-                )
-            )
-            .scalars().all()
+            (await sess_db.execute(select(Ticker.level).where(Ticker.ticker == ticker, Ticker.trend == trend)))
+            .scalars()
+            .all()
         )
 
     @staticmethod
     @database_transaction
     async def get_levels_by_ticker(sess_db: AsyncSession, ticker: str) -> set[Decimal]:
         """Request ticker levels for the selected ticker."""
-        return set(
-            (
-                await sess_db.execute(
-                    select(Ticker.level)
-                    .where(Ticker.ticker == ticker)
-                )
-            )
-            .scalars().all()
-        )
+        return set((await sess_db.execute(select(Ticker.level).where(Ticker.ticker == ticker))).scalars().all())
 
     @staticmethod
     @database_transaction

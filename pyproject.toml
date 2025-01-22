@@ -1,0 +1,39 @@
+[tool.flake8]
+max-line-length = 120
+exclude = ["venv"]
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.mypy]
+mypy_path = "."
+python_version = "3.12"
+exclude = ["venv/"]
+plugins = ["sqlalchemy.ext.mypy.plugin"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+pythonpath = "."
+asyncio_mode = "auto"
+norecursedirs = ["env/*", "venv/*"]
+addopts = "-s -v -p no:cacheprovider"
+testpaths = ["tests/"]
+python_files = "test_*.py"
+
+[tool.coverage.run]
+omit = [
+    "**/__init__.py",
+    "*/tests/*"
+]
+
+[tool.black]
+line-length = 120
+target-version = ['py312']
+exclude = '''
+/(
+  | venv
+  | .mypy_cache
+)/
+'''
+skip-string-normalization = true

@@ -44,6 +44,4 @@ def test_long_and_short_get_trailing_stop_param(position: Long | Short, level_da
     trailing_stop_param = Long.get_trailing_stop_param(entry_point, level_data['round_price'])
 
     assert trailing_stop_param[0] == pos.get_trailing_stop(entry_point, level_data['round_price'])
-    assert trailing_stop_param[1] == round(
-        entry_point + entry_point * pos.COEF_ACTIVE_PRICE, level_data['round_price']
-    )
+    assert trailing_stop_param[1] == round(entry_point + entry_point * pos.COEF_ACTIVE_PRICE, level_data['round_price'])

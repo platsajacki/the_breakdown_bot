@@ -59,9 +59,7 @@ LOG_CONFIG = {
         'handlers': ['fileHandler'],
         'level': 'WARNING',
     },
-    'filters': {
-        'ping_pong_filter': {'()': 'settings.config.ExcludeFilter'}
-    },
+    'filters': {'ping_pong_filter': {'()': 'settings.config.ExcludeFilter'}},
     'handlers': {
         'fileHandler': {
             'class': 'logging.FileHandler',

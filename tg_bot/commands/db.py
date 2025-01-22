@@ -48,8 +48,8 @@ async def get_connected_tickers(message: Message) -> None:
     """Request for connected tickers."""
     await message.answer(
         f'Connected tickers: \n<i>{'\n'.join(sorted(CONNECTED_TICKERS.keys()))}</i>\nTotal: {len(CONNECTED_TICKERS)}.'
-        if CONNECTED_TICKERS else
-        'There are no tickers connected.'
+        if CONNECTED_TICKERS
+        else 'There are no tickers connected.'
     )
 
 
@@ -116,9 +116,7 @@ async def get_queryset_lvl(message: Message, state: FSMContext) -> None:
         for row in await RowManager.get_limit_row(**data):
             row = row.__dict__
             row['create'] = row['create'].strftime('%H:%M %d.%m.%Y')
-            await message.answer(
-                InfoMessage.QUERY_LIMIT.format(**row)
-            )
+            await message.answer(InfoMessage.QUERY_LIMIT.format(**row))
         await message.answer(f'Done!{CHECK_MARK_BUTTON}', reply_markup=kb)
     else:
         await message.answer('The value entered is incorrect! Try again:')

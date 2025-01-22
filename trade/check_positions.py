@@ -21,39 +21,27 @@ async def handle_message(msg: dict[str, Any]) -> None:
     for trade in msg['data']:
         exec_time = int(trade['execTime'])
         now_in_milliseconds = int(time() * 1000)
-        if (
-            now_in_milliseconds - exec_time < MINUTE_IN_MILLISECONDS
-            and trade['category'] == LINEAR
-        ):
+        if now_in_milliseconds - exec_time < MINUTE_IN_MILLISECONDS and trade['category'] == LINEAR:
             await send_message(f'Conducted trade {InfoMessage.TRADE_MESSAGE.format(**trade)}')
             symbol: str = trade['symbol']
             position_list: list[dict[str, Any]] | None = await Market.get_open_positions(ticker=symbol[:-4])
             if position_list is None:
                 continue
             position: dict[str, Any] = position_list[0]
-            if (
-                Decimal(trade['closedSize']) == 0
-                and Decimal(position['trailingStop']) == 0
-            ):
+            if Decimal(trade['closedSize']) == 0 and Decimal(position['trailingStop']) == 0:
                 avg_price_str: str = position['avgPrice']
-                round_price: int = (
-                    len(avg_price_str.split('.')[1])
-                    if '.' in avg_price_str
-                    else 0
-                )
+                round_price: int = len(avg_price_str.split('.')[1]) if '.' in avg_price_str else 0
                 avg_price = Decimal(avg_price_str)
                 if trade['side'] == BUY:
                     trailing_stop, active_price = Long.get_trailing_stop_param(avg_price, round_price)
                 else:
                     trailing_stop, active_price = Short.get_trailing_stop_param(avg_price, round_price)
-                await Market.set_trailing_stop(
-                    symbol, str(trailing_stop), str(active_price)
-                )
+                await Market.set_trailing_stop(symbol, str(trailing_stop), str(active_price))
                 position['trailingStop'] = trailing_stop
             txt = (
                 'The position is completely closed.'
-                if Decimal(position['size']) == 0 else
-                f'Total position {InfoMessage.POSITION_MESSAGE.format(**position)}'
+                if Decimal(position['size']) == 0
+                else f'Total position {InfoMessage.POSITION_MESSAGE.format(**position)}'
             )
             await send_message(txt)
 

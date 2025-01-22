@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 class Market:
     """The class responsible for requests from the exchange."""
+
     @staticmethod
     async def get_symbol(ticker: str) -> str:
         """Check the symbol in the exchange listing."""
@@ -41,13 +42,9 @@ class Market:
         """Round the position parameters and open it."""
         # Calculation of transaction volume
         session_http: HTTP = await get_session_http()
-        min_order_qty: str = (
-            session_http.get_instruments_info(
-                category=LINEAR,
-                symbol=(symbol := f'{ticker}{USDT}'))
-            ['result']['list'][0]
-            ['lotSizeFilter']['minOrderQty']
-        )
+        min_order_qty: str = session_http.get_instruments_info(category=LINEAR, symbol=(symbol := f'{ticker}{USDT}'))[
+            'result'
+        ]['list'][0]['lotSizeFilter']['minOrderQty']
         round_volume: int = len(min_order_qty.split('.')[1]) if '.' in min_order_qty else 0
         # Calculation of rounding.
         asset_volume = str(
@@ -71,7 +68,7 @@ class Market:
                 price=str(entry_point),
                 takeProfit=str(take_profit),
                 stopLoss=str(stop),
-                orderFilter='Order'
+                orderFilter='Order',
             )
         except Exception as error:
             await log_and_send_error(logger, error, f'`place_order` {symbol} - {entry_point}')
@@ -81,7 +78,7 @@ class Market:
             'trigger': trigger,
             'entry_point': entry_point,
             'stop_loss': stop,
-            'take_profit': take_profit
+            'take_profit': take_profit,
         }
         # Write the opened order to the table and send a message about opening a position.
         await RowManager.add_row(OpenedOrder, open_order_params)
@@ -93,18 +90,10 @@ class Market:
         info: dict[str, Any] = (await get_session_http()).get_wallet_balance(accountType=ACCOUNT_TYPE, coin=USDT)
         coin: dict[str, Any] = info['result']['list'][0]['coin'][0]
         return {
-            'equity': round(
-                Decimal(coin['equity']), 2
-            ),
-            'unreal_pnl': round(
-                Decimal(coin['unrealisedPnl']), 2
-            ),
-            'balance': round(
-                Decimal(coin['walletBalance']), 2
-            ),
-            'real_pnl': round(
-                Decimal(coin['cumRealisedPnl']), 2
-            ),
+            'equity': round(Decimal(coin['equity']), 2),
+            'unreal_pnl': round(Decimal(coin['unrealisedPnl']), 2),
+            'balance': round(Decimal(coin['walletBalance']), 2),
+            'real_pnl': round(Decimal(coin['cumRealisedPnl']), 2),
         }
 
     @staticmethod

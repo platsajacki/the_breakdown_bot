@@ -46,8 +46,8 @@ async def get_ticker_order(message: Message, state: FSMContext) -> None:
                 entry_point = Decimal(order['price'])
                 msg: str = (
                     InfoMessage.ORDER_MESSAGE.format(**order)
-                    if entry_point != 0 else
-                    InfoMessage.ORDER_TP_SL_MESSAGE.format(**order)
+                    if entry_point != 0
+                    else InfoMessage.ORDER_TP_SL_MESSAGE.format(**order)
                 )
                 await message.answer(msg, reply_markup=kb)
         await state.clear()

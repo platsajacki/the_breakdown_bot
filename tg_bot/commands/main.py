@@ -83,15 +83,10 @@ async def enter_trend(message: Message, state: FSMContext) -> None:
     try:
         level = check_and_get_value(message)
         await state.update_data(level=level)
-        await message.answer(
-            'Enter the trend:',
-            reply_markup=kb_long_short
-        )
+        await message.answer('Enter the trend:', reply_markup=kb_long_short)
         await state.set_state(DBState.trend)
     except ValueError:
-        await message.answer(
-            'The value entered is incorrect! Try again:'
-        )
+        await message.answer('The value entered is incorrect! Try again:')
 
 
 @router.message(StateFilter(DBState.trend))
@@ -101,21 +96,13 @@ async def add_level(message: Message, state: FSMContext) -> None:
         await state.update_data(trend=trend)
         data: dict[str, Any] = await state.get_data()
     else:
-        await message.answer(
-            'The value entered is incorrect! Try again:'
-        )
+        await message.answer('The value entered is incorrect! Try again:')
         await state.set_state(DBState.trend)
     if await LevelDetector.check_level(**data):
         await RowManager.add_row(Ticker, data)
-        await message.answer(
-            f'Level is added! {CHECK_MARK_BUTTON}',
-            reply_markup=kb
-        )
+        await message.answer(f'Level is added! {CHECK_MARK_BUTTON}', reply_markup=kb)
     else:
-        await message.answer(
-            "The level doesn't meet the requirements!",
-            reply_markup=kb
-        )
+        await message.answer("The level doesn't meet the requirements!", reply_markup=kb)
     await state.clear()
 
 
@@ -136,9 +123,7 @@ async def start(message) -> None:
 async def trade_long(message: Message) -> None:
     """Change the trend to a long one."""
     await ConfigurationManager.change_trend(LONG)
-    await message.answer(
-        f'Long trading activated! {CHECK_MARK_BUTTON}'
-    )
+    await message.answer(f'Long trading activated! {CHECK_MARK_BUTTON}')
     await message.answer(CHART_INCREASING, reply_markup=kb)
     await start(message)
 
@@ -147,8 +132,6 @@ async def trade_long(message: Message) -> None:
 async def trade_short(message: Message) -> None:
     """Change the trend to a short one."""
     await ConfigurationManager.change_trend(SHORT)
-    await message.answer(
-        f'Short trading activated! {CHECK_MARK_BUTTON}'
-    )
+    await message.answer(f'Short trading activated! {CHECK_MARK_BUTTON}')
     await message.answer(CHART_DECREASING, reply_markup=kb)
     await start(message)

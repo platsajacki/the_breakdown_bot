@@ -53,9 +53,8 @@ async def check_long(ticker: str, mark_price: Decimal, round_price: int) -> None
     row = CONNECTED_TICKERS[ticker].get('row')
     if not CONNECTED_TICKERS[ticker]['price_movement']:
         return
-    if (
-        not isinstance(row, Row)
-        or datetime.now() - CONNECTED_TICKERS[ticker]['update_row'] > timedelta(seconds=WAITING_IN_SEC_FOR_NEW_LEVEL)
+    if not isinstance(row, Row) or datetime.now() - CONNECTED_TICKERS[ticker]['update_row'] > timedelta(
+        seconds=WAITING_IN_SEC_FOR_NEW_LEVEL
     ):
         CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, LONG)
         CONNECTED_TICKERS[ticker]['update_row'] = datetime.now()
@@ -103,9 +102,8 @@ async def check_short(ticker: str, mark_price: Decimal, round_price: int) -> Non
     row = CONNECTED_TICKERS[ticker].get('row')
     if not CONNECTED_TICKERS[ticker]['price_movement']:
         return
-    if (
-        not isinstance(row, Row)
-        or datetime.now() - CONNECTED_TICKERS[ticker]['update_row'] > timedelta(seconds=WAITING_IN_SEC_FOR_NEW_LEVEL)
+    if not isinstance(row, Row) or datetime.now() - CONNECTED_TICKERS[ticker]['update_row'] > timedelta(
+        seconds=WAITING_IN_SEC_FOR_NEW_LEVEL
     ):
         CONNECTED_TICKERS[ticker]['row'] = await TickerManager.get_current_level(ticker, SHORT)
         CONNECTED_TICKERS[ticker]['update_row'] = datetime.now()
